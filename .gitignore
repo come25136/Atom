@@ -1,0 +1,7 @@
+._.DS_Store
+/node_modules/*
+
+/.vscode
+/.history/*
+
+/raw_data/*
