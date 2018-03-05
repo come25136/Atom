@@ -15,12 +15,21 @@ interface Istop {
 }
 
 export default async (): Promise<Map<string, Istop>> => {
-  const stops = new Map<string, Istop>()
+  return new Promise<Map<string, Istop>>((resolve, reject) => {
+    createReadStream('./GTFS/stops.txt')
+      .pipe(
+        csvParser(
+          { columns: true },
+          (err: Error, data: Istop[]) => {
+            if (err) {
+              return reject(err)
+            }
 
-  return createReadStream('./GTFS/stops.txt')
-    .pipe(csvParser({ columns: true }, (err: Error, data: Istop[]) => {
-      data.forEach(stop => stops.set(stop.stop_id, stop))
-
-      return stops
-    }))
+            const stops = new Map<string, Istop>()
+            data.forEach(stop => stops.set(stop.stop_id, stop))
+            return resolve(stops)
+          }
+      )
+    )
+  })
 }
