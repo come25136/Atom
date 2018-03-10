@@ -10,9 +10,9 @@ import { extendMoment } from 'moment-range'
 
 import route from './libs/route'
 
-import { Ibus } from './interfaces'
-
 import * as unobus from './libs/unobus'
+
+import { Ibus } from './interfaces'
 
 process.chdir(process.argv[2] === 'true' ? process.cwd() : './')
 
@@ -85,7 +85,7 @@ io.on('connection', () => busesCache ? io.emit('unobus', [...busesCache.values()
 getBusLoop()
 
 // 系統番号と時刻から時刻表を取得
-app.get('/route/:lineNum/:date', (req, res) => route(req.params.lineNum, req.params.date).then(stops => res.json(stops)))
+app.get('/route/:lineNum/:date', (req, res) => route(req.params.lineNum, req.params.date).then(stops => res.json(stops)).catch(err => res.status(404).json({ error: { message: err.message } })))
 
 //httpサーバー起動
 server.listen(port, () => console.log(`UnoBus API wrap WebSocket server | port: ${port}`))
