@@ -66,7 +66,7 @@ async function getBusLoop() {
 
       busesCache = buses
 
-      io.of('unobus').emit('unobus', [...buses.values()])
+      io.emit('unobus', [...buses.values()])
     }
 
     const awaitTime = time.latest.add(times.reduce((prev, current) => prev + current) / times.length, 'ms').diff(moment())
@@ -80,7 +80,7 @@ async function getBusLoop() {
   }
 }
 
-io.of('unobus').on('connection', () => busesCache ? io.emit('unobus', [...busesCache.values()]) : null)
+io.on('connection', () => busesCache ? io.emit('unobus', [...busesCache.values()]) : null)
 
 getBusLoop()
 
