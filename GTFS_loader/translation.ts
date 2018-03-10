@@ -2,7 +2,7 @@ import { createReadStream } from 'fs'
 
 import * as csvParser from 'csv-parse'
 
-interface Itranslation {
+export interface Itranslation {
   trans_id: string
   lang: string
   translation: string

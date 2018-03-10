@@ -2,7 +2,7 @@ import { createReadStream } from 'fs'
 
 import * as csvParser from 'csv-parse'
 
-interface Istop {
+export interface Istop {
   trip_id: string
   arrival_time: string
   departure_time: string
