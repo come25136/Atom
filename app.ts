@@ -25,11 +25,6 @@ const
 
 app.disable('x-powered-by')
 
-interface Icache {
-  time: _moment.Moment
-  data: string
-}
-
 const times: number[] = [6000]
 
 let busesCache: Map<number, Ibus>
