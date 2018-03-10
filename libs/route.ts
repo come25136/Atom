@@ -21,7 +21,7 @@ let
   stopTimes: Map<string, { [key: string]: IstopTimes[] }>
 
 
-export default (line: number | string, _date: string) => new Promise<Istop[]>(async (resolve) => {
+export default (line: number | string, _date: string) => new Promise<Istop[]>(async (resolve, reject) => {
   if (!translations && !stops && !stopTimes)[translations, stops, stopTimes] = await Promise.all([_translations, _stops, _stopTimes])
 
   const
@@ -32,9 +32,9 @@ export default (line: number | string, _date: string) => new Promise<Istop[]>(as
   if (!routes || !routes[time]) {
     console.log(routes)
 
-    const err: Ierror = new Error('There is no such route')
+    const err: Ierror = new Error('There is no such route.')
     err.code = 404
-    throw err
+    return reject(err)
   }
 
   resolve(routes[time].map(stop_raw => {
