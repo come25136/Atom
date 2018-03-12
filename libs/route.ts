@@ -9,6 +9,7 @@ import { default as _stopTimes, Istop as IstopTimes } from '../GTFS_loader/stop_
 import { Ierror } from '../interfaces'
 
 interface Istop {
+  id: string
   name: Inames
   time: string
   lat: number
@@ -19,7 +20,6 @@ let
   translations: Map<string, Inames>,
   stops: Map<string, _Istop>,
   stopTimes: Map<string, { [key: string]: IstopTimes[] }>
-
 
 export default (line: number | string, _date: string) => new Promise<Istop[]>(async (resolve, reject) => {
   if (!translations && !stops && !stopTimes)[translations, stops, stopTimes] = await Promise.all([_translations, _stops, _stopTimes])
@@ -39,12 +39,14 @@ export default (line: number | string, _date: string) => new Promise<Istop[]>(as
 
   resolve(routes[time].map(stop_raw => {
     const stop = stops.get(stop_raw.stop_id) || {
+      stop_id: '',
       stop_name: '',
       stop_lat: 0,
       stop_lon: 0
     }
 
     return {
+      id: stop.stop_id,
       name: Object.assign({ ja: '', 'ja-Hrkt': '', en: '' }, translations.get(stop.stop_name)),
       time: moment(stop_raw.arrival_time, 'HH:mm:ss').toISOString(),
       lat: stop.stop_lat,
