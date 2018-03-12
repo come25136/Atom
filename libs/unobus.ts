@@ -14,6 +14,7 @@ import _stops from '../GTFS_loader/stops'
 import { default as _translations, Inames } from '../GTFS_loader/translation'
 
 import route from '../libs/route'
+import direction from './direction'
 
 import { Ierror, Ibus } from '../interfaces'
 
@@ -81,18 +82,21 @@ export const get = async (): Promise<{ change: boolean, buses: Map<number, Ibus>
 
   for (const bus of busesRaw) {
     const
-      first_stop = bus.first_stop.slice(3)
+      first_stop = bus.first_stop.slice(3),
+      time = moment(first_stop.substr(0, 5), 'HH:mm').toISOString()
 
     if (bus.passing_stop.substr(13, 3) !== '《着》') {
-      const stops = await route(bus.route_num, moment(first_stop.substr(0, 5), 'HH:mm').toISOString())
+      const stops = await route(bus.route_num, time)
 
       let passing: {
+        id?: string
         name?: Inames
         time?: string
         pass_time?: string
       } = {}
 
       let next: {
+        id?: string
         name?: Inames
         time?: string
       } = {}
@@ -102,6 +106,7 @@ export const get = async (): Promise<{ change: boolean, buses: Map<number, Ibus>
       stops.forEach(stop => {
         if (Object.keys(passing).length !== 0 && Object.keys(next).length === 0) {
           next = {
+            id: stop.id,
             name: stop.name,
             time: stop.time
           }
@@ -109,6 +114,7 @@ export const get = async (): Promise<{ change: boolean, buses: Map<number, Ibus>
 
         if (passing_stop_name.ja === stop.name.ja) {
           passing = {
+            id: stop.id,
             name: stop.name,
             time: stop.time,
             pass_time: moment(bus.passing_stop.slice(6, 11), 'HH:mm').toISOString()
@@ -118,6 +124,7 @@ export const get = async (): Promise<{ change: boolean, buses: Map<number, Ibus>
 
       buses.set(bus.license_number, {
         route_num: bus.route_num,
+        direction: await direction(passing.id ? passing.id : '', passing.id ? passing.id : '', bus),
         okayama_stop_time: bus.okayama_stop_time ? moment(bus.okayama_stop_time, 'HH:mm').toISOString() : '',
         delay: bus.delay,
         run: bus.run === '運休' ? false : true,
@@ -128,12 +135,14 @@ export const get = async (): Promise<{ change: boolean, buses: Map<number, Ibus>
         },
         stops: {
           first: {
+            id: stops[0].id,
             name: stops[0].name,
             time: stops[0].time
           },
           passing,
           next,
           last: {
+            id: stops[stops.length - 1].id,
             name: stops[stops.length - 1].name,
             time: stops[stops.length - 1].time
           }
