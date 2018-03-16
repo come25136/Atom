@@ -1,6 +1,6 @@
-import { PositionAsDecimal, Distance } from 'geolib';
+import { PositionAsDecimal, Distance } from "geolib";
 
-declare module 'geolib' {
+declare module "geolib" {
   function findNearest(
     latlng: PositionAsDecimal,
     coords: PositionAsDecimal[] | { [key: string]: PositionAsDecimal },
