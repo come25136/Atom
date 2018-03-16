@@ -6,7 +6,7 @@
   "author": "come25136",
   "license": "MPL-2.0",
   "scripts": {
-    "format": "npx prettier \"./**/*.ts\" --write"
+    "format": "prettier \"./**/*.ts\" --write"
   },
   "dependencies": {
     "csv": "^2.0.0",
