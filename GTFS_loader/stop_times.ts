@@ -1,41 +1,41 @@
-import { createReadStream } from "fs";
+import { createReadStream } from 'fs'
 
-import * as csvParser from "csv-parse";
+import * as csvParser from 'csv-parse'
 
 export interface Istop {
-  trip_id: string;
-  arrival_time: string;
-  departure_time: string;
-  stop_id: string;
-  stop_sequence: number;
-  stop_headsign: string;
-  pickup_type: number;
-  drop_off_type: number;
+  trip_id: string
+  arrival_time: string
+  departure_time: string
+  stop_id: string
+  stop_sequence: number
+  stop_headsign: string
+  pickup_type: number
+  drop_off_type: number
 }
 
 export default new Promise<Map<string, { [key: string]: Istop[] }>>(resolve => {
-  const routes = new Map<string, { [key: string]: Istop[] }>();
+  const routes = new Map<string, { [key: string]: Istop[] }>()
 
-  createReadStream("./GTFS/stop_times.txt").pipe(
+  createReadStream('./GTFS/stop_times.txt').pipe(
     csvParser({ columns: true }, (err: Error, data: Istop[]) => {
       data.forEach(stop => {
-        const trip_ids = stop.trip_id.split("_"),
-          type = trip_ids[0] === "平日" ? "weekday" : "holiday",
+        const trip_ids = stop.trip_id.split('_'),
+          type = trip_ids[0] === '平日' ? 'weekday' : 'holiday',
           id = `${type}_${trip_ids[2].substr(2)}`,
           time = `${trip_ids[1].substr(0, 2)}:${trip_ids[1].substr(3, 2)}`,
-          stops = routes.get(id);
+          stops = routes.get(id)
 
         routes.set(
           id,
-          typeof stops === "undefined"
+          typeof stops === 'undefined'
             ? { [time]: [stop] }
             : stops[time]
               ? Object.assign(stops, { [time]: [...stops[time], stop] })
               : Object.assign(stops, { [time]: [stop] })
-        );
-      });
+        )
+      })
 
-      resolve(routes);
+      resolve(routes)
     })
-  );
-});
+  )
+})
