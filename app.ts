@@ -14,6 +14,8 @@ import * as unobus from './libs/unobus'
 
 import { Ibus } from './interfaces'
 
+import { writeFile } from 'fs'
+
 process.chdir(process.argv[2] === 'true' ? process.cwd() : './')
 
 const
@@ -35,7 +37,7 @@ async function getBusLoop() {
   if (accessTime.contains(moment())) return setTimeout(getBusLoop, moment('6:30', 'H:mm').diff(moment()))
 
   try {
-    const { change, buses, time } = await unobus.get()
+    const { change, buses, time, raw } = await unobus.get()
 
     if (100 < times.length) times.shift()
     if (time.diff) times.push(time.diff)
@@ -43,7 +45,7 @@ async function getBusLoop() {
     if (times.length === 1 || buses.size === 0 || (busesCache && busesCache.size === 0 && buses.size === 0)) return setTimeout(getBusLoop, times[0])
 
     if (change) {
-      // writeFile(`./raw_data/${time.latest.format('YYYY-MM-DD HH-mm-ss')}.txt`, raw, err => err ? console.log(err) : null)
+      if (process.env.RAW_SAVE === 'true') writeFile(`./raw_data/${time.latest.format('YYYY-MM-DD HH-mm-ss')}.txt`, raw, err => err ? console.log(err) : null)
 
       if (busesCache && busesCache.values().next().value.license_number === buses.values().next().value.license_number) {
         console.log('\nmoved!!')
