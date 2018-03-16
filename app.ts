@@ -9,6 +9,7 @@ import * as _moment from 'moment'
 import { extendMoment } from 'moment-range'
 
 import route from './libs/route'
+import { default as stops, Istop } from './GTFS_loader/stops'
 
 import * as unobus from './libs/unobus'
 
@@ -80,6 +81,9 @@ async function getBusLoop() {
 io.on('connection', () => busesCache ? io.emit('unobus', [...busesCache.values()]) : null)
 
 getBusLoop()
+
+// 停留所を取得
+app.get('/stops', (req, res) => stops.then(stops => res.json([...stops.values()].reduce((previous: any, current) => previous.stop_id ? { [previous.stop_id]: previous, [current.stop_id]: current } : { ...previous, [current.stop_id]: current }))).catch(err => res.status(500).end()))
 
 // 系統番号と時刻から時刻表を取得
 app.get('/route/:lineNum/:date', (req, res) => route(req.params.lineNum, req.params.date).then(stops => res.json(stops)).catch(err => res.status(404).json({ error: { message: err.message } })))
