@@ -58,47 +58,6 @@ async function getBusLoop() {
           err => (err ? console.log(err) : null)
         )
 
-      if (
-        busesCache &&
-        busesCache.values().next().value.license_number ===
-          buses.values().next().value.license_number
-      ) {
-        console.log('\nmoved!!')
-        console.log(
-          `[${String(buses.values().next().value.license_number).substr(
-            0,
-            2
-          )}-${String(buses.values().next().value.license_number).substr(
-            2,
-            2
-          )}]`
-        )
-        console.log(times[times.length - 1] / 1000 + 's')
-
-        const distance = getDistance(
-          {
-            latitude: busesCache.values().next().value.location.lat,
-            longitude: busesCache.values().next().value.location.lon
-          },
-          {
-            latitude: buses.values().next().value.location.lat,
-            longitude: buses.values().next().value.location.lon
-          }
-        )
-
-        console.log(distance + 'm')
-        console.log(
-          distance === 0
-            ? '0km/h\n'
-            : (
-                distance /
-                1000 /
-                (times[times.length - 1] / 1000) *
-                3600
-              ).toFixed(5) + 'km/h\n'
-        )
-      }
-
       busesCache = buses
 
       io.emit('unobus', [...buses.values()])
