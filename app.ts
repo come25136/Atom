@@ -13,6 +13,8 @@ import { default as stops, Istop } from './GTFS_loader/stops'
 
 import * as unobus from './libs/unobus'
 
+import { mapToObj } from './libs/util'
+
 import { Ibus } from './interfaces'
 
 import { writeFile } from 'fs'
@@ -89,17 +91,7 @@ getBusLoop()
 // 停留所を取得
 app.get('/stops', (req, res) =>
   stops
-    .then(stops =>
-      res.json(
-        [...stops].reduce(
-          (prev, [k, v]) => ({
-            ...prev,
-            [k]: v
-          }),
-          {}
-        )
-      )
-    )
+    .then(stops => res.json(mapToObj(stops)))
     .catch(err => res.status(500).end())
 )
 
