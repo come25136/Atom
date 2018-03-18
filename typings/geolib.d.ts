@@ -1,4 +1,4 @@
-import { PositionAsDecimal, Distance } from 'geolib';
+import { PositionAsDecimal, Distance } from 'geolib'
 
 declare module 'geolib' {
   function findNearest(
@@ -6,5 +6,5 @@ declare module 'geolib' {
     coords: PositionAsDecimal[] | { [key: string]: PositionAsDecimal },
     offset?: number,
     limit?: number
-  ): Distance[] | Distance;
+  ): Distance[] | Distance
 }
