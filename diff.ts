@@ -55,31 +55,33 @@ function csv(data: string) {
 }
 
 translation.then(stopNames => {
-  readdir(path, (err, files) => {
+  readdir(path, async (err, files) => {
     if (err) throw err
 
-    Promise.all(files.map(filePath => readData(path + filePath)))
-      .then(async data => {
-        const a: string[] = []
+    const data = await Promise.all(
+      files.map(filePath => readData(path + filePath))
+    )
+    const a: string[] = []
 
-        for (let i = 0; i < data.length; i++) {
-          await csv(data[i]).then(names =>
-            names.forEach(
-              name =>
-                name.substr(0, 3) !== '《着》' && a.indexOf(name) === -1
-                  ? a.push(name)
-                  : null
-            )
-          )
-        }
+    for (let i = 0; i < data.length; i++) {
+      await csv(data[i]).then(names =>
+        names.forEach(
+          name =>
+            name.substr(0, 3) !== '《着》' && a.indexOf(name) === -1
+              ? a.push(name)
+              : null
+        )
+      )
+    }
 
-        const b: string[] = []
+    const b: string[] = []
 
-        a.forEach(name => (stopNames.delete(name) ? null : b.push(name)))
+    a.forEach(name => {
+      if (!stopNames[name]) b.push(name)
+      delete stopNames[name]
+    })
 
-        console.log(b, [...stopNames.keys()])
-        console.log()
-      })
-      .catch(err => console.error(err))
+    console.log(b, stopNames)
+    console.log()
   })
 })

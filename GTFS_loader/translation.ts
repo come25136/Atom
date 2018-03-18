@@ -14,20 +14,18 @@ export interface Inames {
   en: string
 }
 
-export default new Promise<Map<string, Inames>>(resolve => {
-  const stops = new Map<string, Inames>()
+export default new Promise<{ [k: string]: Inames }>(resolve => {
+  const stops: { [k: string]: Inames } = {}
 
   createReadStream('./GTFS/translations.txt').pipe(
     csvParser({ columns: true }, (err: Error, data: Itranslation[]) => {
-      data.forEach(stop =>
-        stops.set(
-          stop.trans_id,
-          Object.assign(
+      data.forEach(
+        stop =>
+          (stops[stop.trans_id] = Object.assign(
             { ja: '', 'ja-Hrkt': '', en: '' },
-            stops.get(stop.trans_id),
+            stops[stop.trans_id],
             { [stop.lang]: stop.translation }
-          )
-        )
+          ))
       )
 
       resolve(stops)

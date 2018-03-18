@@ -1,4 +1,4 @@
-import { getCompassDirection, getRhumbLineBearing } from 'geolib'
+import { getRhumbLineBearing } from 'geolib'
 
 import stopsPromise from '../GTFS_loader/stops'
 
@@ -8,7 +8,7 @@ export default async (
   bus: { lat: number; lon: number }
 ) => {
   const stops = await stopsPromise
-  const next = stops.get(nextId) || { stop_lat: 0, stop_lon: 0 }
+  const next = stops[nextId] || { stop_lat: 0, stop_lon: 0 }
 
   const bearing = getRhumbLineBearing(
     { latitude: bus.lat, longitude: bus.lon },

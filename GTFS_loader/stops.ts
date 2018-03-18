@@ -14,14 +14,15 @@ export interface Istop {
   location_type: number
 }
 
-export default new Promise<Map<string, Istop>>((resolve, reject) => {
+export default new Promise<{ [k: string]: Istop }>((resolve, reject) => {
   createReadStream('./GTFS/stops.txt').pipe(
     csvParser({ columns: true }, (err: Error, data: Istop[]) => {
       if (err) return reject(err)
+      if (!data) return resolve()
 
-      const stops = new Map<string, Istop>()
-      data.forEach(stop => stops.set(stop.stop_id, stop))
-      resolve(stops)
+      resolve(
+        data.reduce((prev, stop) => ({ ...prev, [stop.stop_id]: stop }), {})
+      )
     })
   )
 })

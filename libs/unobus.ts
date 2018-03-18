@@ -117,9 +117,9 @@ export const get = async (): Promise<{
         time?: string
       } = {}
 
-      const passing_stop_name = (await translations.get(
+      const passing_stop_name = (await translations[
         bus.passing_stop.substr(13)
-      )) || { ja: '' }
+      ]) || { ja: '' }
 
       stops.forEach(stop => {
         if (
