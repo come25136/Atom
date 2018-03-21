@@ -2,7 +2,7 @@
   "name": "unomap_wrapper",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "dist/app.js",
   "author": "come25136",
   "license": "MPL-2.0",
   "scripts": {
@@ -29,7 +29,6 @@
     "@types/socket.io": "^1.4.31",
     "@types/socket.io-client": "^1.4.32",
     "@types/superagent": "^3.5.7",
-    "ncmb": "^2.2.1",
     "typescript": "^2.7.1"
   }
 }
