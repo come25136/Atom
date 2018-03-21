@@ -7,7 +7,7 @@ export interface Ierror extends Error {
 export interface Ibus {
   route_num: number
   direction: number
-  okayama_stop_time: string
+  okayama_stop_time?: string
   delay: number
   run: boolean
   license_number: number

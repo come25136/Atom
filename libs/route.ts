@@ -46,7 +46,7 @@ export default async (
       ]
 
   if (!routes || !routes[time]) {
-    console.log(routes)
+    console.log(line, date.format(), time, routes)
 
     const err: Ierror = new Error('There is no such route.')
     err.code = 404
@@ -65,7 +65,7 @@ export default async (
       return {
         id: stop.stop_id,
         name: Object.assign(
-          { ja: '', 'ja-Hrkt': '', en: '' },
+          { ja: '', 'ja-Hrkt': '', en: undefined },
           translations[stop.stop_name]
         ),
         time: moment(stop_raw.arrival_time, 'HH:mm:ss').toISOString(),

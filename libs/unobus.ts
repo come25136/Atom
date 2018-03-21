@@ -9,8 +9,11 @@ import { extendMoment } from 'moment-range'
 
 import { isHoliday } from 'japanese-holidays'
 
-import _stopTimes from '../GTFS_loader/stop_times'
-import _stops from '../GTFS_loader/stops'
+import {
+  default as _stopTimes,
+  Istop as IstopTimes
+} from '../GTFS_loader/stop_times'
+import { default as _stops, Istop as _Istop } from '../GTFS_loader/stops'
 import { default as _translations, Inames } from '../GTFS_loader/translation'
 
 import route from '../libs/route'
@@ -34,6 +37,10 @@ interface IbusRaw {
 const csvParser = util.promisify<string, csvParse.Options, IbusRaw[]>(csvParse),
   moment = extendMoment(_moment)
 
+let stopTimes: { [key: string]: { [key: string]: IstopTimes[] } },
+  stops: { [k: string]: _Istop },
+  translations: { [k: string]: Inames }
+
 let cache: {
   time: {
     latest: _moment.Moment
@@ -42,19 +49,24 @@ let cache: {
   data: string
 }
 
-export const get = async (): Promise<{
+export const get = async (
+  data?: string,
+  date?: string
+): Promise<{
   change: boolean
   buses: Map<number, Ibus>
   time: { latest: _moment.Moment; diff?: number }
   raw: string
 }> => {
-  const [stopTimes, stops, translations] = await Promise.all([
+  ;[stopTimes, stops, translations] = await Promise.all([
     _stopTimes,
     _stops,
     _translations
   ])
 
-  const res = await superagent.get('http://www3.unobus.co.jp/GPS/unobus.txt')
+  const res = data
+    ? { text: data }
+    : await superagent.get('http://www3.unobus.co.jp/GPS/unobus.txt')
   let change = false
 
   if (!/\/\/LAST/.test(res.text)) {
@@ -63,8 +75,7 @@ export const get = async (): Promise<{
     throw error
   }
 
-  const date = moment(),
-    time = moment(res.text.substr(1, 8), 'HH:mm:ss')
+  const time = date ? moment(date) : moment(res.text.substr(1, 8), 'HH:mm:ss')
 
   if (!cache) cache = { time: { latest: time }, data: res.text }
 
@@ -94,15 +105,26 @@ export const get = async (): Promise<{
     ],
     comment: '//'
   })
+
   const day = isHoliday(moment().toDate()) ? 'holiday' : 'weekday',
     buses = new Map<number, Ibus>()
 
   for (const bus of busesRaw) {
-    const first_stop = bus.first_stop.slice(3),
-      time = moment(first_stop.substr(0, 5), 'HH:mm').toISOString()
+    const first_stop = bus.first_stop.slice(3)
 
     if (bus.passing_stop.substr(13, 3) !== '《着》') {
-      const stops = await route(bus.route_num, time)
+      const stops = await route(
+        bus.route_num,
+        date
+          ? moment(
+              `${time.format('YYYY-MM-DD')} ${first_stop.substr(
+                0,
+                2
+              )}:${first_stop.substr(3, 5)}`,
+              'YYYY-MM-DD HH:mm'
+            ).toISOString()
+          : moment(first_stop.substr(0, 5), 'HH:mm').toISOString()
+      )
 
       let passing: {
         id?: string
@@ -155,7 +177,7 @@ export const get = async (): Promise<{
         ),
         okayama_stop_time: bus.okayama_stop_time
           ? moment(bus.okayama_stop_time, 'HH:mm').toISOString()
-          : '',
+          : undefined,
         delay: bus.delay,
         run: bus.run === '運休' ? false : true,
         license_number: bus.license_number,

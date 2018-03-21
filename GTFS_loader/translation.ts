@@ -11,7 +11,7 @@ export interface Itranslation {
 export interface Inames {
   ja: string
   'ja-Hrkt': string
-  en: string
+  en?: string
 }
 
 export default new Promise<{ [k: string]: Inames }>(resolve => {
@@ -22,7 +22,7 @@ export default new Promise<{ [k: string]: Inames }>(resolve => {
       data.forEach(
         stop =>
           (stops[stop.trans_id] = Object.assign(
-            { ja: '', 'ja-Hrkt': '', en: '' },
+            { ja: '', 'ja-Hrkt': '', en: undefined },
             stops[stop.trans_id],
             { [stop.lang]: stop.translation }
           ))
