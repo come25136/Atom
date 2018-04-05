@@ -1,6 +1,8 @@
-import { createReadStream } from 'fs'
+import { readdir, createReadStream } from 'fs'
 
 import * as csvParser from 'csv-parse'
+
+import { getDataDir } from '../util'
 
 export interface Itranslation {
   trans_id: string
@@ -10,25 +12,42 @@ export interface Itranslation {
 
 export interface Inames {
   ja: string
-  'ja-Hrkt': string
+  'ja-Hira': string
   en?: string
 }
 
-export default new Promise<{ [k: string]: Inames }>(resolve => {
-  const stops: { [k: string]: Inames } = {}
+interface Itranslations {
+  [k: string]: {
+    [k: string]: Inames
+  }
+}
 
-  createReadStream('./GTFS/translations.txt').pipe(
-    csvParser({ columns: true }, (err: Error, data: Itranslation[]) => {
-      data.forEach(
-        stop =>
-          (stops[stop.trans_id] = Object.assign(
-            { ja: '', 'ja-Hrkt': '', en: undefined },
-            stops[stop.trans_id],
-            { [stop.lang]: stop.translation }
-          ))
-      )
+export default new Promise<Itranslations>(resolve => {
+  console.log(getDataDir)
+  readdir(getDataDir(), async (err, dires) => {
+    const companies: Itranslations = {}
 
-      resolve(stops)
-    })
-  )
+    for (let i = 0; i < dires.length; i++) {
+      companies[dires[i]] = await new Promise<{ [k: string]: Inames }>(resolve => {
+        const stops: { [k: string]: Inames } = {}
+
+        createReadStream(`${getDataDir()}/${dires[i]}/gtfs/expansion/translations.txt`).pipe(
+          csvParser({ columns: true }, (err: Error, data: Itranslation[]) => {
+            data.forEach(
+              stop =>
+                (stops[stop.trans_id] = Object.assign(
+                  { ja: '', 'ja-Hira': '', en: undefined },
+                  stops[stop.trans_id],
+                  { [stop.lang]: stop.translation }
+                ))
+            )
+
+            resolve(stops)
+          })
+        )
+      })
+    }
+
+    resolve(companies)
+  })
 })

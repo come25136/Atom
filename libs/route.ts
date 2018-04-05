@@ -1,23 +1,20 @@
-import * as moment from 'moment'
+import { h24ToLessH24 } from './util'
+
+import * as _moment from 'moment'
+import { extendMoment } from 'moment-range'
 
 import { isHoliday } from 'japanese-holidays'
 
-import { default as _translations, Inames } from '../GTFS_loader/translation'
-import { default as _stops, Istop as _Istop } from '../GTFS_loader/stops'
+import { default as _translations, Inames } from './gtfs_loader/translation'
+import { default as _stops, Istop as _Istop } from './gtfs_loader/stops'
 import {
   default as _stopTimes,
   Istop as IstopTimes
-} from '../GTFS_loader/stop_times'
+} from './gtfs_loader/stop_times'
 
-import { Ierror } from '../interfaces'
+import { Ierror, Istop } from '../interfaces'
 
-interface Istop {
-  id: string
-  name: Inames
-  time: string
-  lat: number
-  lon: number
-}
+const moment = extendMoment(_moment)
 
 let translations: { [k: string]: Inames },
   stops: { [k: string]: _Istop },
@@ -25,7 +22,7 @@ let translations: { [k: string]: Inames },
 
 export default async (
   line: number | string,
-  _date: string
+  date: _moment.Moment
 ): Promise<Istop[]> => {
   if (!translations && !stops && !stopTimes)
     [translations, stops, stopTimes] = await Promise.all([
@@ -34,8 +31,7 @@ export default async (
       _stopTimes
     ])
 
-  const date = moment(_date),
-    time = date.format('HH:mm'),
+  const time = date.format('HH:mm'),
     routes =
       stopTimes[
         `${
@@ -68,9 +64,13 @@ export default async (
           { ja: '', 'ja-Hrkt': '', en: undefined },
           translations[stop.stop_name]
         ),
-        time: moment(stop_raw.arrival_time, 'HH:mm:ss').toISOString(),
-        lat: stop.stop_lat,
-        lon: stop.stop_lon
+        time: {
+          schedule: stop_raw.arrival_time
+        },
+        location: {
+          lat: stop.stop_lat,
+          lon: stop.stop_lon
+        }
       }
     })
   )

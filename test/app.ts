@@ -1,12 +1,9 @@
-import { readdir, readFile, appendFileSync } from 'fs'
-
-import * as csvParse from 'csv-parse'
+import { readdir, readFileSync, writeFileSync } from 'fs'
 
 import * as moment from 'moment'
 
-import * as unobus from '../libs/unobus'
-
-import { Ibus } from '../interfaces'
+import { basumada, rawToObject } from '../libs/basumada'
+import { createBusToBroadcastObject } from '../libs/util'
 
 interface IbusRaw {
   route_num: number
@@ -21,84 +18,67 @@ interface IbusRaw {
   final_stop: string
 }
 
-const path = './raw_data/'
-
-function readData(path: string) {
-  return new Promise<string>((resolve, reject) =>
-    readFile(
-      path,
-      (err, data) => (err ? reject(err) : resolve(data.toString()))
-    )
-  )
-}
-
-function csv(data: string) {
-  return new Promise<string[]>(resolve =>
-    csvParse(
-      data.substr(11),
-      {
-        columns: [
-          'route_num',
-          'okayama_stop_time',
-          'delay',
-          'run',
-          'passing_stop',
-          'license_number',
-          'lat',
-          'lon',
-          'first_stop',
-          'final_stop'
-        ],
-        comment: '//'
-      },
-      (err: Error, busesRaw: IbusRaw[]) =>
-        // resolve(busesRaw.map(bus => bus.first_stop.substr(9))))
-        resolve(busesRaw.map(bus => bus.passing_stop.substr(13)))
-    )
-  )
-}
+const path = './test/test_data/'
 
 readdir(path, async (err, files) => {
   if (err) throw err
 
+  let cache: {
+    date: {
+      latest: moment.Moment
+      diff?: number
+    }
+    data: {
+      raw: string
+      buses?: basumada['buses']
+    }
+  }
+
   console.time('/libs/unobus.ts')
 
-  const data = await Promise.all(
-    files.map(async filePath =>
-      unobus
-        .get(
-          await readData(path + filePath),
-          moment(filePath.split('.')[0], 'YYYY-MM-DD hh-mm-ss').toISOString()
-        )
-        .catch(err => console.log(filePath))
+  const data: basumada[] = []
+
+  for (let i = 0; i < files.length; i++) {
+    data.push(
+      await rawToObject(
+        readFileSync(path + files[i], { encoding: 'utf-8' }),
+        undefined,
+        moment(files[i].split('.')[0], 'YYYY-MM-DD hh-mm-ss')
+      ).catch(err => {
+        console.log(files[i])
+        throw err
+      })
     )
-  )
-
-  console.log('Data analysis completed.')
-
-  const fileName = `./test/result/${moment().format('YYYY-MM-DD HH-mm-ss')}.log`
-
-  let errFlag = false
-
-  data.forEach(unobus => {
-    if (!unobus || !unobus.buses) {
-      errFlag = true
-      if (process.argv[2] === 'true') appendFileSync(fileName, data, 'utf-8')
-      return
-    }
-
-    if (process.argv[2] === 'true')
-      appendFileSync(
-        fileName,
-        JSON.stringify([...unobus.buses.values()]) + '\n',
-        'utf-8'
-      )
-  })
+  }
 
   console.timeEnd('/libs/unobus.ts')
+  console.log('Data analytics completed.')
+  console.log('Test start.')
+  let errFlag = false
+
+  const result = await Promise.all(
+    data.map(async data => {
+      if (!data || !data.buses) {
+        errFlag = true
+        if (process.argv[2] === 'true') return data
+      }
+
+      return await Promise.all(
+        Object.values(data.buses).map(bus => createBusToBroadcastObject(bus))
+      )
+    })
+  )
 
   errFlag
     ? console.log('An error occurred. Please check the log.')
     : console.log('unobus.ts test success.')
-  console.log()
+
+  if (process.argv[2] === 'true') {
+    const fileName = `${moment().format('YYYY-MM-DD HH-mm-ss')}.log`,
+      filePath = `./test/result/${fileName}`
+
+    console.log(`The test result is saving in ${fileName}.`)
+
+    writeFileSync(filePath, JSON.stringify(result))
+  }
 })

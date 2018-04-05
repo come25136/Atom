@@ -2,7 +2,7 @@ import { readdir, readFile } from 'fs'
 
 import * as csvParser from 'csv-parse'
 
-import translation from './GTFS_loader/translation'
+import translation from './libs/gtfs_loader/translation'
 
 interface IbusRaw {
   route_num: number
