@@ -1,48 +1,50 @@
-import { readdir, createReadStream } from 'fs'
+import { promisify } from 'util'
 
-import * as csvParser from 'csv-parse'
+import * as fs from 'fs'
+
+import * as csvParse from 'csv-parse'
 
 import { getDataDir } from '../util'
 
-export interface Istop {
+interface Istop {
   stop_id: string
   stop_code?: string
   stop_name: string
-  stop_desc?: null
+  stop_desc?: string
   stop_lat: number
   stop_lon: number
   zone_id?: string
-  stop_url?: null
+  stop_url?: string
   location_type?: number
   parent_station?: string
   stop_timezone?: string
   wheelchair_boarding?: string
 }
 
-interface Istops {
+export interface Istops {
   [k: string]: {
     [k: string]: Istop
   }
 }
 
-export default new Promise<Istops>(resolve => {
-  console.log(getDataDir)
-  readdir(getDataDir(), async (err, dires) => {
-    const companies: Istops = {}
+const readDir = promisify(fs.readdir),
+  readFile = promisify(fs.readFile),
+  csvParser = promisify<string, csvParse.Options, Istop[]>(csvParse)
 
-    for (let i = 0; i < dires.length; i++) {
-      companies[dires[i]] = await new Promise<{ [k: string]: Istop }>((resolve, reject) => {
-        createReadStream(`${getDataDir()}/${dires[i]}/gtfs/stops.txt`).pipe(
-          csvParser({ columns: true }, (err: Error, data: Istop[]) => {
-            if (err) return reject(err)
-            if (!data) return resolve()
+const companies: Istops = {}
 
-            resolve(data.reduce((prev, stop) => ({ ...prev, [stop.stop_id]: stop }), {}))
-          })
-        )
-      })
-    }
+export default async function() {
+  if (Object.keys(companies).length) return companies
 
-    resolve(companies)
-  })
-})
+  const dirs = await readDir(getDataDir())
+
+  for (let dir of dirs) {
+    const rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/stops.txt`, 'utf8'), {
+      columns: true
+    })
+
+    companies[dir] = rows && rows.reduce((prev, stop) => ({ ...prev, [stop.stop_id]: stop }), {})
+  }
+
+  return companies
+}

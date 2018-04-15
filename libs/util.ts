@@ -5,12 +5,7 @@ import direction from '../libs/direction'
 
 import { createBus } from './classes/create_bus'
 
-import {
-  Istop,
-  broadcastLocation,
-  broadcastStop,
-  broadcastData
-} from '../interfaces'
+import { Istop, broadcastLocation, broadcastStop, broadcastData } from '../interfaces'
 
 const moment = extendMoment(_moment)
 
@@ -76,19 +71,13 @@ export function locationToBroadcastLocation({
   }
 }
 
-export async function createBusToBroadcastObject(
-  bus: createBus
-): Promise<broadcastData> {
+export async function createBusToBroadcastObject(bus: createBus): Promise<broadcastData> {
   return {
     run: bus.isRun,
     license_number: bus.licenseNumber,
     delay: bus.delay,
     route_num: bus.routeNumber,
-    direction: await direction(
-      bus.passingStop.id,
-      bus.nextStop.id,
-      bus.location
-    ),
+    direction: await direction(bus.passingStop.location, bus.nextStop.location, bus.location),
     stations: bus.stations.map(station => stopToBroadcastStop(station)),
     location: locationToBroadcastLocation(bus.location),
     stops: {

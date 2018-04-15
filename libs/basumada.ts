@@ -26,6 +26,7 @@ const csvParser = util.promisify<string, csvParse.Options, IbusRaw[]>(csvParse),
   moment = extendMoment(_moment)
 
 export async function rawToObject(
+  companyName: string,
   rawData: string,
   comparisonRawData?: string,
   _date?: _moment.Moment
@@ -60,15 +61,10 @@ export async function rawToObject(
   )) {
     const bus = new createBus(
       busRaw,
-      await route(
-        busRaw.routeNum,
-        h24ToLessH24(busRaw.firstStop.substr(3, 5), date)
-      ),
+      await route('unobus', busRaw.routeNum, h24ToLessH24(busRaw.firstStop.substr(3, 5), date)),
       {
         time: busRaw.passingStop.substr(6, 5),
-        name: await translations.then(
-          stops => stops[busRaw.passingStop.substr(13)]
-        )
+        name: await translations().then(stops => stops[companyName][busRaw.passingStop.substr(13)])
       },
       rawData.substr(0, 8)
     )
@@ -77,10 +73,7 @@ export async function rawToObject(
   }
 
   return {
-    change:
-      comparisonRawData && comparisonRawData.substr(9) === rawData.substr(9)
-        ? false
-        : true,
+    change: comparisonRawData && comparisonRawData.substr(9) === rawData.substr(9) ? false : true,
     buses,
     date,
     raw: rawData

@@ -4,7 +4,7 @@ import * as _moment from 'moment'
 import { extendMoment } from 'moment-range'
 
 import route from './libs/route'
-import { default as stops, Istop } from './libs//gtfs_loader/stops'
+import { default as stops } from './libs//gtfs_loader/stops'
 
 import { rawToObject, basumada } from './libs/basumada'
 
@@ -14,6 +14,8 @@ import { writeFile } from 'fs'
 
 import { Server as httpServer } from 'http'
 import * as express from 'express'
+
+import * as cors from 'cors'
 
 import * as socketIo from 'socket.io'
 
@@ -29,21 +31,19 @@ const moment = extendMoment(_moment),
 
 app.disable('x-powered-by')
 
+app.use(cors())
+
 const times: number[] = [6000]
 
 const cache: {
-  date: {
-    diff?: number
-  }
+  date?: _moment.Moment
   data: {
     raw?: string
     buses?: broadcastData[]
     createBuses?: basumada['buses']
   }
 } = {
-  date: {
-    diff: undefined
-  },
+  date: undefined,
   data: {
     raw: undefined,
     buses: undefined,
@@ -52,31 +52,25 @@ const cache: {
 }
 
 async function getBusLoop() {
-  if (
-    moment
-      .range(moment('1:30', 'H:mm'), moment('6:30', 'H:mm'))
-      .contains(moment())
-  )
+  if (moment.range(moment('1:30', 'H:mm'), moment('6:30', 'H:mm')).contains(moment()))
     return setTimeout(getBusLoop, moment('6:30', 'H:mm').diff(moment()))
 
   try {
     const { change, buses, date, raw } = await rawToObject(
-      await superagent
-        .get('http://www3.unobus.co.jp/GPS/unobus.txt')
-        .then(res => res.text),
+      'unobus',
+      await superagent.get('http://www3.unobus.co.jp/GPS/unobus.txt').then(res => res.text),
       cache.data.raw
     )
 
+    const diff = cache.date ? date.diff(cache.date) : 6000
+
+    cache.date = date
     cache.data.raw = raw
 
+    times.push(0 <= diff ? diff : 3000)
     if (10 < times.length) times.shift()
-    // if (time.diff) times.push(0 <= time.diff ? time.diff : 3000)
 
-    if (
-      // times.length === 1 ||
-      Object.keys(buses).length === 0
-    )
-      return setTimeout(getBusLoop, times[0])
+    if (Object.keys(buses).length === 0) return setTimeout(getBusLoop, times[0])
 
     if (change) {
       if (process.env.RAW_SAVE === 'true')
@@ -92,68 +86,52 @@ async function getBusLoop() {
         Object.values(buses).map(bus => createBusToBroadcastObject(bus))
       )
 
-      /*
-      {
-        run: bus.isRun,
-        license_number: bus.getLicenseNumber,
-        delay: bus.getDelay,
-        route_num: bus.getRouteNumber,
-        direction: await direction(
-          bus.getStops.passing.id ? bus.getStops.passing.id : '',
-          bus.getStops.next.id ? bus.getStops.next.id : '',
-          bus.getLocation
-        ),
-        okayama_station: {
-          pass: bus.getOkayamaStation.pass,
-          time: bus.getOkayamaStation.time
-            ? bus.getOkayamaStation.time.format()
-            : undefined
-        },
-        location: bus.getLocation,
-        stops: bus.getStops
-      }
-      */
-
-      io.emit('unobus', buses)
+      io.emit('unobus', cache.data.buses)
     }
 
-    const awaitTime = date
+    let awaitTime = date
       .clone()
       .add(times.reduce((prev, current) => prev + current) / times.length, 'ms')
       .diff(moment())
+    awaitTime = 0 < awaitTime && awaitTime <= 60000 ? awaitTime : 3000 // 1分以上待つのはありえないので
 
-    console.log(
-      `It gets the data after ${(0 < awaitTime ? awaitTime : 3000) /
-        1000} seconds.`
-    )
+    console.log(`It gets the data after ${awaitTime / 1000} seconds.`)
 
-    setTimeout(getBusLoop, 0 < awaitTime ? awaitTime : 3000)
+    setTimeout(getBusLoop, awaitTime)
   } catch (err) {
     console.log(err)
     setTimeout(getBusLoop, 1000)
   }
 }
-/*
-io.on(
-  'connection',
-  () => (busesCache ? io.emit('unobus', [...busesCache.values()]) : null)
-)
-*/
+
+io.on('connection', socket => (cache.data.buses ? socket.emit('unobus', cache.data.buses) : null))
+
 getBusLoop()
 
 // 停留所を取得
-app.get('/stops', (req, res) =>
-  stops.then(stops => res.json(stops)).catch(err => res.status(500).end())
+app.get('/:companyName/stops', (req, res) =>
+  stops()
+    .then(stops => res.json(stops[req.params.companyName]))
+    .catch(err => res.status(500).end())
+)
+
+app.get('/:companyName/stops/:id', (req, res) =>
+  stops()
+    .then(
+      stops =>
+        stops[req.params.companyName][req.params.id]
+          ? res.json(stops[req.params.companyName][req.params.id])
+          : res.status(404).json({ error: { message: 'There is no such bus stop.' } })
+    )
+    .catch(err => res.status(500).end())
 )
 
 // 系統番号と時刻から時刻表を取得
 app.get('/:companyName/route/:routeNum/:date', (req, res) =>
-  route(req.params.routeNum, req.params.date)
+  route(req.params.companyName, req.params.routeNum, req.params.date)
     .then(stops => res.json(stops))
     .catch(err => res.status(404).json({ error: { message: err.message } }))
 )
 
 //httpサーバー起動
-server.listen(port, () =>
-  console.log(`UnoBus API wrap WebSocket server | port: ${port}`)
-)
+server.listen(port, () => console.log(`UnoBus API wrap WebSocket server | port: ${port}`))

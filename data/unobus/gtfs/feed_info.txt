@@ -1,2 +1,2 @@
 ﻿feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
-宇野自動車株式会社,http://www.unobus.co.jp/,ja,20170704,20180703,20170908_2017年09月08日（宇野バス★本番★）
+宇野自動車株式会社,http://www.unobus.co.jp/,ja,20180415,20190415,20180415_2018年04月15日（本番）

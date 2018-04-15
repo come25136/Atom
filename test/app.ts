@@ -41,6 +41,7 @@ readdir(path, async (err, files) => {
   for (let i = 0; i < files.length; i++) {
     data.push(
       await rawToObject(
+        'unobus',
         readFileSync(path + files[i], { encoding: 'utf-8' }),
         undefined,
         moment(files[i].split('.')[0], 'YYYY-MM-DD hh-mm-ss')

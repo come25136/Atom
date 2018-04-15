@@ -21,10 +21,7 @@ const path = './raw_data/'
 
 function readData(path: string) {
   return new Promise<string>((resolve, reject) =>
-    readFile(
-      path,
-      (err, data) => (err ? reject(err) : resolve(data.toString()))
-    )
+    readFile(path, (err, data) => (err ? reject(err) : resolve(data.toString())))
   )
 }
 
@@ -54,22 +51,17 @@ function csv(data: string) {
   )
 }
 
-translation.then(stopNames => {
+translation().then(stopNames => {
   readdir(path, async (err, files) => {
     if (err) throw err
 
-    const data = await Promise.all(
-      files.map(filePath => readData(path + filePath))
-    )
+    const data = await Promise.all(files.map(filePath => readData(path + filePath)))
     const a: string[] = []
 
     for (let i = 0; i < data.length; i++) {
       await csv(data[i]).then(names =>
         names.forEach(
-          name =>
-            name.substr(0, 3) !== '《着》' && a.indexOf(name) === -1
-              ? a.push(name)
-              : null
+          name => (name.substr(0, 3) !== '《着》' && a.indexOf(name) === -1 ? a.push(name) : null)
         )
       )
     }

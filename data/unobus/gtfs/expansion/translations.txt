@@ -1,18 +1,20 @@
 ﻿trans_id,lang,translation
 岡山駅,ja,岡山駅
 岡山駅,ja-Hira,おかやまえき
-岡山駅,en,Okatama St.
+岡山駅,en,Okatama Station
 岡山駅(Okayama sta.),ja,岡山駅
 岡山駅(Okayama sta.),ja-Hira,おかやまえき
-岡山駅(Okayama sta.),en,Okatama St.
+岡山駅(Okayama sta.),en,Okayama Station
 柳川西（北側）東岡山,ja,柳川西（北側）東岡山
 柳川西（北側）東岡山,ja-Hira,やながわにし
 岡山駅前・ドレミの街,ja,岡山駅前・ドレミの街
 岡山駅前・ドレミの街,ja-Hira,おかやまえきまえ
+岡山駅前・ドレミの街,en,Okatama Ekimae Doremi
 柳川西（北側）,ja,柳川西（北側）
 柳川西（北側）,ja-Hira,やながわにし
 柳川,ja,柳川
 柳川,ja-Hira,やながわ
+柳川,en,Yanagawa
 柳川西（南側）,ja,柳川西（南側）
 柳川西（南側）,ja-Hira,やながわにし
 表町入口,ja,表町入口
@@ -254,6 +256,7 @@
 馬屋下,ja-Hira,まやしも
 馬屋,ja,馬屋
 馬屋,ja-Hira,まや
+馬屋,en,Maya
 新道穂崎下,ja,新道穂崎下
 新道穂崎下,ja-Hira,しんどうほさきしも
 岩田,ja,岩田
