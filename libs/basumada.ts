@@ -6,10 +6,11 @@ import * as csvParse from 'csv-parse'
 import * as _moment from 'moment'
 import { extendMoment } from 'moment-range'
 
-import { default as translations } from './gtfs_loader/translation'
+import translations from './gtfs_loader/translation'
+
+import stations from './station_loader'
 
 import route from '../libs/route'
-import direction from './direction'
 
 import { IbusRaw, createBus } from './classes/create_bus'
 
@@ -56,12 +57,14 @@ export async function rawToObject(
 
   const buses: { [k: string]: createBus } = {}
 
-  for (const busRaw of busesRaw.filter(
-    busRaw => (busRaw.passingStop.substr(13, 3) === '《着》' ? false : true)
-  )) {
+  for (const busRaw of busesRaw) {
+    if (busRaw.passingStop.substr(13, 3) === '《着》') break
+
     const bus = new createBus(
+      'unobus',
       busRaw,
       await route('unobus', busRaw.routeNum, h24ToLessH24(busRaw.firstStop.substr(3, 5), date)),
+      await stations().then(data => data.unobus),
       {
         time: busRaw.passingStop.substr(6, 5),
         name: await translations().then(stops => stops[companyName][busRaw.passingStop.substr(13)])
@@ -73,7 +76,11 @@ export async function rawToObject(
   }
 
   return {
-    change: comparisonRawData && comparisonRawData.substr(9) === rawData.substr(9) ? false : true,
+    change:
+      comparisonRawData &&
+      comparisonRawData.substr(9).replace(/.+《着》.+\n/, '') === rawData.substr(9).replace(/.+《着》.+\n/, '')
+        ? false
+        : true,
     buses,
     date,
     raw: rawData

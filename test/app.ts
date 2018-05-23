@@ -38,15 +38,15 @@ readdir(path, async (err, files) => {
 
   const data: basumada[] = []
 
-  for (let i = 0; i < files.length; i++) {
+  for (const file of files) {
     data.push(
       await rawToObject(
         'unobus',
-        readFileSync(path + files[i], { encoding: 'utf-8' }),
+        readFileSync(path + file, { encoding: 'utf-8' }),
         undefined,
-        moment(files[i].split('.')[0], 'YYYY-MM-DD hh-mm-ss')
+        moment(file.split('.')[0], 'YYYY-MM-DD hh-mm-ss')
       ).catch(err => {
-        console.log(files[i])
+        console.log(file)
         throw err
       })
     )
@@ -64,15 +64,11 @@ readdir(path, async (err, files) => {
         if (process.argv[2] === 'true') return data
       }
 
-      return await Promise.all(
-        Object.values(data.buses).map(bus => createBusToBroadcastObject(bus))
-      )
+      return await Promise.all(Object.values(data.buses).map(bus => createBusToBroadcastObject(bus)))
     })
   )
 
-  errFlag
-    ? console.log('An error occurred. Please check the log.')
-    : console.log('unobus.ts test success.')
+  errFlag ? console.log('An error occurred. Please check the log.') : console.log('unobus.ts test success.')
 
   if (process.argv[2] === 'true') {
     const fileName = `${moment().format('YYYY-MM-DD HH-mm-ss')}.log`,

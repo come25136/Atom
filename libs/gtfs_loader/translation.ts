@@ -37,18 +37,15 @@ export default async function() {
 
   for (let dir of dirs) {
     const stops: { [k: string]: Inames } = {},
-      rows = await csvParser(
-        await readFile(`${getDataDir()}/${dir}/gtfs/expansion/translations.txt`, 'utf8'),
-        { columns: true }
-      )
+      rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/expansion/translations.txt`, 'utf8'), {
+        columns: true
+      })
 
     rows.forEach(
       stop =>
-        (stops[stop.trans_id] = Object.assign(
-          { ja: '', 'ja-Hira': '', en: undefined },
-          stops[stop.trans_id],
-          { [stop.lang]: stop.translation }
-        ))
+        (stops[stop.trans_id] = Object.assign({ ja: '', 'ja-Hira': '', en: undefined }, stops[stop.trans_id], {
+          [stop.lang]: stop.translation
+        }))
     )
 
     companies[dir] = stops

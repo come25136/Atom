@@ -16,7 +16,7 @@ export interface calendarDates {
   // バス会社名(ディレクトリ名)
   [k: string]: {
     // trip_id
-    [k: string]: row
+    [k: string]: row[]
   }
 }
 
@@ -31,13 +31,23 @@ export default async function() {
 
   const dirs = await readDir(getDataDir())
 
-  for (let dir of dirs) {
+  for (const dir of dirs) {
     const routes: { [k: string]: row[] } = {},
-      rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/calendar.txt`, 'utf8'), {
+      rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/calendar_dates.txt`, 'utf8'), {
         columns: true
       })
 
-    companies[dir] = rows && rows.reduce((prev, stop) => ({ ...prev, [stop.service_id]: stop }), {})
+    const calendar: { [k: string]: row[] } = {}
+
+    rows.forEach(row => {
+      if (!calendar[row.service_id]) calendar[row.service_id] = []
+
+      row.exception_type = Number(row.exception_type)
+
+      calendar[row.service_id].push(row)
+    })
+
+    companies[dir] = calendar
   }
 
   return companies

@@ -6,7 +6,7 @@ import * as csvParse from 'csv-parse'
 
 import { getDataDir } from '../util'
 
-interface Istop {
+export interface Istop {
   stop_id: string
   stop_code?: string
   stop_name: string

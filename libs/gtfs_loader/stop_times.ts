@@ -6,7 +6,7 @@ import * as csvParse from 'csv-parse'
 
 import { getDataDir } from '../util'
 
-interface Istop {
+export interface Istop {
   trip_id: string
   arrival_time: string
   departure_time: string
@@ -38,7 +38,7 @@ export default async function() {
 
   const dirs = await readDir(getDataDir())
 
-  for (let dir of dirs) {
+  for (const dir of dirs) {
     const routes: { [k: string]: Istop[] } = {},
       rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/stop_times.txt`, 'utf8'), {
         columns: true
@@ -49,8 +49,7 @@ export default async function() {
       routes[stop.trip_id].push(stop)
     })
 
-    for (const stops of Object.values(routes))
-      stops.sort((a, b) => a.stop_sequence - b.stop_sequence)
+    for (const stops of Object.values(routes)) stops.sort((a, b) => a.stop_sequence - b.stop_sequence)
 
     companies[dir] = routes
   }

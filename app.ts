@@ -3,12 +3,7 @@ import * as superagent from 'superagent'
 import * as _moment from 'moment'
 import { extendMoment } from 'moment-range'
 
-import route from './libs/route'
-import { default as stops } from './libs//gtfs_loader/stops'
-
-import { rawToObject, basumada } from './libs/basumada'
-
-import { getDistance } from 'geolib'
+import { rawToObject } from './libs/basumada'
 
 import { writeFile } from 'fs'
 
@@ -23,6 +18,8 @@ import { createBusToBroadcastObject } from './libs/util'
 
 import { broadcastData } from './interfaces'
 
+import wwwRoot from './routes'
+
 const moment = extendMoment(_moment),
   app = express(),
   port = process.env.PORT || 3000,
@@ -33,21 +30,21 @@ app.disable('x-powered-by')
 
 app.use(cors())
 
-const times: number[] = [6000]
+app.use('/', wwwRoot)
+
+const changeTimes: number[] = []
 
 const cache: {
   date?: _moment.Moment
   data: {
-    raw?: string
-    buses?: broadcastData[]
-    createBuses?: basumada['buses']
+    raw: string
+    broadcastBuses: broadcastData[]
   }
 } = {
   date: undefined,
   data: {
-    raw: undefined,
-    buses: undefined,
-    createBuses: undefined
+    raw: '',
+    broadcastBuses: []
   }
 }
 
@@ -62,76 +59,48 @@ async function getBusLoop() {
       cache.data.raw
     )
 
-    const diff = cache.date ? date.diff(cache.date) : 6000
-
-    cache.date = date
     cache.data.raw = raw
 
-    times.push(0 <= diff ? diff : 3000)
-    if (10 < times.length) times.shift()
+    if (Object.keys(buses).length === 0) return setTimeout(getBusLoop, 6000)
 
-    if (Object.keys(buses).length === 0) return setTimeout(getBusLoop, times[0])
-
+    // 起動直後は必ずtrueになる
     if (change) {
+      changeTimes.push(cache.date ? moment().diff(cache.date) : 13000)
+      if (10 < changeTimes.length) changeTimes.shift()
+
+      cache.date = date
+
       if (process.env.RAW_SAVE === 'true')
-        writeFile(
-          `./raw_data/${date.format('YYYY-MM-DD HH-mm-ss')}.txt`,
-          raw,
-          err => (err ? console.log(err) : null)
-        )
+        writeFile(`./raw_data/${date.format('YYYY-MM-DD HH-mm-ss')}.txt`, raw, err => (err ? console.log(err) : null))
 
       console.log('change!!')
 
-      cache.data.buses = await Promise.all(
-        Object.values(buses).map(bus => createBusToBroadcastObject(bus))
-      )
+      cache.data.broadcastBuses = await Promise.all(Object.values(buses).map(bus => createBusToBroadcastObject(bus)))
 
-      io.emit('unobus', cache.data.buses)
+      io.emit('unobus', cache.data.broadcastBuses)
     }
 
-    let awaitTime = date
-      .clone()
-      .add(times.reduce((prev, current) => prev + current) / times.length, 'ms')
-      .diff(moment())
-    awaitTime = 0 < awaitTime && awaitTime <= 60000 ? awaitTime : 3000 // 1分以上待つのはありえないので
+    const awaitTime = cache.date
+      ? cache.date
+          .clone()
+          .add(changeTimes.reduce((prev, current) => prev + current) / changeTimes.length, 'ms')
+          .diff(moment())
+      : 6000 // falseになることはないけど一応バグった時用に
 
-    console.log(`It gets the data after ${awaitTime / 1000} seconds.`)
+    const awaitTime2 = 0 < awaitTime && awaitTime <= 10000 ? awaitTime : 3000 // システムの都合上10秒以上待つとリアルタイム性が失われるので
 
-    setTimeout(getBusLoop, awaitTime)
+    console.log(`It gets the data after ${awaitTime2 / 1000} seconds. ${awaitTime}`)
+
+    setTimeout(getBusLoop, awaitTime2)
   } catch (err) {
     console.log(err)
     setTimeout(getBusLoop, 1000)
   }
 }
 
-io.on('connection', socket => (cache.data.buses ? socket.emit('unobus', cache.data.buses) : null))
+io.on('connection', socket => (cache.data.broadcastBuses ? socket.emit('unobus', cache.data.broadcastBuses) : null))
 
 getBusLoop()
-
-// 停留所を取得
-app.get('/:companyName/stops', (req, res) =>
-  stops()
-    .then(stops => res.json(stops[req.params.companyName]))
-    .catch(err => res.status(500).end())
-)
-
-app.get('/:companyName/stops/:id', (req, res) =>
-  stops()
-    .then(
-      stops =>
-        stops[req.params.companyName][req.params.id]
-          ? res.json(stops[req.params.companyName][req.params.id])
-          : res.status(404).json({ error: { message: 'There is no such bus stop.' } })
-    )
-    .catch(err => res.status(500).end())
-)
-
-// 系統番号と時刻から時刻表を取得
-app.get('/:companyName/route/:routeNum/:date', (req, res) =>
-  route(req.params.companyName, req.params.routeNum, req.params.date)
-    .then(stops => res.json(stops))
-    .catch(err => res.status(404).json({ error: { message: err.message } }))
-)
 
 //httpサーバー起動
 server.listen(port, () => console.log(`UnoBus API wrap WebSocket server | port: ${port}`))

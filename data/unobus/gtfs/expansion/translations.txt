@@ -1,7 +1,7 @@
 ﻿trans_id,lang,translation
 岡山駅,ja,岡山駅
 岡山駅,ja-Hira,おかやまえき
-岡山駅,en,Okatama Station
+岡山駅,en,Okayama Station
 岡山駅(Okayama sta.),ja,岡山駅
 岡山駅(Okayama sta.),ja-Hira,おかやまえき
 岡山駅(Okayama sta.),en,Okayama Station

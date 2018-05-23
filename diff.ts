@@ -60,9 +60,7 @@ translation().then(stopNames => {
 
     for (let i = 0; i < data.length; i++) {
       await csv(data[i]).then(names =>
-        names.forEach(
-          name => (name.substr(0, 3) !== '《着》' && a.indexOf(name) === -1 ? a.push(name) : null)
-        )
+        names.forEach(name => (name.substr(0, 3) !== '《着》' && a.indexOf(name) === -1 ? a.push(name) : null))
       )
     }
 

@@ -4,17 +4,26 @@ export interface Ierror extends Error {
   code?: number
 }
 
-export interface Istop {
+export interface busDate {
+  schedule: string // 00:00
+  pass?: string // 00:00
+}
+
+export interface stop {
   id: string // 固有id
   name: Inames
   location: {
-    lat: number // 緯度
-    lon: number // 経度
+    lat: number
+    lon: number
   }
-  time: {
-    schedule: string // 00:00
-    pass?: string // 00:00
-  }
+}
+
+export interface broadcastStop extends stop {
+  location: broadcastLocation
+}
+
+export interface broadcastBusStop extends stop {
+  date: busDate
 }
 
 export interface broadcastLocation {
@@ -26,22 +35,24 @@ export interface broadcastLocation {
   long: number
 }
 
-export interface broadcastStop extends Istop {
-  location: broadcastLocation
+export interface busStop {
+  id: string
+  date: busDate
 }
 
 export interface broadcastData {
   run: boolean
   license_number?: number
+  rollsign?: string
   delay?: number
   route_num: number
   direction?: number // 方角(右回り 0~359)
-  stations: broadcastStop[]
+  stations: string[]
   location?: broadcastLocation
   stops: {
-    first: string
-    passing?: string
-    next?: string
-    last: string
+    first: busStop
+    passing?: busStop
+    next?: busStop
+    last: busStop
   }
 }

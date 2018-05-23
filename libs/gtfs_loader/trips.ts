@@ -6,7 +6,7 @@ import * as csvParse from 'csv-parse'
 
 import { getDataDir } from '../util'
 
-interface Itrip {
+export interface Itrip {
   route_id: string
   service_id: string
   trip_id: string
