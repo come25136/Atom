@@ -1,41 +1,58 @@
-import { Inames } from './GTFS_loader/translation'
+import { Inames } from './libs/gtfs_loader/translation'
 
 export interface Ierror extends Error {
   code?: number
 }
 
-export interface Ibus {
-  route_num: number
-  direction: number
-  okayama_stop_time?: string
-  delay: number
-  run: boolean
-  license_number: number
+export interface busDate {
+  schedule: string // 00:00
+  pass?: string // 00:00
+}
+
+export interface stop {
+  id: string // 固有id
+  name: Inames
   location: {
     lat: number
     lon: number
   }
+}
+
+export interface broadcastStop extends stop {
+  location: broadcastLocation
+}
+
+export interface broadcastBusStop extends stop {
+  date: busDate
+}
+
+export interface broadcastLocation {
+  latitude: number
+  lat: number
+  longitude: number
+  lon: number
+  lng: number
+  long: number
+}
+
+export interface busStop {
+  id: string
+  date: busDate
+}
+
+export interface broadcastData {
+  run: boolean
+  license_number?: number
+  rollsign?: string
+  delay?: number
+  route_num: number
+  direction?: number // 方角(右回り 0~359)
+  stations: string[]
+  location?: broadcastLocation
   stops: {
-    first: {
-      id: string
-      name: Inames
-      time: string
-    }
-    passing?: {
-      id?: string
-      name?: Inames
-      time?: string
-      pass_time?: string
-    }
-    next?: {
-      id?: string
-      name?: Inames
-      time?: string
-    }
-    last: {
-      id: string
-      name: Inames
-      time: string
-    }
+    first: busStop
+    passing?: busStop
+    next?: busStop
+    last: busStop
   }
 }
