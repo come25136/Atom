@@ -77,7 +77,7 @@ export async function createBusToBroadcastObject(bus: createBus): Promise<broadc
   return {
     run: bus.isRun,
     license_number: bus.licenseNumber,
-    rollsign: passingHeadsign && passingHeadsign.stop_headsign ? passingHeadsign.stop_headsign : trip.trip_id,
+    rollsign: passingHeadsign && passingHeadsign.stop_headsign ? passingHeadsign.stop_headsign : trip.trip_headsign,
     delay: bus.delay,
     route_num: bus.routeNumber,
     direction: await direction(bus.passingStop.location, bus.nextStop.location, bus.location),
