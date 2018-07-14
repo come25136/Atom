@@ -1,0 +1,2 @@
+﻿agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url
+1260001003330,下津井電鉄株式会社(7/5),http://www.shimoden.net/rosen/,Asia/Tokyo,ja,086-231-4331,
