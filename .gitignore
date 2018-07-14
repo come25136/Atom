@@ -6,9 +6,6 @@ dist
 
 raw_data/
 
-test/test_data/
-test/result
-
 # Created by https://www.gitignore.io/api/node
 
 ### Node ###

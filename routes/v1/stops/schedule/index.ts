@@ -13,23 +13,24 @@ const router = Router({ mergeParams: true })
 router.get('/(:date)?', (req, res) =>
   stops()
     .then(async stops => {
+      if (!stops[req.params.companyName])
+        return res.status(404).json({ error: { message: 'There is no such bus company.' } })
+
       if (!stops[req.params.companyName][req.params.id])
         return res.status(404).json({ error: { message: 'There is no such bus stop.' } })
-
-      const serviceIds = await dateToServiceIds(
-        req.params.companyName,
-        req.params.date ? moment(req.params.date) : moment()
-      )
 
       const stopTimes = await stop_times()
 
       res.json(
         (await trips().then(async trips =>
-          (await dateToServiceIds(req.params.companyName, req.params.date ? moment(req.params.date) : moment())).map(
-            serviceId =>
-              Object.values(trips[req.params.companyName]).reduce(
-                (prev: { route: { id: string }; time: string }[], route) => {
-                  const time = Object.values(route).reduce((prev: { route: { id: string }; time: string }[], trip) => {
+          (await dateToServiceIds(
+            req.params.companyName,
+            req.params.date ? moment(req.params.date) : moment()
+          )).map(serviceId =>
+            Object.values(trips[req.params.companyName]).reduce(
+              (prev: { route: { id: string }; time: string }[], route) => {
+                const time = Object.values(route).reduce(
+                  (prev: { route: { id: string }; time: string }[], trip) => {
                     const stop = stopTimes[req.params.companyName][trip.trip_id].find(
                       stop => stop.stop_id === req.params.id
                     )
@@ -37,12 +38,14 @@ router.get('/(:date)?', (req, res) =>
                     return serviceId === trip.service_id && stop
                       ? [...prev, { route: { id: trip.route_id }, time: stop.arrival_time }]
                       : prev
-                  }, [])
+                  },
+                  []
+                )
 
-                  return time.length === 0 ? prev : [...prev, ...time]
-                },
-                []
-              )
+                return time.length === 0 ? prev : [...prev, ...time]
+              },
+              []
+            )
           )
         ))
           .reduce((prev, current) => [...prev, ...current], [])

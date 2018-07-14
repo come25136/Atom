@@ -7,25 +7,20 @@ import { Inames } from '../gtfs_loader/translation'
 import { broadcastBusStop } from '../../interfaces'
 
 export interface IbusRaw {
-  routeNum: number
-  okayamaStopTime: string
-  delay: number
+  routeNum: string
   run: string
-  passingStop: string
+  delay: number
   licenseNumber: number
   lat: number
   lon: number
-  firstStop: string
-  finalStop: string
 }
 
 export class createBus {
-  private _startedat: moment.Moment
-  private _updatedAt: moment.Moment
+  private _startedAt: moment.Moment
   private _run: boolean // 運休の場合false
   private _delay: number
   private _licenseNumber: number // 車両番号(ナンバープレート)
-  private _routeNum: number // 系統番号
+  private _routeNum: string // 系統番号
   private _stations: broadcastBusStop[]
   private _route: broadcastBusStop[] // 路線
   private _location: {
@@ -48,11 +43,9 @@ export class createBus {
       time: string
       name: Inames
     },
-    updateTime?: string,
     private _standardDate: moment.Moment = moment()
   ) {
-    this._startedat = h24ToLessH24(route[0].date.schedule, _standardDate)
-    this._updatedAt = updateTime ? h24ToLessH24(updateTime) : moment()
+    this._startedAt = h24ToLessH24(route[0].date.schedule, _standardDate)
     this._run = bus.run === '運休' ? false : true
     this._delay = bus.delay
     this._licenseNumber = bus.licenseNumber
@@ -71,27 +64,19 @@ export class createBus {
     const passingIndex = this.getIndex(route, passing.name)
     this._passing = Object.assign({}, route[passingIndex], {
       date: {
-        schedule: h24ToLessH24(route[passingIndex].date.schedule).format(),
+        schedule: h24ToLessH24(route[passingIndex].date.schedule, _standardDate).format(),
         pass: h24ToLessH24(passing.time, _standardDate).format()
       }
     })
     this._nextIndex = passingIndex + 1
   }
 
-  passing(
-    passing: {
-      time: string
-      name: Inames
-    },
-    updateTime?: string
-  ) {
-    this._updatedAt = updateTime ? h24ToLessH24(updateTime) : moment()
-
+  passing(passing: { time: string; name: Inames }) {
     const passingIndex = this.getIndex(this._route, passing.name)
     this._passing = Object.assign({}, this._route[passingIndex], {
       time: {
         ...this._route[passingIndex].date,
-        pass: h24ToLessH24(passing.time, this._startedat).format()
+        pass: h24ToLessH24(passing.time, this._startedAt).format()
       }
     })
     this._nextIndex = passingIndex + 1

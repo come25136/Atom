@@ -1,47 +1,51 @@
-import { h24ToLessH24, dateToServiceIds } from './util'
+import { dateToServiceIds } from './util'
 
-import * as _moment from 'moment'
-import { extendMoment } from 'moment-range'
-
-import { isHoliday } from 'japanese-holidays'
+import * as moment from 'moment'
 
 import _stopTimes from './gtfs_loader/stop_times'
 import { default as _stops } from './gtfs_loader/stops'
 import _translations from './gtfs_loader/translation'
-import _trips from './gtfs_loader/trips'
+import __trips from './gtfs_loader/trips'
 import _calendar from './gtfs_loader/calendar'
 
 import { Ierror, broadcastBusStop } from '../interfaces'
 
-const moment = extendMoment(_moment)
-
 export default async function(
   companyName: string,
   routeNum: number | string,
-  date: _moment.Moment
-): Promise<broadcastBusStop[]> {
-  const [stopTimes, stops, translations, trips] = await Promise.all([
+  firstStopDate: moment.Moment,
+  dayOnly: boolean = false
+): Promise<broadcastBusStop[][]> {
+  const [stopTimes, stops, translations, _trips] = await Promise.all([
     _stopTimes(),
     _stops(),
     _translations(),
-    _trips(),
+    __trips(),
     _calendar()
   ])
 
-  const trip = await dateToServiceIds(companyName, date).then(days =>
-    Object.values(trips[companyName][routeNum]).find(trip => days.includes(trip.service_id))
+  const trips = await dateToServiceIds(companyName, firstStopDate).then(
+    days =>
+      _trips[companyName][routeNum] &&
+      Object.values(_trips[companyName][routeNum]).filter(
+        trip =>
+          days.includes(trip.service_id) && dayOnly
+            ? true
+            : firstStopDate.format('HH:mm:ss') ===
+              stopTimes[companyName][trip.trip_id][0].arrival_time
+      )
   )
 
-  if (!trip) {
-    console.log(companyName, routeNum)
+  if (!trips) {
+    if (process.env.NODE_ENV !== 'test') console.log(companyName, routeNum)
 
     const err: Ierror = new Error('There is no such route.')
     err.code = 404
     return Promise.reject(err)
   }
 
-  return stopTimes[companyName][trip.trip_id].map(stop => {
-    return {
+  return trips.map(trip =>
+    stopTimes[companyName][trip.trip_id].map(stop => ({
       id: stop.stop_id,
       name: Object.assign(
         { ja: '', 'ja-Hira': '', en: undefined },
@@ -54,6 +58,6 @@ export default async function(
         lat: stops[companyName][stop.stop_id].stop_lat,
         lon: stops[companyName][stop.stop_id].stop_lon
       }
-    }
-  })
+    }))
+  )
 }

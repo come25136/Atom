@@ -23,10 +23,18 @@ router.get('/:id', (req, res) =>
     .then(
       async stops =>
         stops[req.params.companyName][req.params.id]
-          ? res.json(await stopToBroadcastStop(req.params.companyName, stops[req.params.companyName][req.params.id]))
+          ? res.json(
+              await stopToBroadcastStop(
+                req.params.companyName,
+                stops[req.params.companyName][req.params.id]
+              )
+            )
           : res.status(404).json({ error: { message: 'There is no such bus stop.' } })
     )
-    .catch(err => res.status(500).end())
+    .catch(err => {
+      res.status(500).end()
+      throw err
+    })
 )
 
 export default router

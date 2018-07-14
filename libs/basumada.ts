@@ -3,8 +3,7 @@ import { h24ToLessH24 } from './util'
 
 import * as csvParse from 'csv-parse'
 
-import * as _moment from 'moment'
-import { extendMoment } from 'moment-range'
+import * as moment from 'moment'
 
 import translations from './gtfs_loader/translation'
 
@@ -12,25 +11,37 @@ import stations from './station_loader'
 
 import route from '../libs/route'
 
-import { IbusRaw, createBus } from './classes/create_bus'
+import { createBus } from './classes/create_bus'
 
 import { Ierror } from '../interfaces'
+
+export interface basumadaRaw {
+  routeNum: string
+  okayamaStopTime: string
+  delay: number
+  run: string
+  passingStop: string
+  licenseNumber: string
+  lat: string
+  lon: string
+  firstStop: string
+  finalStop: string
+}
 
 export interface basumada {
   change: boolean
   buses: { [k: string]: createBus }
-  date: _moment.Moment
+  date: moment.Moment
   raw: string
 }
 
-const csvParser = util.promisify<string, csvParse.Options, IbusRaw[]>(csvParse),
-  moment = extendMoment(_moment)
+const csvParser = util.promisify<string, csvParse.Options, basumadaRaw[]>(csvParse)
 
 export async function rawToObject(
   companyName: string,
   rawData: string,
   comparisonRawData?: string,
-  _date?: _moment.Moment
+  _date?: moment.Moment
 ): Promise<basumada> {
   if (!/\/\/LAST/.test(rawData)) {
     const error: Ierror = new Error('Server side processing is not completed.')
@@ -39,7 +50,7 @@ export async function rawToObject(
   }
 
   const date = _date ? _date : h24ToLessH24(rawData.substr(0, 8)),
-    busesRaw: IbusRaw[] = await csvParser(rawData.substr(11), {
+    busesRaw: basumadaRaw[] = await csvParser(rawData.substr(11), {
       columns: [
         'routeNum',
         'okayamaStopTime',
@@ -61,15 +72,26 @@ export async function rawToObject(
     if (busRaw.passingStop.substr(13, 3) === '《着》') break
 
     const bus = new createBus(
-      'unobus',
-      busRaw,
-      await route('unobus', busRaw.routeNum, h24ToLessH24(busRaw.firstStop.substr(3, 5), date)),
-      await stations().then(data => data.unobus),
+      companyName,
+      {
+        routeNum: busRaw.routeNum,
+        run: busRaw.run,
+        delay: Number(busRaw.delay),
+        licenseNumber: Number(busRaw.licenseNumber),
+        lat: Number(busRaw.lat),
+        lon: Number(busRaw.lon)
+      },
+      (await route(
+        companyName,
+        busRaw.routeNum,
+        h24ToLessH24(busRaw.firstStop.substr(3, 5), date)
+      ))[0],
+      (await stations()).unobus,
       {
         time: busRaw.passingStop.substr(6, 5),
-        name: await translations().then(stops => stops[companyName][busRaw.passingStop.substr(13)])
+        name: (await translations())[companyName][busRaw.passingStop.substr(13)]
       },
-      rawData.substr(0, 8)
+      h24ToLessH24(rawData.substr(0, 8), date)
     )
 
     buses[`${bus.routeNumber}_${bus.licenseNumber}`] = bus
@@ -78,7 +100,8 @@ export async function rawToObject(
   return {
     change:
       comparisonRawData &&
-      comparisonRawData.substr(9).replace(/.+《着》.+\n/, '') === rawData.substr(9).replace(/.+《着》.+\n/, '')
+      comparisonRawData.substr(9).replace(/.+《着》.+\n/, '') ===
+        rawData.substr(9).replace(/.+《着》.+\n/, '')
         ? false
         : true,
     buses,

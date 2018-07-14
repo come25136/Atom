@@ -33,9 +33,12 @@ export default async function() {
 
   for (const dir of dirs) {
     const routes: { [k: string]: row[] } = {},
-      rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/calendar_dates.txt`, 'utf8'), {
-        columns: true
-      })
+      rows = await csvParser(
+        await readFile(`${getDataDir()}/${dir}/gtfs/calendar_dates.txt`, 'utf8'),
+        {
+          columns: true
+        }
+      )
 
     const calendar: { [k: string]: row[] } = {}
 

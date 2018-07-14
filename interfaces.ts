@@ -45,7 +45,7 @@ export interface broadcastData {
   license_number?: number
   rollsign?: string
   delay?: number
-  route_num: number
+  route_num: string
   direction?: number // 方角(右回り 0~359)
   stations: string[]
   location?: broadcastLocation

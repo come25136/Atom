@@ -17,7 +17,9 @@ export default async function() {
   const dirs = await readDir(getDataDir())
 
   for (let dir of dirs) {
-    companies[dir] = JSON.parse(readFileSync(`${getDataDir()}/${dir}/stations.json`, 'utf8')) as string[]
+    companies[dir] = JSON.parse(
+      readFileSync(`${getDataDir()}/${dir}/stations.json`, 'utf8')
+    ) as string[]
   }
 
   return companies

@@ -9,28 +9,8 @@
       "request": "launch",
       "name": "Debug: Server",
       "preLaunchTask": "TypeScript: Build",
-      "program": "${workspaceFolder}/dist/app.js",
-      "env": {
-        "RAW_SAVE": "true",
-        "PORT": "3001"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Test: Server",
-      "preLaunchTask": "TypeScript: Build",
-      "program": "${workspaceFolder}/dist/test/app.js",
-      "args": [
-        "true"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug: data",
-      "preLaunchTask": "TypeScript: Build",
-      "program": "${workspaceFolder}/dist/diff.js"
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/dist/app.js"
     }
   ]
 }

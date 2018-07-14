@@ -49,7 +49,8 @@ export default async function() {
       routes[stop.trip_id].push(stop)
     })
 
-    for (const stops of Object.values(routes)) stops.sort((a, b) => a.stop_sequence - b.stop_sequence)
+    for (const stops of Object.values(routes))
+      stops.sort((a, b) => a.stop_sequence - b.stop_sequence)
 
     companies[dir] = routes
   }
