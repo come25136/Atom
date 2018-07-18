@@ -69,7 +69,7 @@ export async function rawToObject(
   const buses: { [k: string]: createBus } = {}
 
   for (const busRaw of busesRaw) {
-    if (busRaw.passingStop.substr(13, 3) === '《着》') break
+    if (busRaw.passingStop.substr(13, 3) === '《着》') continue
 
     const bus = new createBus(
       companyName,
