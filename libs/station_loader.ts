@@ -18,6 +18,8 @@ export default async function() {
   const dirs = await readDir(getDataDir())
 
   for (let dir of dirs) {
+    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+
     companies[dir] = JSON.parse(
       await readFile(`${getDataDir()}/${dir}/stations.json`, 'utf8')
     ) as string[]
