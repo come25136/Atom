@@ -1,10 +1,11 @@
 import { promisify } from 'util'
 
-import { readdir, readFileSync } from 'fs'
+import * as fs from 'fs'
 
 import { getDataDir } from './util'
 
-const readDir = promisify(readdir)
+const readDir = promisify(fs.readdir),
+  readFile = promisify(fs.readFile)
 
 export interface stations {
   // バス会社名(ディレクトリ名)
@@ -18,7 +19,7 @@ export default async function() {
 
   for (let dir of dirs) {
     companies[dir] = JSON.parse(
-      readFileSync(`${getDataDir()}/${dir}/stations.json`, 'utf8')
+      await readFile(`${getDataDir()}/${dir}/stations.json`, 'utf8')
     ) as string[]
   }
 
