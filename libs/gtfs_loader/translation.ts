@@ -36,6 +36,8 @@ export default async function() {
   const dirs = await readDir(getDataDir())
 
   for (let dir of dirs) {
+    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+    
     const stops: { [k: string]: Inames } = {},
       rows = await csvParser(
         await readFile(`${getDataDir()}/${dir}/gtfs/expansion/translations.txt`, 'utf8'),
