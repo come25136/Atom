@@ -77,7 +77,7 @@ export async function rawToObject(
         routeNum: busRaw.routeNum,
         run: busRaw.run,
         delay: Number(busRaw.delay),
-        licenseNumber: Number(busRaw.licenseNumber),
+        licenseNumber: busRaw.licenseNumber,
         lat: Number(busRaw.lat),
         lon: Number(busRaw.lon)
       },

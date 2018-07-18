@@ -42,7 +42,7 @@ export interface busStop {
 
 export interface broadcastData {
   run: boolean
-  license_number?: number
+  license_number?: string
   rollsign?: string
   delay?: number
   route_num: string

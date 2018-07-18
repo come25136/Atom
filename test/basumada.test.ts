@@ -41,7 +41,7 @@ describe('basumada', function() {
         assert.sameDeepMembers(buses, [
           {
             run: true,
-            license_number: 1184,
+            license_number: '1184',
             rollsign: '四御神 (県庁前 経由)',
             delay: 0,
             route_num: '1111',
@@ -79,7 +79,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1329,
+            license_number: '1329',
             rollsign: '岡山後楽園 (県立美術館 経由)',
             delay: 1,
             route_num: '8001',
@@ -117,7 +117,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1341,
+            license_number: '1341',
             rollsign: 'ネオ西9 (西・下市 経由)',
             delay: 6,
             route_num: '1631',
@@ -155,7 +155,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1343,
+            license_number: '1343',
             rollsign: '片上',
             delay: 3,
             route_num: '3101',
@@ -193,7 +193,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1344,
+            license_number: '1344',
             rollsign: '表町BC経由 岡山駅 (清水 経由)',
             delay: 5,
             route_num: '1112',
@@ -231,7 +231,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1345,
+            license_number: '1345',
             rollsign: '表町BC経由 岡山駅 (清水 経由)',
             delay: 1,
             route_num: '1112',
@@ -269,7 +269,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1352,
+            license_number: '1352',
             rollsign: '岡山駅前経由表町BC (下市・中 経由)',
             delay: 2,
             route_num: '1282',
@@ -307,7 +307,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1353,
+            license_number: '1353',
             rollsign: '林野駅 (新道河本 経由)',
             delay: 4,
             route_num: '1181',
@@ -345,7 +345,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1367,
+            license_number: '1367',
             rollsign: '四御神 (県庁前 経由)',
             delay: 4,
             route_num: '1111',
@@ -383,7 +383,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1369,
+            license_number: '1369',
             rollsign: '岡山駅前経由表町BC (下市・中 経由)',
             delay: 4,
             route_num: '1622',
@@ -421,7 +421,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1371,
+            license_number: '1371',
             rollsign: '東岡山 (岡山駅 経由)',
             delay: 7,
             route_num: '5141',
@@ -459,7 +459,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1396,
+            license_number: '1396',
             rollsign: '表町BC経由 岡山駅',
             delay: 10,
             route_num: '3102',
@@ -497,7 +497,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1486,
+            license_number: '1486',
             rollsign: '瀬戸駅 (岡山駅 経由)',
             delay: 17,
             route_num: '1642',
@@ -535,7 +535,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1525,
+            license_number: '1525',
             rollsign: 'ネオ西9 (西・下市 経由)',
             delay: 0,
             route_num: '1631',
@@ -573,7 +573,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1585,
+            license_number: '1585',
             rollsign: 'ネオ東6 (新道河本 経由)',
             delay: 3,
             route_num: '2011',
@@ -611,7 +611,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1613,
+            license_number: '1613',
             rollsign: 'ネオ東6 (中・下市 経由)',
             delay: 1,
             route_num: '2021',
@@ -649,7 +649,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1616,
+            license_number: '1616',
             rollsign: '瀬戸駅 (岡山駅 経由)',
             delay: 1,
             route_num: '1072',
@@ -687,7 +687,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1618,
+            license_number: '1618',
             rollsign: '表町BC (高島団地・岡山駅前 経由)',
             delay: 0,
             route_num: '5142',
@@ -725,7 +725,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 1619,
+            license_number: '1619',
             rollsign: '岡山駅前経由表町BC (下市・西 経由)',
             delay: 1,
             route_num: '1632',
@@ -763,7 +763,7 @@ describe('basumada', function() {
           },
           {
             run: true,
-            license_number: 4111,
+            license_number: '4111',
             rollsign: '表町BC経由 岡山駅',
             delay: 0,
             route_num: '1082',

@@ -10,7 +10,7 @@ export interface IbusRaw {
   routeNum: string
   run: string
   delay: number
-  licenseNumber: number
+  licenseNumber: string
   lat: number
   lon: number
 }
@@ -19,7 +19,7 @@ export class createBus {
   private _startedAt: moment.Moment
   private _run: boolean // 運休の場合false
   private _delay: number
-  private _licenseNumber: number // 車両番号(ナンバープレート)
+  private _licenseNumber: string // 車両番号(ナンバープレート)
   private _routeNum: string // 系統番号
   private _stations: broadcastBusStop[]
   private _route: broadcastBusStop[] // 路線
