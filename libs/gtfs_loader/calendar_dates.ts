@@ -34,13 +34,12 @@ export default async function() {
   for (const dir of dirs) {
     if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
 
-    const routes: { [k: string]: row[] } = {},
-      rows = await csvParser(
-        await readFile(`${getDataDir()}/${dir}/gtfs/calendar_dates.txt`, 'utf8'),
-        {
-          columns: true
-        }
-      )
+    const rows = await csvParser(
+      await readFile(`${getDataDir()}/${dir}/gtfs/calendar_dates.txt`, 'utf8'),
+      {
+        columns: true
+      }
+    )
 
     const calendar: { [k: string]: row[] } = {}
 
