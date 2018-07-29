@@ -37,10 +37,10 @@ export default async function() {
 
   for (let dir of dirs) {
     if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
-    
+
     const stops: { [k: string]: Inames } = {},
       rows = await csvParser(
-        await readFile(`${getDataDir()}/${dir}/gtfs/expansion/translations.txt`, 'utf8'),
+        await readFile(`${getDataDir()}/${dir}/gtfs/translations.txt`, 'utf8'),
         {
           columns: true
         }
