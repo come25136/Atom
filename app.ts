@@ -62,6 +62,8 @@ if (process.env.NODE_ENV !== 'test') {
 
       cache.data.raw = raw
 
+      if (Object.keys(cache.data.broadcastBuses).length !== 0 && Object.keys(buses).length === 0)
+        io.emit('unobus', (cache.data.broadcastBuses = []))
       if (Object.keys(buses).length === 0) return setTimeout(getBusLoop, 6000)
 
       // 起動直後は必ずtrueになる
@@ -100,7 +102,7 @@ if (process.env.NODE_ENV !== 'test') {
 
       setTimeout(getBusLoop, awaitTime2)
     } catch (err) {
-      console.log(err)
+      console.warn(err)
       setTimeout(getBusLoop, 1000)
     }
   }
