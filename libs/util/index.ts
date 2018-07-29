@@ -1,18 +1,18 @@
 import * as _moment from 'moment'
 import { extendMoment } from 'moment-range'
 
-import direction from '../libs/direction'
+import direction from '../../libs/direction'
 
-import { createBus } from './classes/create_bus'
+import { createBus } from '../classes/create_bus'
 
-import { broadcastLocation, broadcastData, stop } from '../interfaces'
-import { Istop } from './gtfs_loader/stops'
-import translation from './gtfs_loader/translation'
+import { broadcastLocation, broadcastData, stop } from '../../interfaces'
+import { Istop } from '../gtfs_loader/stops'
+import translation from '../gtfs_loader/translation'
 
-import calendar from './gtfs_loader/calendar'
-import calendar_dates from './gtfs_loader/calendar_dates'
-import trips from './gtfs_loader/trips'
-import stopTimes from './gtfs_loader/stop_times'
+import calendar from '../gtfs_loader/calendar'
+import calendar_dates from '../gtfs_loader/calendar_dates'
+import trips from '../gtfs_loader/trips'
+import stopTimes from '../gtfs_loader/stop_times'
 
 const moment = extendMoment(_moment)
 
