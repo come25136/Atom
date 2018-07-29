@@ -12,7 +12,7 @@ import { Ierror, broadcastBusStop } from '../interfaces'
 
 export default async function(
   companyName: string,
-  routeNum: number | string,
+  routeNum: string,
   firstStopDate: moment.Moment,
   dayOnly: boolean = false
 ): Promise<broadcastBusStop[][]> {
@@ -36,7 +36,7 @@ export default async function(
       )
   )
 
-  if (!trips) {
+  if (trips.length === 0) {
     if (process.env.NODE_ENV !== 'test') console.log(companyName, routeNum)
 
     const err: Ierror = new Error('There is no such route.')
