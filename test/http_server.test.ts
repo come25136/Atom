@@ -9,7 +9,9 @@ describe('companies', () => {
     req(app)
       .get('/v1')
       .expect(200)
-      .then(({ body }) => assert.sameMembers(body, ['tutujibus', 'unobus', 'shimodenbus'])))
+      .then(({ body }) =>
+        assert.sameMembers(body, ['tutujibus', 'unobus', 'ryobibus', 'shimodenbus'])
+      ))
 
   describe('stops', () => {
     it('404', () =>
@@ -682,15 +684,16 @@ describe('unobus', function() {
               name: {
                 ja: '岡山駅',
                 'ja-Hira': 'おかやまえき',
+                'ja-Kana': 'オカヤマエキ',
                 en: 'Okayama Station'
               },
               location: {
-                latitude: '34.6650806666667',
-                lat: '34.6650806666667',
-                longitude: '133.918666571428',
-                lon: '133.918666571428',
-                lng: '133.918666571428',
-                long: '133.918666571428'
+                latitude: 34.6650806666667,
+                lat: 34.6650806666667,
+                longitude: 133.918666571428,
+                lon: 133.918666571428,
+                lng: 133.918666571428,
+                long: 133.918666571428
               }
             })
           ))

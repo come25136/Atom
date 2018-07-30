@@ -58,21 +58,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '2_02',
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.664964,
+                  lat: 34.664964,
+                  longitude: 133.918558,
+                  lon: 133.918558,
+                  lng: 133.918558,
+                  long: 133.918558
+                },
                 date: { schedule: '2018-07-13T15:35:00+09:00' }
               },
               passing: {
                 id: '2_02',
-                date: {
-                  schedule: '2018-07-13T15:35:37+09:00',
-                  pass: '2018-07-13T15:32:00+09:00'
-                }
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.664964,
+                  lat: 34.664964,
+                  longitude: 133.918558,
+                  lon: 133.918558,
+                  lng: 133.918558,
+                  long: 133.918558
+                },
+                date: { schedule: '2018-07-13T15:35:00+09:00', pass: '2018-07-13T15:32:00+09:00' }
               },
               next: {
                 id: '4_02',
+                name: {
+                  ja: '岡山駅前・ドレミの街',
+                  'ja-Hira': 'おかやまえきまえ',
+                  'ja-Kana': 'オカヤマエキマエ',
+                  en: 'Okatama Ekimae Doremi'
+                },
+                location: {
+                  latitude: 34.665691,
+                  lat: 34.665691,
+                  longitude: 133.921284,
+                  lon: 133.921284,
+                  lng: 133.921284,
+                  long: 133.921284
+                },
                 date: { schedule: '2018-07-13T15:36:00+09:00' }
               },
               last: {
-                id: '248_09',
+                id: '4_02',
+                name: {
+                  ja: '岡山駅前・ドレミの街',
+                  'ja-Hira': 'おかやまえきまえ',
+                  'ja-Kana': 'オカヤマエキマエ',
+                  en: 'Okatama Ekimae Doremi'
+                },
+                location: {
+                  latitude: 34.665691,
+                  lat: 34.665691,
+                  longitude: 133.921284,
+                  lon: 133.921284,
+                  lng: 133.921284,
+                  long: 133.921284
+                },
                 date: { schedule: '2018-07-13T16:14:00+09:00' }
               }
             }
@@ -96,21 +149,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '2_11',
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.6656276536051,
+                  lat: 34.6656276536051,
+                  longitude: 133.918707018287,
+                  lon: 133.918707018287,
+                  lng: 133.918707018287,
+                  long: 133.918707018287
+                },
                 date: { schedule: '2018-07-13T15:15:00+09:00' }
               },
               passing: {
-                id: '3002_01',
-                date: {
-                  schedule: '2018-07-13T15:22:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '2_11',
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.6656276536051,
+                  lat: 34.6656276536051,
+                  longitude: 133.918707018287,
+                  lon: 133.918707018287,
+                  lng: 133.918707018287,
+                  long: 133.918707018287
+                },
+                date: { schedule: '2018-07-13T15:22:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '3001_01',
+                name: {
+                  ja: '後楽園前',
+                  'ja-Hira': 'こうらくえんまえ',
+                  'ja-Kana': 'コウラクエンマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.669571,
+                  lat: 34.669571,
+                  longitude: 133.933682714286,
+                  lon: 133.933682714286,
+                  lng: 133.933682714286,
+                  long: 133.933682714286
+                },
                 date: { schedule: '2018-07-13T15:25:00+09:00' }
               },
               last: {
-                id: '2_08',
+                id: '3001_01',
+                name: {
+                  ja: '後楽園前',
+                  'ja-Hira': 'こうらくえんまえ',
+                  'ja-Kana': 'コウラクエンマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.669571,
+                  lat: 34.669571,
+                  longitude: 133.933682714286,
+                  lon: 133.933682714286,
+                  lng: 133.933682714286,
+                  long: 133.933682714286
+                },
                 date: { schedule: '2018-07-13T15:35:00+09:00' }
               }
             }
@@ -134,21 +240,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
                 date: { schedule: '2018-07-13T14:40:00+09:00' }
               },
               passing: {
-                id: '572_04',
-                date: {
-                  schedule: '2018-07-13T15:25:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
+                date: { schedule: '2018-07-13T15:25:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '574_04',
+                name: {
+                  ja: '山陽団地西7番',
+                  'ja-Hira': 'さんようだんちにしななばん',
+                  'ja-Kana': 'サンヨウダンチニシナナバン',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.752609,
+                  lat: 34.752609,
+                  longitude: 134.005902714286,
+                  lon: 134.005902714286,
+                  lng: 134.005902714286,
+                  long: 134.005902714286
+                },
                 date: { schedule: '2018-07-13T15:25:00+09:00' }
               },
               last: {
-                id: '792_09',
+                id: '574_04',
+                name: {
+                  ja: '山陽団地西7番',
+                  'ja-Hira': 'さんようだんちにしななばん',
+                  'ja-Kana': 'サンヨウダンチニシナナバン',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.752609,
+                  lat: 34.752609,
+                  longitude: 134.005902714286,
+                  lon: 134.005902714286,
+                  lng: 134.005902714286,
+                  long: 134.005902714286
+                },
                 date: { schedule: '2018-07-13T15:44:00+09:00' }
               }
             }
@@ -172,21 +331,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '2_01',
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.6650806666667,
+                  lat: 34.6650806666667,
+                  longitude: 133.918666571428,
+                  lon: 133.918666571428,
+                  lng: 133.918666571428,
+                  long: 133.918666571428
+                },
                 date: { schedule: '2018-07-13T15:10:00+09:00' }
               },
               passing: {
-                id: '24_01',
-                date: {
-                  schedule: '2018-07-13T15:27:37+09:00',
-                  pass: '2018-07-13T15:30:00+09:00'
-                }
+                id: '2_01',
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.6650806666667,
+                  lat: 34.6650806666667,
+                  longitude: 133.918666571428,
+                  lon: 133.918666571428,
+                  lng: 133.918666571428,
+                  long: 133.918666571428
+                },
+                date: { schedule: '2018-07-13T15:27:00+09:00', pass: '2018-07-13T15:30:00+09:00' }
               },
               next: {
                 id: '26_01',
+                name: {
+                  ja: '原尾島住宅前',
+                  'ja-Hira': 'はらおじまじゅうたくまえ',
+                  'ja-Kana': 'ハラオジマジュウタクマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.670595,
+                  lat: 34.670595,
+                  longitude: 133.954844,
+                  lon: 133.954844,
+                  lng: 133.954844,
+                  long: 133.954844
+                },
                 date: { schedule: '2018-07-13T15:29:00+09:00' }
               },
               last: {
-                id: '126_09',
+                id: '26_01',
+                name: {
+                  ja: '原尾島住宅前',
+                  'ja-Hira': 'はらおじまじゅうたくまえ',
+                  'ja-Kana': 'ハラオジマジュウタクマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.670595,
+                  lat: 34.670595,
+                  longitude: 133.954844,
+                  lon: 133.954844,
+                  lng: 133.954844,
+                  long: 133.954844
+                },
                 date: { schedule: '2018-07-13T16:22:00+09:00' }
               }
             }
@@ -210,21 +422,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '248_05',
+                name: {
+                  ja: '四御神車庫',
+                  'ja-Hira': 'しのごぜしゃこ',
+                  'ja-Kana': 'シノゴゼシャコ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.691699,
+                  lat: 34.691699,
+                  longitude: 133.981635,
+                  lon: 133.981635,
+                  lng: 133.981635,
+                  long: 133.981635
+                },
                 date: { schedule: '2018-07-13T15:05:00+09:00' }
               },
               passing: {
-                id: '18_05',
-                date: {
-                  schedule: '2018-07-13T15:25:37+09:00',
-                  pass: '2018-07-13T15:30:00+09:00'
-                }
+                id: '248_05',
+                name: {
+                  ja: '四御神車庫',
+                  'ja-Hira': 'しのごぜしゃこ',
+                  'ja-Kana': 'シノゴゼシャコ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.691699,
+                  lat: 34.691699,
+                  longitude: 133.981635,
+                  lon: 133.981635,
+                  lng: 133.981635,
+                  long: 133.981635
+                },
+                date: { schedule: '2018-07-13T15:25:00+09:00', pass: '2018-07-13T15:30:00+09:00' }
               },
               next: {
                 id: '16_05',
+                name: {
+                  ja: '県庁前',
+                  'ja-Hira': 'けんちょうまえ',
+                  'ja-Kana': 'ケンチョウマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.660805,
+                  lat: 34.660805,
+                  longitude: 133.934633,
+                  lon: 133.934633,
+                  lng: 133.934633,
+                  long: 133.934633
+                },
                 date: { schedule: '2018-07-13T15:28:00+09:00' }
               },
               last: {
-                id: '2_09',
+                id: '16_05',
+                name: {
+                  ja: '県庁前',
+                  'ja-Hira': 'けんちょうまえ',
+                  'ja-Kana': 'ケンチョウマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.660805,
+                  lat: 34.660805,
+                  longitude: 133.934633,
+                  lon: 133.934633,
+                  lng: 133.934633,
+                  long: 133.934633
+                },
                 date: { schedule: '2018-07-13T15:38:00+09:00' }
               }
             }
@@ -248,21 +513,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '248_05',
+                name: {
+                  ja: '四御神車庫',
+                  'ja-Hira': 'しのごぜしゃこ',
+                  'ja-Kana': 'シノゴゼシャコ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.691699,
+                  lat: 34.691699,
+                  longitude: 133.981635,
+                  lon: 133.981635,
+                  lng: 133.981635,
+                  long: 133.981635
+                },
                 date: { schedule: '2018-07-13T15:25:00+09:00' }
               },
               passing: {
-                id: '224_05',
-                date: {
-                  schedule: '2018-07-13T15:30:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '248_05',
+                name: {
+                  ja: '四御神車庫',
+                  'ja-Hira': 'しのごぜしゃこ',
+                  'ja-Kana': 'シノゴゼシャコ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.691699,
+                  lat: 34.691699,
+                  longitude: 133.981635,
+                  lon: 133.981635,
+                  lng: 133.981635,
+                  long: 133.981635
+                },
+                date: { schedule: '2018-07-13T15:30:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '222_05',
+                name: {
+                  ja: '浄土寺前',
+                  'ja-Hira': 'じょうどじまえ',
+                  'ja-Kana': 'ジョウドジマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.697407,
+                  lat: 34.697407,
+                  longitude: 133.965445,
+                  lon: 133.965445,
+                  lng: 133.965445,
+                  long: 133.965445
+                },
                 date: { schedule: '2018-07-13T15:31:00+09:00' }
               },
               last: {
-                id: '2_09',
+                id: '222_05',
+                name: {
+                  ja: '浄土寺前',
+                  'ja-Hira': 'じょうどじまえ',
+                  'ja-Kana': 'ジョウドジマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.697407,
+                  lat: 34.697407,
+                  longitude: 133.965445,
+                  lon: 133.965445,
+                  lng: 133.965445,
+                  long: 133.965445
+                },
                 date: { schedule: '2018-07-13T15:58:00+09:00' }
               }
             }
@@ -286,21 +604,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '778_05',
+                name: { ja: '野間', 'ja-Hira': 'のま', 'ja-Kana': 'ノマ', en: undefined },
+                location: {
+                  latitude: 34.790532,
+                  lat: 34.790532,
+                  longitude: 134.042157428571,
+                  lon: 134.042157428571,
+                  lng: 134.042157428571,
+                  long: 134.042157428571
+                },
                 date: { schedule: '2018-07-13T14:48:00+09:00' }
               },
               passing: {
-                id: '322_05',
-                date: {
-                  schedule: '2018-07-13T15:27:37+09:00',
-                  pass: '2018-07-13T15:29:00+09:00'
-                }
+                id: '778_05',
+                name: { ja: '野間', 'ja-Hira': 'のま', 'ja-Kana': 'ノマ', en: undefined },
+                location: {
+                  latitude: 34.790532,
+                  lat: 34.790532,
+                  longitude: 134.042157428571,
+                  lon: 134.042157428571,
+                  lng: 134.042157428571,
+                  long: 134.042157428571
+                },
+                date: { schedule: '2018-07-13T15:27:00+09:00', pass: '2018-07-13T15:29:00+09:00' }
               },
               next: {
                 id: '320_05',
+                name: {
+                  ja: '法界院駅前',
+                  'ja-Hira': 'ほうかいいんえきまえ',
+                  'ja-Kana': 'ホウカイインエキマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.685423,
+                  lat: 34.685423,
+                  longitude: 133.928522857143,
+                  lon: 133.928522857143,
+                  lng: 133.928522857143,
+                  long: 133.928522857143
+                },
                 date: { schedule: '2018-07-13T15:28:00+09:00' }
               },
               last: {
-                id: '12_06',
+                id: '320_05',
+                name: {
+                  ja: '法界院駅前',
+                  'ja-Hira': 'ほうかいいんえきまえ',
+                  'ja-Kana': 'ホウカイインエキマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.685423,
+                  lat: 34.685423,
+                  longitude: 133.928522857143,
+                  lon: 133.928522857143,
+                  lng: 133.928522857143,
+                  long: 133.928522857143
+                },
                 date: { schedule: '2018-07-13T15:46:00+09:00' }
               }
             }
@@ -324,21 +685,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
                 date: { schedule: '2018-07-13T14:20:00+09:00' }
               },
               passing: {
-                id: '842_04',
-                date: {
-                  schedule: '2018-07-13T15:27:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
+                date: { schedule: '2018-07-13T15:27:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '844_04',
+                name: {
+                  ja: '合田下',
+                  'ja-Hira': 'あいだしも',
+                  'ja-Kana': 'アイダシモ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.8458666666667,
+                  lat: 34.8458666666667,
+                  longitude: 134.006109761905,
+                  lon: 134.006109761905,
+                  lng: 134.006109761905,
+                  long: 134.006109761905
+                },
                 date: { schedule: '2018-07-13T15:28:00+09:00' }
               },
               last: {
-                id: '936_09',
+                id: '844_04',
+                name: {
+                  ja: '合田下',
+                  'ja-Hira': 'あいだしも',
+                  'ja-Kana': 'アイダシモ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.8458666666667,
+                  lat: 34.8458666666667,
+                  longitude: 134.006109761905,
+                  lon: 134.006109761905,
+                  lng: 134.006109761905,
+                  long: 134.006109761905
+                },
                 date: { schedule: '2018-07-13T16:15:00+09:00' }
               }
             }
@@ -362,21 +776,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '2_02',
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.664964,
+                  lat: 34.664964,
+                  longitude: 133.918558,
+                  lon: 133.918558,
+                  lng: 133.918558,
+                  long: 133.918558
+                },
                 date: { schedule: '2018-07-13T15:00:00+09:00' }
               },
               passing: {
-                id: '214_02',
-                date: {
-                  schedule: '2018-07-13T15:27:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '2_02',
+                name: {
+                  ja: '岡山駅',
+                  'ja-Hira': 'おかやまえき',
+                  'ja-Kana': 'オカヤマエキ',
+                  en: 'Okayama Station'
+                },
+                location: {
+                  latitude: 34.664964,
+                  lat: 34.664964,
+                  longitude: 133.918558,
+                  lon: 133.918558,
+                  lng: 133.918558,
+                  long: 133.918558
+                },
+                date: { schedule: '2018-07-13T15:27:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '216_02',
+                name: { ja: '賞田', 'ja-Hira': 'しょうだ', 'ja-Kana': 'ショウダ', en: undefined },
+                location: {
+                  latitude: 34.693846,
+                  lat: 34.693846,
+                  longitude: 133.96171,
+                  lon: 133.96171,
+                  lng: 133.96171,
+                  long: 133.96171
+                },
                 date: { schedule: '2018-07-13T15:28:00+09:00' }
               },
               last: {
-                id: '248_09',
+                id: '216_02',
+                name: { ja: '賞田', 'ja-Hira': 'しょうだ', 'ja-Kana': 'ショウダ', en: undefined },
+                location: {
+                  latitude: 34.693846,
+                  lat: 34.693846,
+                  longitude: 133.96171,
+                  lon: 133.96171,
+                  lng: 133.96171,
+                  long: 133.96171
+                },
                 date: { schedule: '2018-07-13T15:37:00+09:00' }
               }
             }
@@ -400,21 +857,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '792_05',
+                name: {
+                  ja: '桜が丘運動公園口',
+                  'ja-Hira': 'さくらがおかうんどうこうえんぐち',
+                  'ja-Kana': 'サクラガオカウンドウコウエングチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.7773193333333,
+                  lat: 34.7773193333333,
+                  longitude: 134.026143190477,
+                  lon: 134.026143190477,
+                  lng: 134.026143190477,
+                  long: 134.026143190477
+                },
                 date: { schedule: '2018-07-13T15:05:00+09:00' }
               },
               passing: {
-                id: '552_05',
-                date: {
-                  schedule: '2018-07-13T15:28:37+09:00',
-                  pass: '2018-07-13T15:32:00+09:00'
-                }
+                id: '792_05',
+                name: {
+                  ja: '桜が丘運動公園口',
+                  'ja-Hira': 'さくらがおかうんどうこうえんぐち',
+                  'ja-Kana': 'サクラガオカウンドウコウエングチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.7773193333333,
+                  lat: 34.7773193333333,
+                  longitude: 134.026143190477,
+                  lon: 134.026143190477,
+                  lng: 134.026143190477,
+                  long: 134.026143190477
+                },
+                date: { schedule: '2018-07-13T15:28:00+09:00', pass: '2018-07-13T15:32:00+09:00' }
               },
               next: {
                 id: '344_05',
+                name: {
+                  ja: '黒田団地',
+                  'ja-Hira': 'くろだだんち',
+                  'ja-Kana': 'クロダダンチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.727012,
+                  lat: 34.727012,
+                  longitude: 133.984814857143,
+                  lon: 133.984814857143,
+                  lng: 133.984814857143,
+                  long: 133.984814857143
+                },
                 date: { schedule: '2018-07-13T15:29:00+09:00' }
               },
               last: {
-                id: '12_06',
+                id: '344_05',
+                name: {
+                  ja: '黒田団地',
+                  'ja-Hira': 'くろだだんち',
+                  'ja-Kana': 'クロダダンチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.727012,
+                  lat: 34.727012,
+                  longitude: 133.984814857143,
+                  lon: 133.984814857143,
+                  lng: 133.984814857143,
+                  long: 133.984814857143
+                },
                 date: { schedule: '2018-07-13T16:03:00+09:00' }
               }
             }
@@ -438,21 +948,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '12_03',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661394,
+                  lat: 34.661394,
+                  longitude: 133.930167,
+                  lon: 133.930167,
+                  lng: 133.930167,
+                  long: 133.930167
+                },
                 date: { schedule: '2018-07-13T15:15:00+09:00' }
               },
               passing: {
-                id: '9513_03',
-                date: {
-                  schedule: '2018-07-13T15:24:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '12_03',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661394,
+                  lat: 34.661394,
+                  longitude: 133.930167,
+                  lon: 133.930167,
+                  lng: 133.930167,
+                  long: 133.930167
+                },
+                date: { schedule: '2018-07-13T15:24:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '9512_03',
+                name: {
+                  ja: '県民局入口（東岡山）',
+                  'ja-Hira': 'けんみんきょくいりぐち',
+                  'ja-Kana': 'ケンミンキョクイリグチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.669691,
+                  lat: 34.669691,
+                  longitude: 133.926171428572,
+                  lon: 133.926171428572,
+                  lng: 133.926171428572,
+                  long: 133.926171428572
+                },
                 date: { schedule: '2018-07-13T15:26:00+09:00' }
               },
               last: {
-                id: '249_09',
+                id: '9512_03',
+                name: {
+                  ja: '県民局入口（東岡山）',
+                  'ja-Hira': 'けんみんきょくいりぐち',
+                  'ja-Kana': 'ケンミンキョクイリグチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.669691,
+                  lat: 34.669691,
+                  longitude: 133.926171428572,
+                  lon: 133.926171428572,
+                  lng: 133.926171428572,
+                  long: 133.926171428572
+                },
                 date: { schedule: '2018-07-13T16:01:00+09:00' }
               }
             }
@@ -476,21 +1039,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '126_05',
+                name: { ja: '片上', 'ja-Hira': 'かたかみ', 'ja-Kana': 'カタカミ', en: undefined },
+                location: {
+                  latitude: 34.742623,
+                  lat: 34.742623,
+                  longitude: 134.184238,
+                  lon: 134.184238,
+                  lng: 134.184238,
+                  long: 134.184238
+                },
                 date: { schedule: '2018-07-13T15:11:00+09:00' }
               },
               passing: {
-                id: '106_05',
-                date: {
-                  schedule: '2018-07-13T15:21:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '126_05',
+                name: { ja: '片上', 'ja-Hira': 'かたかみ', 'ja-Kana': 'カタカミ', en: undefined },
+                location: {
+                  latitude: 34.742623,
+                  lat: 34.742623,
+                  longitude: 134.184238,
+                  lon: 134.184238,
+                  lng: 134.184238,
+                  long: 134.184238
+                },
+                date: { schedule: '2018-07-13T15:21:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '104_05',
+                name: {
+                  ja: '香登駅前',
+                  'ja-Hira': 'かがとえきまえ',
+                  'ja-Kana': 'カガトエキマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.728525,
+                  lat: 34.728525,
+                  longitude: 134.118878,
+                  lon: 134.118878,
+                  lng: 134.118878,
+                  long: 134.118878
+                },
                 date: { schedule: '2018-07-13T15:24:00+09:00' }
               },
               last: {
-                id: '2_09',
+                id: '104_05',
+                name: {
+                  ja: '香登駅前',
+                  'ja-Hira': 'かがとえきまえ',
+                  'ja-Kana': 'カガトエキマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.728525,
+                  lat: 34.728525,
+                  longitude: 134.118878,
+                  lon: 134.118878,
+                  lng: 134.118878,
+                  long: 134.118878
+                },
                 date: { schedule: '2018-07-13T16:28:00+09:00' }
               }
             }
@@ -514,21 +1120,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '792_05',
+                name: {
+                  ja: '桜が丘運動公園口',
+                  'ja-Hira': 'さくらがおかうんどうこうえんぐち',
+                  'ja-Kana': 'サクラガオカウンドウコウエングチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.7773193333333,
+                  lat: 34.7773193333333,
+                  longitude: 134.026143190477,
+                  lon: 134.026143190477,
+                  lng: 134.026143190477,
+                  long: 134.026143190477
+                },
                 date: { schedule: '2018-07-13T14:25:00+09:00' }
               },
               passing: {
-                id: '46_05',
-                date: {
-                  schedule: '2018-07-13T15:15:37+09:00',
-                  pass: '2018-07-13T15:32:00+09:00'
-                }
+                id: '792_05',
+                name: {
+                  ja: '桜が丘運動公園口',
+                  'ja-Hira': 'さくらがおかうんどうこうえんぐち',
+                  'ja-Kana': 'サクラガオカウンドウコウエングチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.7773193333333,
+                  lat: 34.7773193333333,
+                  longitude: 134.026143190477,
+                  lon: 134.026143190477,
+                  lng: 134.026143190477,
+                  long: 134.026143190477
+                },
+                date: { schedule: '2018-07-13T15:15:00+09:00', pass: '2018-07-13T15:32:00+09:00' }
               },
               next: {
                 id: '44_05',
+                name: { ja: '乙多見', 'ja-Hira': 'おたみ', 'ja-Kana': 'オタミ', en: undefined },
+                location: {
+                  latitude: 34.677361,
+                  lat: 34.677361,
+                  longitude: 133.981694,
+                  lon: 133.981694,
+                  lng: 133.981694,
+                  long: 133.981694
+                },
                 date: { schedule: '2018-07-13T15:15:00+09:00' }
               },
               last: {
-                id: '2_09',
+                id: '44_05',
+                name: { ja: '乙多見', 'ja-Hira': 'おたみ', 'ja-Kana': 'オタミ', en: undefined },
+                location: {
+                  latitude: 34.677361,
+                  lat: 34.677361,
+                  longitude: 133.981694,
+                  lon: 133.981694,
+                  lng: 133.981694,
+                  long: 133.981694
+                },
                 date: { schedule: '2018-07-13T15:42:00+09:00' }
               }
             }
@@ -552,21 +1201,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
                 date: { schedule: '2018-07-13T15:30:00+09:00' }
               },
               passing: {
-                id: '10_04',
-                date: {
-                  schedule: '2018-07-13T15:30:37+09:00',
-                  pass: '2018-07-13T15:30:00+09:00'
-                }
+                id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
+                date: { schedule: '2018-07-13T15:30:00+09:00', pass: '2018-07-13T15:30:00+09:00' }
               },
               next: {
                 id: '8_04',
+                name: {
+                  ja: '表町入口',
+                  'ja-Hira': 'おもてちょういりぐち',
+                  'ja-Kana': 'オモテチョウイリグチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.6655109999999,
+                  lat: 34.6655109999999,
+                  longitude: 133.928964285714,
+                  lon: 133.928964285714,
+                  lng: 133.928964285714,
+                  long: 133.928964285714
+                },
                 date: { schedule: '2018-07-13T15:31:00+09:00' }
               },
               last: {
-                id: '792_09',
+                id: '8_04',
+                name: {
+                  ja: '表町入口',
+                  'ja-Hira': 'おもてちょういりぐち',
+                  'ja-Kana': 'オモテチョウイリグチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.6655109999999,
+                  lat: 34.6655109999999,
+                  longitude: 133.928964285714,
+                  lon: 133.928964285714,
+                  lng: 133.928964285714,
+                  long: 133.928964285714
+                },
                 date: { schedule: '2018-07-13T16:35:00+09:00' }
               }
             }
@@ -590,21 +1292,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
                 date: { schedule: '2018-07-13T15:22:00+09:00' }
               },
               passing: {
-                id: '2_04',
-                date: {
-                  schedule: '2018-07-13T15:29:37+09:00',
-                  pass: '2018-07-13T15:32:00+09:00'
-                }
+                id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
+                date: { schedule: '2018-07-13T15:29:00+09:00', pass: '2018-07-13T15:32:00+09:00' }
               },
               next: {
                 id: '4_02',
+                name: {
+                  ja: '岡山駅前・ドレミの街',
+                  'ja-Hira': 'おかやまえきまえ',
+                  'ja-Kana': 'オカヤマエキマエ',
+                  en: 'Okatama Ekimae Doremi'
+                },
+                location: {
+                  latitude: 34.665691,
+                  lat: 34.665691,
+                  longitude: 133.921284,
+                  lon: 133.921284,
+                  lng: 133.921284,
+                  long: 133.921284
+                },
                 date: { schedule: '2018-07-13T15:30:00+09:00' }
               },
               last: {
-                id: '778_09',
+                id: '4_02',
+                name: {
+                  ja: '岡山駅前・ドレミの街',
+                  'ja-Hira': 'おかやまえきまえ',
+                  'ja-Kana': 'オカヤマエキマエ',
+                  en: 'Okatama Ekimae Doremi'
+                },
+                location: {
+                  latitude: 34.665691,
+                  lat: 34.665691,
+                  longitude: 133.921284,
+                  lon: 133.921284,
+                  lng: 133.921284,
+                  long: 133.921284
+                },
                 date: { schedule: '2018-07-13T16:22:00+09:00' }
               }
             }
@@ -628,21 +1383,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
                 date: { schedule: '2018-07-13T15:00:00+09:00' }
               },
               passing: {
-                id: '336_04',
-                date: {
-                  schedule: '2018-07-13T15:30:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '12_04',
+                name: {
+                  ja: '表町BC',
+                  'ja-Hira': 'おもてちょうばすせんたー',
+                  'ja-Kana': 'オモテチョウバスセンター',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.661395,
+                  lat: 34.661395,
+                  longitude: 133.930248,
+                  lon: 133.930248,
+                  lng: 133.930248,
+                  long: 133.930248
+                },
+                date: { schedule: '2018-07-13T15:30:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '338_04',
+                name: { ja: '大原', 'ja-Hira': 'おおはら', 'ja-Kana': 'オオハラ', en: undefined },
+                location: {
+                  latitude: 34.716961,
+                  lat: 34.716961,
+                  longitude: 133.973819142857,
+                  lon: 133.973819142857,
+                  lng: 133.973819142857,
+                  long: 133.973819142857
+                },
                 date: { schedule: '2018-07-13T15:31:00+09:00' }
               },
               last: {
-                id: '778_09',
+                id: '338_04',
+                name: { ja: '大原', 'ja-Hira': 'おおはら', 'ja-Kana': 'オオハラ', en: undefined },
+                location: {
+                  latitude: 34.716961,
+                  lat: 34.716961,
+                  longitude: 133.973819142857,
+                  lon: 133.973819142857,
+                  lng: 133.973819142857,
+                  long: 133.973819142857
+                },
                 date: { schedule: '2018-07-13T16:05:00+09:00' }
               }
             }
@@ -666,21 +1464,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '778_05',
+                name: { ja: '野間', 'ja-Hira': 'のま', 'ja-Kana': 'ノマ', en: undefined },
+                location: {
+                  latitude: 34.790532,
+                  lat: 34.790532,
+                  longitude: 134.042157428571,
+                  lon: 134.042157428571,
+                  lng: 134.042157428571,
+                  long: 134.042157428571
+                },
                 date: { schedule: '2018-07-13T15:22:00+09:00' }
               },
               passing: {
-                id: '744_05',
-                date: {
-                  schedule: '2018-07-13T15:30:37+09:00',
-                  pass: '2018-07-13T15:31:00+09:00'
-                }
+                id: '778_05',
+                name: { ja: '野間', 'ja-Hira': 'のま', 'ja-Kana': 'ノマ', en: undefined },
+                location: {
+                  latitude: 34.790532,
+                  lat: 34.790532,
+                  longitude: 134.042157428571,
+                  lon: 134.042157428571,
+                  lng: 134.042157428571,
+                  long: 134.042157428571
+                },
+                date: { schedule: '2018-07-13T15:30:00+09:00', pass: '2018-07-13T15:31:00+09:00' }
               },
               next: {
                 id: '742_05',
+                name: {
+                  ja: '赤磐市役所前',
+                  'ja-Hira': 'あかいわしやくしょまえ',
+                  'ja-Kana': 'アカイワシヤクショマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.755531,
+                  lat: 34.755531,
+                  longitude: 134.019948,
+                  lon: 134.019948,
+                  lng: 134.019948,
+                  long: 134.019948
+                },
                 date: { schedule: '2018-07-13T15:31:00+09:00' }
               },
               last: {
-                id: '2_09',
+                id: '742_05',
+                name: {
+                  ja: '赤磐市役所前',
+                  'ja-Hira': 'あかいわしやくしょまえ',
+                  'ja-Kana': 'アカイワシヤクショマエ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.755531,
+                  lat: 34.755531,
+                  longitude: 134.019948,
+                  lon: 134.019948,
+                  lng: 134.019948,
+                  long: 134.019948
+                },
                 date: { schedule: '2018-07-13T16:42:00+09:00' }
               }
             }
@@ -704,21 +1545,74 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '249_05',
+                name: {
+                  ja: '四御神車庫(東岡山)',
+                  'ja-Hira': 'ひがしおかやま',
+                  'ja-Kana': 'ヒガシオカヤマ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.691699,
+                  lat: 34.691699,
+                  longitude: 133.981635,
+                  lon: 133.981635,
+                  lng: 133.981635,
+                  long: 133.981635
+                },
                 date: { schedule: '2018-07-13T15:33:00+09:00' }
               },
               passing: {
                 id: '249_05',
-                date: {
-                  schedule: '2018-07-13T15:33:37+09:00',
-                  pass: '2018-07-13T15:32:00+09:00'
-                }
+                name: {
+                  ja: '四御神車庫(東岡山)',
+                  'ja-Hira': 'ひがしおかやま',
+                  'ja-Kana': 'ヒガシオカヤマ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.691699,
+                  lat: 34.691699,
+                  longitude: 133.981635,
+                  lon: 133.981635,
+                  lng: 133.981635,
+                  long: 133.981635
+                },
+                date: { schedule: '2018-07-13T15:33:00+09:00', pass: '2018-07-13T15:32:00+09:00' }
               },
               next: {
                 id: '664_05',
+                name: {
+                  ja: '四御神南(東岡山)',
+                  'ja-Hira': 'しのごぜみなみ',
+                  'ja-Kana': 'シノゴゼミナミ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.69252,
+                  lat: 34.69252,
+                  longitude: 133.981552857143,
+                  lon: 133.981552857143,
+                  lng: 133.981552857143,
+                  long: 133.981552857143
+                },
                 date: { schedule: '2018-07-13T15:33:00+09:00' }
               },
               last: {
-                id: '12_09',
+                id: '664_05',
+                name: {
+                  ja: '四御神南(東岡山)',
+                  'ja-Hira': 'しのごぜみなみ',
+                  'ja-Kana': 'シノゴゼミナミ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.69252,
+                  lat: 34.69252,
+                  longitude: 133.981552857143,
+                  lon: 133.981552857143,
+                  lng: 133.981552857143,
+                  long: 133.981552857143
+                },
                 date: { schedule: '2018-07-13T16:09:00+09:00' }
               }
             }
@@ -742,21 +1636,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '792_05',
+                name: {
+                  ja: '桜が丘運動公園口',
+                  'ja-Hira': 'さくらがおかうんどうこうえんぐち',
+                  'ja-Kana': 'サクラガオカウンドウコウエングチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.7773193333333,
+                  lat: 34.7773193333333,
+                  longitude: 134.026143190477,
+                  lon: 134.026143190477,
+                  lng: 134.026143190477,
+                  long: 134.026143190477
+                },
                 date: { schedule: '2018-07-13T15:21:00+09:00' }
               },
               passing: {
-                id: '954_05',
-                date: {
-                  schedule: '2018-07-13T15:31:37+09:00',
-                  pass: '2018-07-13T15:32:00+09:00'
-                }
+                id: '792_05',
+                name: {
+                  ja: '桜が丘運動公園口',
+                  'ja-Hira': 'さくらがおかうんどうこうえんぐち',
+                  'ja-Kana': 'サクラガオカウンドウコウエングチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.7773193333333,
+                  lat: 34.7773193333333,
+                  longitude: 134.026143190477,
+                  lon: 134.026143190477,
+                  lng: 134.026143190477,
+                  long: 134.026143190477
+                },
+                date: { schedule: '2018-07-13T15:31:00+09:00', pass: '2018-07-13T15:32:00+09:00' }
               },
               next: {
                 id: '2086_01',
+                name: { ja: '下市', 'ja-Hira': 'しもいち', 'ja-Kana': 'シモイチ', en: undefined },
+                location: {
+                  latitude: 34.753548,
+                  lat: 34.753548,
+                  longitude: 134.017006142858,
+                  lon: 134.017006142858,
+                  lng: 134.017006142858,
+                  long: 134.017006142858
+                },
                 date: { schedule: '2018-07-13T15:33:00+09:00' }
               },
               last: {
-                id: '12_06',
+                id: '2086_01',
+                name: { ja: '下市', 'ja-Hira': 'しもいち', 'ja-Kana': 'シモイチ', en: undefined },
+                location: {
+                  latitude: 34.753548,
+                  lat: 34.753548,
+                  longitude: 134.017006142858,
+                  lon: 134.017006142858,
+                  lng: 134.017006142858,
+                  long: 134.017006142858
+                },
                 date: { schedule: '2018-07-13T16:21:00+09:00' }
               }
             }
@@ -780,21 +1717,64 @@ describe('basumada', function() {
             stops: {
               first: {
                 id: '46_05',
+                name: {
+                  ja: '長岡団地',
+                  'ja-Hira': 'ながおかだんち',
+                  'ja-Kana': 'ナガオカダンチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.678351,
+                  lat: 34.678351,
+                  longitude: 133.984256,
+                  lon: 133.984256,
+                  lng: 133.984256,
+                  long: 133.984256
+                },
                 date: { schedule: '2018-07-13T15:30:00+09:00' }
               },
               passing: {
-                id: '40_05',
-                date: {
-                  schedule: '2018-07-13T15:32:37+09:00',
-                  pass: '2018-07-13T15:32:00+09:00'
-                }
+                id: '46_05',
+                name: {
+                  ja: '長岡団地',
+                  'ja-Hira': 'ながおかだんち',
+                  'ja-Kana': 'ナガオカダンチ',
+                  en: undefined
+                },
+                location: {
+                  latitude: 34.678351,
+                  lat: 34.678351,
+                  longitude: 133.984256,
+                  lon: 133.984256,
+                  lng: 133.984256,
+                  long: 133.984256
+                },
+                date: { schedule: '2018-07-13T15:32:00+09:00', pass: '2018-07-13T15:32:00+09:00' }
               },
               next: {
                 id: '38_05',
+                name: { ja: '兼基', 'ja-Hira': 'かねもと', 'ja-Kana': 'カネモト', en: undefined },
+                location: {
+                  latitude: 34.674193,
+                  lat: 34.674193,
+                  longitude: 133.973623,
+                  lon: 133.973623,
+                  lng: 133.973623,
+                  long: 133.973623
+                },
                 date: { schedule: '2018-07-13T15:33:00+09:00' }
               },
               last: {
-                id: '2_09',
+                id: '38_05',
+                name: { ja: '兼基', 'ja-Hira': 'かねもと', 'ja-Kana': 'カネモト', en: undefined },
+                location: {
+                  latitude: 34.674193,
+                  lat: 34.674193,
+                  longitude: 133.973623,
+                  lon: 133.973623,
+                  lng: 133.973623,
+                  long: 133.973623
+                },
                 date: { schedule: '2018-07-13T15:57:00+09:00' }
               }
             }
