@@ -1,0 +1,2 @@
+"agency_id","agency_name","agency_url","agency_timezone","agency_lang","agency_phone","agency_fare_url"
+"7260001007086","両備バス","http://www.ryobi-holdings.jp/bus/","Asia/Tokyo","ja","0862322116",
