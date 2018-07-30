@@ -8,14 +8,18 @@ import _translations from './gtfs_loader/translation'
 import __trips from './gtfs_loader/trips'
 import _calendar from './gtfs_loader/calendar'
 
-import { Ierror, broadcastBusStop } from '../interfaces'
+import { Ierror, busDate, stop } from '../interfaces'
+
+export interface route extends stop {
+  date: busDate
+}
 
 export default async function(
   companyName: string,
   routeNum: string,
   firstStopDate: moment.Moment,
   dayOnly: boolean = false
-): Promise<broadcastBusStop[][]> {
+): Promise<route[][]> {
   const [stopTimes, stops, translations, _trips] = await Promise.all([
     _stopTimes(),
     _stops(),
@@ -26,18 +30,19 @@ export default async function(
 
   const trips = await dateToServiceIds(companyName, firstStopDate).then(
     days =>
-      _trips[companyName][routeNum] &&
-      Object.values(_trips[companyName][routeNum]).filter(
-        trip =>
-          days.includes(trip.service_id) && dayOnly
-            ? true
-            : firstStopDate.format('HH:mm:ss') ===
-              stopTimes[companyName][trip.trip_id][0].arrival_time
-      )
+      _trips[companyName][routeNum]
+        ? Object.values(_trips[companyName][routeNum]).filter(
+            trip =>
+              days.includes(trip.service_id) && dayOnly
+                ? true
+                : firstStopDate.format('HH:mm:ss') ===
+                  stopTimes[companyName][trip.trip_id][0].arrival_time
+          )
+        : []
   )
 
   if (trips.length === 0) {
-    if (process.env.NODE_ENV !== 'test') console.log(companyName, routeNum)
+    if (process.env.NODE_ENV !== 'test') console.warn(companyName, routeNum)
 
     const err: Ierror = new Error('There is no such route.')
     err.code = 404
@@ -47,10 +52,7 @@ export default async function(
   return trips.map(trip =>
     stopTimes[companyName][trip.trip_id].map(stop => ({
       id: stop.stop_id,
-      name: Object.assign(
-        { ja: '', 'ja-Hira': '', en: undefined },
-        translations[companyName][stops[companyName][stop.stop_id].stop_name]
-      ),
+      name: translations[companyName][stops[companyName][stop.stop_id].stop_name],
       date: {
         schedule: stop.arrival_time
       },

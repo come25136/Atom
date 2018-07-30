@@ -45,7 +45,18 @@ export default async function() {
       columns: true
     })
 
-    companies[dir] = rows && rows.reduce((prev, stop) => ({ ...prev, [stop.stop_id]: stop }), {})
+    companies[dir] =
+      rows &&
+      rows.reduce(
+        (prev, stop) => ({
+          ...prev,
+          [stop.stop_id]: Object.assign({}, stop, {
+            stop_lat: Number(stop.stop_lat),
+            stop_lon: Number(stop.stop_lon)
+          })
+        }),
+        {}
+      )
   }
 
   return companies

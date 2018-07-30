@@ -4,7 +4,7 @@ import * as fs from 'fs'
 
 import * as csvParse from 'csv-parse'
 
-import { getDataDir } from '../util'
+import { getDataDir, translate } from '../util'
 
 interface Itranslation {
   trans_id: string
@@ -15,6 +15,7 @@ interface Itranslation {
 export interface Inames {
   ja: string
   'ja-Hira': string
+  'ja-Kana': string
   en?: string
 }
 
@@ -38,23 +39,44 @@ export default async function() {
   for (let dir of dirs) {
     if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
 
-    const stops: { [k: string]: Inames } = {},
-      rows = await csvParser(
-        await readFile(`${getDataDir()}/${dir}/gtfs/translations.txt`, 'utf8'),
-        {
-          columns: true
-        }
-      )
+    const rows = await csvParser(
+      await readFile(`${getDataDir()}/${dir}/gtfs/translations.txt`, 'utf8'),
+      {
+        columns: true
+      }
+    )
+
+    let stops: { [k: string]: Inames } = {}
 
     rows.forEach(
       stop =>
         (stops[stop.trans_id] = Object.assign(
-          { ja: '', 'ja-Hira': '', en: undefined },
+          { ja: '', 'ja-Hira': undefined, 'ja-Kana': undefined, en: undefined },
           stops[stop.trans_id],
           {
             [stop.lang]: stop.translation
           }
         ))
+    )
+
+    stops = Object.entries(stops).reduce(
+      (prev, [key, stop]) => ({
+        ...prev,
+        [key]: Object.assign(
+          {},
+          stop,
+          {
+            ja: stop.ja.replace(/[Ａ-Ｚａ-ｚ０-９]/g, char =>
+              String.fromCharCode(char.charCodeAt(0) - 0xfee0)
+            )
+          },
+          stop['ja-Hira'] && !stop['ja-Kana']
+            ? { 'ja-Kana': translate(stop['ja-Hira'], 'ja-Kana') }
+            : !stop['ja-Hira'] &&
+              stop['ja-Kana'] && { 'ja-Hira': translate(stop['ja-Kana'], 'ja-Hira') }
+        )
+      }),
+      {}
     )
 
     companies[dir] = stops

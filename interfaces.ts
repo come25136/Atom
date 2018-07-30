@@ -22,7 +22,7 @@ export interface broadcastStop extends stop {
   location: broadcastLocation
 }
 
-export interface broadcastBusStop extends stop {
+export interface broadcastBusStop extends broadcastStop {
   date: busDate
 }
 

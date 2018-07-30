@@ -5,8 +5,8 @@ import direction from '../../libs/direction'
 
 import { createBus } from '../classes/create_bus'
 
-import { broadcastLocation, broadcastData, stop } from '../../interfaces'
-import { Istop } from '../gtfs_loader/stops'
+import { broadcastLocation, broadcastData, broadcastStop } from '../../interfaces'
+import stops, { Istop } from '../gtfs_loader/stops'
 import translation from '../gtfs_loader/translation'
 
 import calendar from '../gtfs_loader/calendar'
@@ -15,6 +15,8 @@ import trips from '../gtfs_loader/trips'
 import stopTimes from '../gtfs_loader/stop_times'
 
 const moment = extendMoment(_moment)
+
+export * from './translate'
 
 export function getDataDir() {
   const dataDir = process.env.DATA || './data'
@@ -126,7 +128,10 @@ export async function createBusToBroadcastObject(bus: createBus): Promise<broadc
   }
 }
 
-export async function stopToBroadcastStop(companyName: string, stop: Istop): Promise<stop> {
+export async function stopToBroadcastStop(
+  companyName: string,
+  stop: Istop
+): Promise<broadcastStop> {
   return {
     id: stop.stop_id,
     name: await translation().then(data => data[companyName][stop.stop_name]),

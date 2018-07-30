@@ -1,10 +1,11 @@
 import * as moment from 'moment'
 
-import { h24ToLessH24 } from '../util'
+import { h24ToLessH24, locationToBroadcastLocation } from '../util'
 
 import { Inames } from '../gtfs_loader/translation'
 
-import { broadcastBusStop } from '../../interfaces'
+import { broadcastBusStop, stop } from '../../interfaces'
+import { route } from '../route'
 
 export interface IbusRaw {
   routeNum: string
@@ -21,8 +22,8 @@ export class createBus {
   private _delay: number
   private _licenseNumber: string // 車両番号(ナンバープレート)
   private _routeNum: string // 系統番号
-  private _stations: broadcastBusStop[]
-  private _route: broadcastBusStop[] // 路線
+  private _stations: stop[]
+  private _route: route[] // 路線
   private _location: {
     lat: number // 緯度(y)
     lon: number // 経度(x)
@@ -30,14 +31,14 @@ export class createBus {
   private _passing: broadcastBusStop
   private _nextIndex: number
 
-  private getIndex(route: broadcastBusStop[], passing: Inames) {
+  private getIndex(route: route[], passing: Inames) {
     return route.findIndex(stop => (passing.ja === stop.name.ja ? true : false))
   }
 
   constructor(
     private _companyName: string,
     bus: IbusRaw,
-    route: broadcastBusStop[],
+    route: route[],
     stations: string[],
     passing: {
       time: string
@@ -63,20 +64,10 @@ export class createBus {
 
     const passingIndex = this.getIndex(route, passing.name)
     this._passing = Object.assign({}, route[passingIndex], {
+      location: locationToBroadcastLocation(route[passingIndex].location),
       date: {
-        schedule: h24ToLessH24(route[passingIndex].date.schedule, _standardDate).format(),
+        schedule: route[passingIndex].date.schedule,
         pass: h24ToLessH24(passing.time, _standardDate).format()
-      }
-    })
-    this._nextIndex = passingIndex + 1
-  }
-
-  passing(passing: { time: string; name: Inames }) {
-    const passingIndex = this.getIndex(this._route, passing.name)
-    this._passing = Object.assign({}, this._route[passingIndex], {
-      time: {
-        ...this._route[passingIndex].date,
-        pass: h24ToLessH24(passing.time, this._startedAt).format()
       }
     })
     this._nextIndex = passingIndex + 1
