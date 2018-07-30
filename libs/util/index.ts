@@ -95,19 +95,31 @@ export async function createBusToBroadcastObject(bus: createBus): Promise<broadc
     location: locationToBroadcastLocation(bus.location),
     stops: {
       first: {
-        id: bus.firstStop.id,
+        ...(await stopToBroadcastStop(
+          bus.companyName,
+          (await stops())[bus.companyName][bus.firstStop.id]
+        )),
         date: bus.firstStop.date
       },
       passing: {
-        id: bus.passingStop.id,
+        ...(await stopToBroadcastStop(
+          bus.companyName,
+          (await stops())[bus.companyName][bus.firstStop.id]
+        )),
         date: bus.passingStop.date
       },
       next: {
-        id: bus.nextStop.id,
+        ...(await stopToBroadcastStop(
+          bus.companyName,
+          (await stops())[bus.companyName][bus.nextStop.id]
+        )),
         date: bus.nextStop.date
       },
       last: {
-        id: bus.lastStop.id,
+        ...(await stopToBroadcastStop(
+          bus.companyName,
+          (await stops())[bus.companyName][bus.nextStop.id]
+        )),
         date: bus.lastStop.date
       }
     }

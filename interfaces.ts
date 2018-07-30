@@ -35,11 +35,6 @@ export interface broadcastLocation {
   long: number
 }
 
-export interface busStop {
-  id: string
-  date: busDate
-}
-
 export interface broadcastData {
   run: boolean
   license_number?: string
@@ -50,9 +45,9 @@ export interface broadcastData {
   stations: string[]
   location?: broadcastLocation
   stops: {
-    first: busStop
-    passing?: busStop
-    next?: busStop
-    last: busStop
+    first: broadcastBusStop
+    passing?: broadcastBusStop
+    next?: broadcastBusStop
+    last: broadcastBusStop
   }
 }
