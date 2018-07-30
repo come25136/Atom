@@ -8,6 +8,8 @@ import _translations from './gtfs_loader/translation'
 import __trips from './gtfs_loader/trips'
 import _calendar from './gtfs_loader/calendar'
 
+import _shapes from './gtfs_loader/shapes'
+
 import { Ierror, busDate, stop } from '../interfaces'
 
 export interface route extends stop {
@@ -62,4 +64,26 @@ export default async function(
       }
     }))
   )
+}
+
+export async function getGeo(companyName: string, routeNum: string) {
+  const shapes = await _shapes()
+
+  return {
+    type: 'FeatureCollection',
+    features: {
+      id: routeNum,
+      type: 'Feature',
+      properties: {
+        shape_id: routeNum
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: shapes[companyName][routeNum].map(shape => [
+          shape.shape_pt_lon,
+          shape.shape_pt_lat
+        ])
+      }
+    }
+  }
 }

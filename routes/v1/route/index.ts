@@ -2,9 +2,13 @@ import * as moment from 'moment'
 
 import { Router } from 'express'
 
-import route from '../../../libs/route'
+import route, { getGeo } from '../../../libs/route'
 
 const router = Router({ mergeParams: true })
+
+router.get('/:routeNum', (req, res) =>
+  getGeo(req.params.companyName, req.params.routeNum).then(shapes => res.json(shapes))
+)
 
 // 系統番号と時刻から時刻表を取得
 router.get('/:routeNum/:date', (req, res) =>
