@@ -7,7 +7,9 @@ import route, { getGeo } from '../../../libs/route'
 const router = Router({ mergeParams: true })
 
 router.get('/:routeNum', (req, res) =>
-  getGeo(req.params.companyName, req.params.routeNum).then(shapes => res.json(shapes))
+  getGeo(req.params.companyName, req.params.routeNum)
+    .then(shapes => res.json(shapes))
+    .catch(err => res.status(404).json({ error: { message: err.message } }))
 )
 
 // 系統番号と時刻から時刻表を取得

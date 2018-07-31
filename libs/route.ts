@@ -69,6 +69,12 @@ export default async function(
 export async function getGeo(companyName: string, routeNum: string) {
   const shapes = await _shapes()
 
+  if (!shapes[companyName][routeNum]) {
+    const err: Ierror = new Error('There is no such route.')
+    err.code = 404
+    return Promise.reject(err)
+  }
+
   return {
     type: 'FeatureCollection',
     features: {
