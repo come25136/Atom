@@ -673,6 +673,13 @@ describe('unobus', function() {
         .get('/v1/unobus/stops/null')
         .expect(404))
 
+    describe('schedule', () => {
+      it('404', () =>
+        req(app)
+          .get('/v1/unobus/stops/null/schedule')
+          .expect(404))
+    })
+
     describe('Okayama Station', () => {
       it('info', () =>
         req(app)
