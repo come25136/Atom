@@ -3,6 +3,8 @@ import * as moment from 'moment'
 import { h24ToLessH24, locationToBroadcastLocation } from '../util'
 
 import { Inames } from '../gtfs_loader/translation'
+import stations from '../station_loader'
+import translations from '../gtfs_loader/translation'
 
 import { broadcastBusStop, stop } from '../../interfaces'
 import { route } from '../route'
@@ -16,11 +18,11 @@ export interface IbusRaw {
   lon: number
 }
 
-export class createBus {
+export class bus {
   private _startedAt: moment.Moment
   private _run: boolean // 運休の場合false
   private _delay: number
-  private _licenseNumber: string // 車両番号(ナンバープレート)
+  private _licenseNumber?: string // 車両番号(ナンバープレート)
   private _routeNum: string // 系統番号
   private _stations: stop[]
   private _route: route[] // 路線
@@ -31,13 +33,15 @@ export class createBus {
   private _passing: broadcastBusStop
   private _nextIndex: number
 
-  private getIndex(route: route[], passing: Inames) {
-    return route.findIndex(stop => (passing.ja === stop.name.ja ? true : false))
-  }
-
   constructor(
     private _companyName: string,
-    bus: IbusRaw,
+    bus: {
+      isRun: boolean
+      licenseNum?: string
+      delay: number
+      routeNum: string
+      location: { lat: number; lon: number }
+    },
     route: route[],
     stations: string[],
     passing: {
@@ -47,27 +51,24 @@ export class createBus {
     private _standardDate: moment.Moment = moment()
   ) {
     this._startedAt = h24ToLessH24(route[0].date.schedule, _standardDate)
-    this._run = bus.run === '運休' ? false : true
+    this._run = bus.isRun
     this._delay = bus.delay
-    this._licenseNumber = bus.licenseNumber
+    this._licenseNumber = bus.licenseNum
     this._routeNum = bus.routeNum
     this._stations = route.filter(stop => stations.includes(stop.id))
     this._route = route.map(stop =>
-      Object.assign(stop, {
+      Object.assign({}, stop, {
         date: { schedule: h24ToLessH24(stop.date.schedule, _standardDate).format() }
       })
     )
-    this._location = {
-      lat: bus.lat,
-      lon: bus.lon
-    }
+    this._location = bus.location
 
-    const passingIndex = this.getIndex(route, passing.name)
+    const passingIndex = route.findIndex(stop => (passing.name.ja === stop.name.ja ? true : false))
     this._passing = Object.assign({}, route[passingIndex], {
       location: locationToBroadcastLocation(route[passingIndex].location),
       date: {
-        schedule: route[passingIndex].date.schedule,
-        pass: h24ToLessH24(passing.time, _standardDate).format()
+        schedule: h24ToLessH24(route[passingIndex].date.schedule, _standardDate).format(),
+        pass: h24ToLessH24(passing.time, _standardDate, true, true).format()
       }
     })
     this._nextIndex = passingIndex + 1
@@ -124,4 +125,35 @@ export class createBus {
   get lastStop() {
     return this._route[this._route.length - 1]
   }
+}
+
+export async function createBus(
+  companyName: string,
+  isRun: boolean,
+  delay: number,
+  routeNum: string,
+  location: { lat: number; lon: number },
+  firstStopTime: string,
+  passingStopName: string,
+  passingStopTime: string,
+  standardDate: moment.Moment,
+  licenseNum?: string
+) {
+  return new bus(
+    companyName,
+    {
+      routeNum,
+      isRun,
+      delay,
+      licenseNum,
+      location
+    },
+    (await route(companyName, routeNum, h24ToLessH24(firstStopTime, standardDate)))[0],
+    (await stations()).unobus,
+    {
+      time: passingStopTime,
+      name: (await translations())[companyName][passingStopName]
+    },
+    standardDate
+  )
 }

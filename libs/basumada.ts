@@ -5,13 +5,7 @@ import * as csvParse from 'csv-parse'
 
 import * as moment from 'moment'
 
-import translations from './gtfs_loader/translation'
-
-import stations from './station_loader'
-
-import route from '../libs/route'
-
-import { createBus } from './classes/create_bus'
+import { bus, createBus } from './classes/create_bus'
 
 import { Ierror } from '../interfaces'
 
@@ -30,7 +24,7 @@ export interface basumadaRaw {
 
 export interface basumada {
   change: boolean
-  buses: { [k: string]: createBus }
+  buses: { [k: string]: bus }
   date: moment.Moment
   raw: string
 }
@@ -66,32 +60,25 @@ export async function rawToObject(
       comment: '//'
     })
 
-  const buses: { [k: string]: createBus } = {}
+  const buses: { [k: string]: bus } = {}
 
   for (const busRaw of busesRaw) {
     if (busRaw.passingStop.substr(13, 3) === '《着》') continue
 
-    const bus = new createBus(
+    const bus = await createBus(
       companyName,
+      busRaw.run === '運休' ? false : true,
+      Number(busRaw.delay),
+      busRaw.routeNum,
       {
-        routeNum: busRaw.routeNum,
-        run: busRaw.run,
-        delay: Number(busRaw.delay),
-        licenseNumber: busRaw.licenseNumber,
         lat: Number(busRaw.lat),
         lon: Number(busRaw.lon)
       },
-      (await route(
-        companyName,
-        busRaw.routeNum,
-        h24ToLessH24(busRaw.firstStop.substr(3, 5), date)
-      ))[0],
-      (await stations()).unobus,
-      {
-        time: busRaw.passingStop.substr(6, 5),
-        name: (await translations())[companyName][busRaw.passingStop.substr(13)]
-      },
-      h24ToLessH24(rawData.substr(0, 8), date)
+      busRaw.firstStop.substr(3, 5),
+      busRaw.passingStop.substr(13),
+      busRaw.passingStop.substr(6, 5),
+      h24ToLessH24(rawData.substr(0, 8), date),
+      busRaw.licenseNumber
     )
 
     buses[`${bus.routeNumber}_${bus.licenseNumber}`] = bus

@@ -3,7 +3,7 @@ import { extendMoment } from 'moment-range'
 
 import direction from '../../libs/direction'
 
-import { createBus } from '../classes/create_bus'
+import { bus } from '../classes/create_bus'
 
 import { broadcastLocation, broadcastData, broadcastStop } from '../../interfaces'
 import stops, { Istop } from '../gtfs_loader/stops'
@@ -70,7 +70,7 @@ export function locationToBroadcastLocation({
   }
 }
 
-export async function createBusToBroadcastObject(bus: createBus): Promise<broadcastData> {
+export async function createBusToBroadcastObject(bus: bus): Promise<broadcastData> {
   const trip = await dateToServiceIds(bus.companyName, bus.standardDate).then(async days =>
     Object.values((await trips())[bus.companyName][bus.routeNumber]).find(trip =>
       days.includes(trip.service_id)
