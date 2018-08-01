@@ -68,7 +68,7 @@ export class bus {
       location: locationToBroadcastLocation(route[passingIndex].location),
       date: {
         schedule: h24ToLessH24(route[passingIndex].date.schedule, _standardDate).format(),
-        pass: h24ToLessH24(passing.time, _standardDate, true, true).format()
+        pass: h24ToLessH24(passing.time, _standardDate).format()
       }
     })
     this._nextIndex = passingIndex + 1
