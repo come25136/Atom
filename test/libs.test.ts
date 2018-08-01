@@ -2,7 +2,7 @@ import { assert } from 'chai'
 
 import * as moment from 'moment'
 
-import route from '../libs/route'
+import { route } from '../libs/route'
 
 describe('route', () => {
   it('not trip', () =>

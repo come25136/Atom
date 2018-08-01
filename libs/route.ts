@@ -16,7 +16,7 @@ export interface route extends stop {
   date: busDate
 }
 
-export default async function(
+export async function route(
   companyName: string,
   routeNum: string,
   firstStopDate: moment.Moment,

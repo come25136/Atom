@@ -2,7 +2,7 @@ import * as moment from 'moment'
 
 import { Router } from 'express'
 
-import route, { getGeo } from '../../../libs/route'
+import { route, getGeo } from '../../../libs/route'
 
 const router = Router({ mergeParams: true })
 
