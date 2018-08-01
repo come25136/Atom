@@ -77,10 +77,10 @@ if (process.env.NODE_ENV !== 'test') {
           writeFile(
             `./raw_data/${date.format('YYYY-MM-DD HH-mm-ss')}.txt`,
             raw,
-            err => (err ? console.log(err) : null)
+            err => (err ? console.error(err) : null)
           )
 
-        console.log('change!!')
+        process.env.NODE_ENV !== 'production' && console.log('change!!')
 
         cache.data.broadcastBuses = await Promise.all(
           Object.values(buses).map(bus => createBusToBroadcastObject(bus))
@@ -98,7 +98,8 @@ if (process.env.NODE_ENV !== 'test') {
 
       const awaitTime2 = 0 < awaitTime && awaitTime <= 10000 ? awaitTime : 3000 // システムの都合上10秒以上待つとリアルタイム性が失われるので
 
-      console.log(`It gets the data after ${awaitTime2 / 1000} seconds. ${awaitTime}`)
+      process.env.NODE_ENV !== 'production' &&
+        console.log(`It gets the data after ${awaitTime2 / 1000} seconds. ${awaitTime}`)
 
       setTimeout(getBusLoop, awaitTime2)
     } catch (err) {
