@@ -31,7 +31,8 @@ export function getDataDir() {
 export function h24ToLessH24(
   _time: string,
   standard: _moment.Moment = moment(),
-  override: boolean = true
+  override: boolean = true,
+  subtract: boolean = false
 ) {
   const timeSplit = _time.split(':'),
     time = {
@@ -41,11 +42,20 @@ export function h24ToLessH24(
     }
 
   return override
-    ? standard
-        .clone()
-        .hour(time.hour)
-        .minute(time.minute)
-        .second(time.second)
+    ? subtract
+      ? standard
+          .clone()
+          .subtract(Math.floor(time.hour / 24), 'd')
+          .hour(
+            1 <= time.hour / 24 ? (time.hour / 24 - Math.floor(time.hour / 24)) * 24 : time.hour
+          )
+          .minute(time.minute)
+          .second(time.second)
+      : standard
+          .clone()
+          .hour(time.hour)
+          .minute(time.minute)
+          .second(time.second)
     : standard
         .clone()
         .add(time.hour, 'h')
