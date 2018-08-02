@@ -35,7 +35,7 @@ export async function rawToObject(
   companyName: string,
   rawData: string,
   comparisonRawData?: string,
-  _date?: moment.Moment
+  standardDate?: moment.Moment
 ): Promise<basumada> {
   if (!/\/\/LAST/.test(rawData)) {
     const error: Ierror = new Error('Server side processing is not completed.')
@@ -43,43 +43,46 @@ export async function rawToObject(
     throw error
   }
 
-  const date = _date ? _date : h24ToLessH24(rawData.substr(0, 8)),
-    busesRaw: basumadaRaw[] = await csvParser(rawData.substr(11), {
-      columns: [
-        'routeNum',
-        'okayamaStopTime',
-        'delay',
-        'run',
-        'passingStop',
-        'licenseNumber',
-        'lat',
-        'lon',
-        'firstStop',
-        'finalStop'
-      ],
-      comment: '//'
-    })
+  const busesRaw: basumadaRaw[] = await csvParser(rawData.substr(11), {
+    columns: [
+      'routeNum',
+      'okayamaStopTime',
+      'delay',
+      'run',
+      'passingStop',
+      'licenseNumber',
+      'lat',
+      'lon',
+      'firstStop',
+      'finalStop'
+    ],
+    comment: '//'
+  })
 
   const buses: { [k: string]: bus } = {}
 
   for (const busRaw of busesRaw) {
     if (busRaw.passingStop.substr(13, 3) === '《着》') continue
 
-    const bus = await createBus(
-      companyName,
-      busRaw.run === '運休' ? false : true,
-      Number(busRaw.delay),
-      busRaw.routeNum,
-      {
-        lat: Number(busRaw.lat),
-        lon: Number(busRaw.lon)
-      },
-      busRaw.firstStop.substr(3, 5),
-      busRaw.passingStop.substr(13),
-      busRaw.passingStop.substr(6, 5),
-      h24ToLessH24(rawData.substr(0, 8), date),
-      busRaw.licenseNumber
-    )
+    const startDate = h24ToLessH24(
+        busRaw.firstStop.substr(3, 5),
+        h24ToLessH24(busRaw.passingStop.substr(6, 5), standardDate, true, true)
+      ),
+      bus = await createBus(
+        companyName,
+        busRaw.run === '運休' ? false : true,
+        Number(busRaw.delay),
+        busRaw.routeNum,
+        {
+          lat: Number(busRaw.lat),
+          lon: Number(busRaw.lon)
+        },
+        startDate,
+        busRaw.passingStop.substr(13),
+        h24ToLessH24(busRaw.passingStop.substr(6, 5), startDate),
+        startDate,
+        busRaw.licenseNumber
+      )
 
     buses[`${bus.routeNumber}_${bus.licenseNumber}`] = bus
   }
@@ -92,7 +95,7 @@ export async function rawToObject(
         ? false
         : true,
     buses,
-    date,
+    date: h24ToLessH24(rawData.substr(1, 8), standardDate),
     raw: rawData
   }
 }

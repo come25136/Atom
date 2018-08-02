@@ -19,7 +19,7 @@ export interface IbusRaw {
 }
 
 export class bus {
-  private _startedAt: moment.Moment
+  private _startDate: moment.Moment
   private _run: boolean // 運休の場合false
   private _delay: number
   private _licenseNumber?: string // 車両番号(ナンバープレート)
@@ -45,12 +45,12 @@ export class bus {
     route: route[],
     stations: string[],
     passing: {
-      time: string
+      time: moment.Moment
       name: Inames
     },
-    private _standardDate: moment.Moment = moment()
+    _standardDate: moment.Moment = moment()
   ) {
-    this._startedAt = h24ToLessH24(route[0].date.schedule, _standardDate)
+    this._startDate = h24ToLessH24(route[0].date.schedule, _standardDate)
     this._run = bus.isRun
     this._delay = bus.delay
     this._licenseNumber = bus.licenseNum
@@ -64,11 +64,11 @@ export class bus {
     this._location = bus.location
 
     const passingIndex = route.findIndex(stop => (passing.name.ja === stop.name.ja ? true : false))
-    this._passing = Object.assign({}, route[passingIndex], {
+    this._passing = Object.assign({}, this._route[passingIndex], {
       location: locationToBroadcastLocation(route[passingIndex].location),
       date: {
-        schedule: h24ToLessH24(route[passingIndex].date.schedule, _standardDate).format(),
-        pass: h24ToLessH24(passing.time, _standardDate).format()
+        ...this._route[passingIndex].date,
+        pass: passing.time.format()
       }
     })
     this._nextIndex = passingIndex + 1
@@ -82,8 +82,8 @@ export class bus {
     return this._run
   }
 
-  get standardDate() {
-    return this._standardDate
+  get startDate() {
+    return this._startDate
   }
 
   get licenseNumber() {
@@ -133,9 +133,9 @@ export async function createBus(
   delay: number,
   routeNum: string,
   location: { lat: number; lon: number },
-  firstStopTime: string,
+  firstStopTime: moment.Moment,
   passingStopName: string,
-  passingStopTime: string,
+  passingStopTime: moment.Moment,
   standardDate: moment.Moment,
   licenseNum?: string
 ) {
@@ -148,7 +148,7 @@ export async function createBus(
       licenseNum,
       location
     },
-    (await route(companyName, routeNum, h24ToLessH24(firstStopTime, standardDate)))[0],
+    (await route(companyName, routeNum, firstStopTime))[0],
     (await stations()).unobus,
     {
       time: passingStopTime,

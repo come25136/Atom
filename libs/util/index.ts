@@ -81,7 +81,7 @@ export function locationToBroadcastLocation({
 }
 
 export async function createBusToBroadcastObject(bus: bus): Promise<broadcastData> {
-  const trip = await dateToServiceIds(bus.companyName, bus.standardDate).then(async days =>
+  const trip = await dateToServiceIds(bus.companyName, bus.startDate).then(async days =>
     Object.values((await trips())[bus.companyName][bus.routeNumber]).find(trip =>
       days.includes(trip.service_id)
     )
