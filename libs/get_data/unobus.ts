@@ -6,9 +6,9 @@ import { extendMoment } from 'moment-range'
 import { writeFile } from 'fs'
 
 import { rawToObject } from '../basumada'
-import { createBusToBroadcastObject } from '../util'
+import { createBusToBroadcastObject, ioEmitPosition } from '../util'
 
-import { broadcastData } from '../../interfaces'
+import { broadcastPosition } from '../../interfaces'
 
 import { Server } from 'socket.io'
 
@@ -21,7 +21,7 @@ const cache: {
   data: {
     raw: string
     broadcastBuses: {
-      positions: broadcastData[]
+      positions: broadcastPosition[]
     }
   }
 } = {
@@ -49,10 +49,7 @@ export function unoBusLoop(io: Server, companyName: string) {
       cache.data.raw = raw
 
       if (Object.keys(cache.data.broadcastBuses).length !== 0 && Object.keys(buses).length === 0)
-        io.to(companyName).emit('position', {
-          company_name: companyName,
-          buses: (cache.data.broadcastBuses.positions = [])
-        })
+        ioEmitPosition(io, 'unobus', (cache.data.broadcastBuses.positions = []))
       if (Object.keys(buses).length === 0) return setTimeout(getBusLoop, 6000)
 
       // 起動直後は必ずtrueになる
@@ -75,10 +72,7 @@ export function unoBusLoop(io: Server, companyName: string) {
           Object.values(buses).map(bus => createBusToBroadcastObject(bus))
         )
 
-        io.to(companyName).emit('position', {
-          company_name: companyName,
-          buses: cache.data.broadcastBuses.positions
-        })
+        ioEmitPosition(io, 'unobus', cache.data.broadcastBuses.positions)
       }
 
       const awaitTime = cache.date

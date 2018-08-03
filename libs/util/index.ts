@@ -1,11 +1,18 @@
 import * as _moment from 'moment'
 import { extendMoment } from 'moment-range'
 
+import { Server as socketIoServer } from 'socket.io'
+
 import direction from '../../libs/direction'
 
 import { bus } from '../classes/create_bus'
 
-import { broadcastLocation, broadcastData, broadcastStop } from '../../interfaces'
+import {
+  broadcastLocation,
+  broadcastPosition,
+  broadcastStop,
+  emitPositions
+} from '../../interfaces'
 import stops, { Istop } from '../gtfs_loader/stops'
 import translation from '../gtfs_loader/translation'
 
@@ -80,7 +87,7 @@ export function locationToBroadcastLocation({
   }
 }
 
-export async function createBusToBroadcastObject(bus: bus): Promise<broadcastData> {
+export async function createBusToBroadcastObject(bus: bus): Promise<broadcastPosition> {
   const trip = await dateToServiceIds(bus.companyName, bus.startDate).then(async days =>
     Object.values((await trips())[bus.companyName][bus.routeNumber]).find(trip =>
       days.includes(trip.service_id)
@@ -185,4 +192,15 @@ export async function dateToServiceIds(companyName: string, date: _moment.Moment
           : true
     )
     .map(row => row.service_id)
+}
+
+export function ioEmitPosition(
+  io: socketIoServer,
+  companyName: string,
+  buses: broadcastPosition[]
+) {
+  io.to(companyName).emit('position', {
+    company_name: companyName,
+    buses
+  } as emitPositions)
 }

@@ -1,4 +1,4 @@
-import * as superagent from 'superagent'
+import { ioEmitPosition } from './libs/util'
 
 import { Server as httpServer } from 'http'
 import * as express from 'express'
@@ -34,7 +34,7 @@ if (process.env.NODE_ENV !== 'test') {
             error: { code: 404 },
             company_name: companyName
           })
-        : socket.join(companyName, () => socket.emit(company.name, company.getPositions()))
+        : socket.join(companyName, () => ioEmitPosition(io, companyName, company.getPositions()))
     })
   )
 

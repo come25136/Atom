@@ -35,7 +35,7 @@ export interface broadcastLocation {
   long: number
 }
 
-export interface broadcastData {
+export interface broadcastPosition {
   run: boolean
   license_number?: string
   rollsign?: string
@@ -50,4 +50,9 @@ export interface broadcastData {
     next?: broadcastBusStop
     last: broadcastBusStop
   }
+}
+
+export interface emitPositions {
+  company_name: string
+  buses: broadcastPosition[]
 }
