@@ -21,22 +21,30 @@ router.get('/(:date)?', (req, res) =>
 
       const stopTimes = await stop_times()
 
+      const standardDate = req.params.date ? moment(req.params.date) : moment()
+
       res.json(
         (await trips().then(async trips =>
-          (await dateToServiceIds(
-            req.params.companyName,
-            req.params.date ? moment(req.params.date) : moment()
-          )).map(serviceId =>
+          (await dateToServiceIds(req.params.companyName, standardDate)).map(serviceId =>
             Object.values(trips[req.params.companyName]).reduce(
-              (prev: { route: { id: string }; time: string }[], route) => {
+              (prev: { route: { id: string }; date: string }[], route) => {
                 const time = Object.values(route).reduce(
-                  (prev: { route: { id: string }; time: string }[], trip) => {
+                  (prev: { route: { id: string }; date: string }[], trip) => {
                     const stop = stopTimes[req.params.companyName][trip.trip_id].find(
                       stop => stop.stop_id === req.params.id
                     )
 
                     return serviceId === trip.service_id && stop
-                      ? [...prev, { route: { id: trip.route_id }, time: stop.arrival_time }]
+                      ? [
+                          ...prev,
+                          {
+                            route: {
+                              id: trip.route_id,
+                              headsign: stop.stop_headsign || trip.trip_headsign
+                            },
+                            date: h24ToLessH24(stop.arrival_time, standardDate).format()
+                          }
+                        ]
                       : prev
                   },
                   []
@@ -49,7 +57,7 @@ router.get('/(:date)?', (req, res) =>
           )
         ))
           .reduce((prev, current) => [...prev, ...current], [])
-          .sort((a, b) => (h24ToLessH24(a.time).isBefore(h24ToLessH24(b.time), 'm') ? -1 : 1))
+          .sort((a, b) => (moment(a.date).isBefore(moment(b.date), 'm') ? -1 : 1))
       )
     })
     .catch(err => {

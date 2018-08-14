@@ -48,7 +48,10 @@ export function unoBusLoop(io: Server, companyName: string) {
 
       cache.data.raw = raw
 
-      if (Object.keys(cache.data.broadcastBuses).length !== 0 && Object.keys(buses).length === 0)
+      if (
+        cache.data.broadcastBuses.positions.length !== 0 &&
+        Object.keys(buses).length === 0
+      )
         ioEmitPosition(io, 'unobus', (cache.data.broadcastBuses.positions = []))
       if (Object.keys(buses).length === 0) return setTimeout(getBusLoop, 6000)
 

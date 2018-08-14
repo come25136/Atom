@@ -38,7 +38,7 @@ export interface broadcastLocation {
 export interface broadcastPosition {
   run: boolean
   license_number?: string
-  rollsign?: string
+  headsign?: string
   delay?: number
   route_num: string
   direction?: number // 方角(右回り 0~359)

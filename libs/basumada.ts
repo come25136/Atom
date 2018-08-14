@@ -79,8 +79,8 @@ export async function rawToObject(
         },
         startDate,
         busRaw.passingStop.substr(13),
-        h24ToLessH24(busRaw.passingStop.substr(6, 5), startDate),
         startDate,
+        h24ToLessH24(busRaw.passingStop.substr(6, 5), startDate),
         busRaw.licenseNumber
       )
 
@@ -90,8 +90,8 @@ export async function rawToObject(
   return {
     change:
       comparisonRawData &&
-      comparisonRawData.substr(9).replace(/.+《着》.+\n/, '') ===
-        rawData.substr(9).replace(/.+《着》.+\n/, '')
+      comparisonRawData.substr(11).replace(/.+《着》.+\n/, '') ===
+        rawData.substr(11).replace(/.+《着》.+\n/, '')
         ? false
         : true,
     buses,

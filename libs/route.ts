@@ -2,7 +2,7 @@ import { dateToServiceIds } from './util'
 
 import * as moment from 'moment'
 
-import _stopTimes from './gtfs_loader/stop_times'
+import _stopTimes, { Istop } from './gtfs_loader/stop_times'
 import { default as _stops } from './gtfs_loader/stops'
 import _translations from './gtfs_loader/translation'
 import __trips from './gtfs_loader/trips'
@@ -13,6 +13,7 @@ import _shapes from './gtfs_loader/shapes'
 import { Ierror, busDate, stop } from '../interfaces'
 
 export interface route extends stop {
+  stop_sequence: Istop['stop_sequence']
   date: busDate
 }
 
@@ -53,6 +54,7 @@ export async function route(
 
   return trips.map(trip =>
     stopTimes[companyName][trip.trip_id].map(stop => ({
+      stop_sequence: stop.stop_sequence,
       id: stop.stop_id,
       name: translations[companyName][stops[companyName][stop.stop_id].stop_name],
       date: {

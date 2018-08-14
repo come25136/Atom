@@ -10,10 +10,20 @@ const router = Router({ mergeParams: true })
 
 router.use('/:id/schedule', schedule)
 
-// 停留所一覧(idのみ)
+// 停留所一覧
 router.get('/', (req, res) =>
   stops()
-    .then(stops => res.json(Object.keys(stops[req.params.companyName])))
+    .then(async stops =>
+      res.json(
+        req.query.details === 'true'
+          ? await Promise.all(
+              Object.values(stops[req.params.companyName]).map(
+                async stop => await stopToBroadcastStop(req.params.companyName, stop)
+              )
+            )
+          : Object.keys(stops[req.params.companyName])
+      )
+    )
     .catch(err => res.status(404).json({ error: { message: 'There is no such bus company.' } }))
 )
 

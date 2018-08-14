@@ -2,12 +2,12 @@ import * as moment from 'moment'
 
 import { h24ToLessH24, locationToBroadcastLocation } from '../util'
 
-import { Inames } from '../gtfs_loader/translation'
+import { Istop } from '../gtfs_loader/stop_times'
 import stations from '../station_loader'
 import translations from '../gtfs_loader/translation'
 
 import { broadcastBusStop, stop } from '../../interfaces'
-import { route } from '../route'
+import { route as _route } from '../route'
 
 export interface IbusRaw {
   routeNum: string
@@ -25,7 +25,7 @@ export class bus {
   private _licenseNumber?: string // 車両番号(ナンバープレート)
   private _routeNum: string // 系統番号
   private _stations: stop[]
-  private _route: route[] // 路線
+  private _route: _route[] // 路線
   private _location: {
     lat: number // 緯度(y)
     lon: number // 経度(x)
@@ -41,13 +41,11 @@ export class bus {
       delay: number
       routeNum: string
       location: { lat: number; lon: number }
+      currentStopPassingTime?: moment.Moment
     },
-    route: route[],
+    route: _route[],
     stations: string[],
-    passing: {
-      time: moment.Moment
-      name: Inames
-    },
+    currentStopSequence: Istop['stop_sequence'],
     _standardDate: moment.Moment = moment()
   ) {
     this._startDate = h24ToLessH24(route[0].date.schedule, _standardDate)
@@ -63,12 +61,18 @@ export class bus {
     )
     this._location = bus.location
 
-    const passingIndex = route.findIndex(stop => (passing.name.ja === stop.name.ja ? true : false))
+    const passingIndex = route.findIndex(
+      stop => (stop.stop_sequence === currentStopSequence ? true : false)
+    )
     this._passing = Object.assign({}, this._route[passingIndex], {
       location: locationToBroadcastLocation(route[passingIndex].location),
       date: {
         ...this._route[passingIndex].date,
-        pass: passing.time.format()
+        pass: bus.currentStopPassingTime
+          ? bus.currentStopPassingTime.format()
+          : moment(this._route[passingIndex].date.schedule)
+              .add(this.delay, 's')
+              .format()
       }
     })
     this._nextIndex = passingIndex + 1
@@ -134,11 +138,22 @@ export async function createBus(
   routeNum: string,
   location: { lat: number; lon: number },
   firstStopTime: moment.Moment,
-  passingStopName: string,
-  passingStopTime: moment.Moment,
+  _currentStopSequence: Istop['stop_sequence'] | string,
   standardDate: moment.Moment,
+  currentStopPassingTime?: moment.Moment,
   licenseNum?: string
 ) {
+  const route = (await _route(companyName, routeNum, firstStopTime))[0]
+
+  const currentStopSequence =
+    typeof _currentStopSequence === 'string'
+      ? await translations().then(data =>
+          route.find(({ name }) => name.ja === data[companyName][_currentStopSequence].ja)
+        )
+      : _currentStopSequence
+
+  if (!currentStopSequence) return Promise.reject('unko')
+
   return new bus(
     companyName,
     {
@@ -146,14 +161,14 @@ export async function createBus(
       isRun,
       delay,
       licenseNum,
-      location
+      location,
+      currentStopPassingTime
     },
-    (await route(companyName, routeNum, firstStopTime))[0],
-    (await stations()).unobus,
-    {
-      time: passingStopTime,
-      name: (await translations())[companyName][passingStopName]
-    },
+    route,
+    (await stations())[companyName],
+    typeof currentStopSequence !== 'number'
+      ? currentStopSequence.stop_sequence
+      : currentStopSequence,
     standardDate
   )
 }

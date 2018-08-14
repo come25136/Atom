@@ -43,19 +43,3 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export default app
-/*
-import { load as protoLoad } from 'protobufjs'
-
-protoLoad('data/gtfs-realtime.proto').then(async root => {
-  const AwesomeMessage = root.lookupType('transit_realtime.FeedMessage')
-
-  const pb = await superagent
-    .get('http://loc.bus-vision.jp/realtime/ryobi_vpos_update.bin')
-    .responseType('blob')
-    .then(res => res.body)
-
-  const realtimeData = AwesomeMessage.decode(pb)
-
-  console.log(realtimeData.toJSON())
-})
-*/

@@ -103,7 +103,7 @@ export async function createBusToBroadcastObject(bus: bus): Promise<broadcastPos
   return {
     run: bus.isRun,
     license_number: bus.licenseNumber,
-    rollsign:
+    headsign:
       passingHeadsign && passingHeadsign.stop_headsign
         ? passingHeadsign.stop_headsign
         : trip.trip_headsign,
