@@ -167,29 +167,28 @@ export async function dateToServiceIds(companyName: string, date: _moment.Moment
   return Object.values(_calendar[companyName])
     .filter(
       service =>
-        _calendar_dates[companyName][service.service_id]
-          ? _calendar_dates[companyName][service.service_id].some(
-              service => dateString === service.date && service.exception_type === 1
-            ) ||
-            (moment
-              .range(moment(service.start_date, 'YYYYMMDD'), moment(service.end_date, 'YYYYMMDD'))
-              .contains(date) &&
-              (!_calendar_dates[companyName][service.service_id].some(
-                service => dateString === service.date && service.exception_type === 2
-              ) &&
-                service[
-                  ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][
-                    date.day()
-                  ] as
-                    | 'sunday'
-                    | 'monday'
-                    | 'tuesday'
-                    | 'wednesday'
-                    | 'thursday'
-                    | 'friday'
-                    | 'saturday'
-                ] === 1))
-          : true
+        (_calendar_dates[companyName][service.service_id] &&
+          _calendar_dates[companyName][service.service_id].some(
+            service => dateString === service.date && service.exception_type === 1
+          )) ||
+        (moment
+          .range(moment(service.start_date, 'YYYYMMDD'), moment(service.end_date, 'YYYYMMDD'))
+          .contains(date) &&
+          (!_calendar_dates[companyName][service.service_id].some(
+            service => dateString === service.date && service.exception_type === 2
+          ) &&
+            service[
+              ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][
+                date.day()
+              ] as
+                | 'sunday'
+                | 'monday'
+                | 'tuesday'
+                | 'wednesday'
+                | 'thursday'
+                | 'friday'
+                | 'saturday'
+            ] === 1))
     )
     .map(row => row.service_id)
 }
