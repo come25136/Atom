@@ -48,7 +48,9 @@ export default async function() {
 
     rows.forEach(stop => {
       if (!routes[stop.trip_id]) routes[stop.trip_id] = []
-      routes[stop.trip_id].push(stop)
+      routes[stop.trip_id].push(
+        Object.assign({}, stop, { stop_sequence: Number(stop.stop_sequence) })
+      )
     })
 
     for (const stops of Object.values(routes))
