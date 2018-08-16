@@ -48,21 +48,17 @@ export class bus {
     currentStopSequence: Istop['stop_sequence'],
     _standardDate: moment.Moment = moment()
   ) {
-    this._startDate = h24ToLessH24(route[0].date.schedule, _standardDate)
+    this._startDate = moment(route[0].date.schedule)
     this._run = bus.isRun
     this._delay = bus.delay
     this._licenseNumber = bus.licenseNum
     this._routeNum = bus.routeNum
     this._stations = route.filter(stop => stations.includes(stop.id))
-    this._route = route.map(stop =>
-      Object.assign({}, stop, {
-        date: { schedule: h24ToLessH24(stop.date.schedule, _standardDate).format() }
-      })
-    )
+    this._route = route
     this._location = bus.location
 
     const passingIndex = route.findIndex(
-      stop => (stop.stop_sequence === currentStopSequence ? true : false)
+      stop => (stop.sequence === currentStopSequence ? true : false)
     )
     this._passing = Object.assign({}, this._route[passingIndex], {
       location: locationToBroadcastLocation(route[passingIndex].location),
@@ -152,7 +148,7 @@ export async function createBus(
         )
       : _currentStopSequence
 
-  if (!currentStopSequence) return Promise.reject('unko')
+  if (!currentStopSequence) return Promise.reject()
 
   return new bus(
     companyName,
@@ -166,9 +162,7 @@ export async function createBus(
     },
     route,
     (await stations())[companyName],
-    typeof currentStopSequence !== 'number'
-      ? currentStopSequence.stop_sequence
-      : currentStopSequence,
+    typeof currentStopSequence !== 'number' ? currentStopSequence.sequence : currentStopSequence,
     standardDate
   )
 }
