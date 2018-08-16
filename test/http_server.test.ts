@@ -951,7 +951,7 @@ describe('unobus', function() {
     describe('schedule', () => {
       it('1041', () =>
         req(app)
-          .get('/v1/unobus/route/1041/2018-07-08')
+          .get('/v1/unobus/routes/1041/2018-07-08')
           .expect(200)
           .then(({ body }) =>
             assert.deepEqual(body, [
@@ -1009,14 +1009,14 @@ describe('unobus', function() {
 
       it('404', () =>
         req(app)
-          .get('/v1/unobus/route/0000/2018-07-08')
+          .get('/v1/unobus/routes/0000/2018-07-08')
           .expect(404))
     })
 
     describe('geojson', () => {
       it('1041', () =>
         req(app)
-          .get('/v1/unobus/route/1041')
+          .get('/v1/unobus/routes/1041')
           .expect(200)
           .then(({ body }) =>
             assert.deepEqual(body, {
@@ -1182,7 +1182,7 @@ describe('unobus', function() {
 
       it('404', () =>
         req(app)
-          .get('/v1/unobus/route/0000')
+          .get('/v1/unobus/routes/0000')
           .expect(404))
     })
   })

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 
 import stops from './stops'
-import route from './route'
+import route from './routes'
 
 import _agency from '../../libs/gtfs_loader/agency'
 
@@ -23,6 +23,6 @@ router.get('/', (req, res) =>
 )
 
 router.use('/stops', stops)
-router.use('/route', route)
+router.use('/routes', route)
 
 export default router
