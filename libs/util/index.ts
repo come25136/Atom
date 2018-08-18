@@ -13,9 +13,9 @@ import {
   broadcastStop,
   emitPositions
 } from '../../interfaces'
+
 import stops, { Istop } from '../gtfs_loader/stops'
 import translation from '../gtfs_loader/translation'
-
 import calendar from '../gtfs_loader/calendar'
 import calendar_dates from '../gtfs_loader/calendar_dates'
 import trips from '../gtfs_loader/trips'

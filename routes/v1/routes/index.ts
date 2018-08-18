@@ -14,7 +14,12 @@ router.get('/:routeNum', (req, res) =>
 
 // 系統番号と時刻から時刻表を取得
 router.get('/:routeNum/:date', (req, res) =>
-  _route(req.params.companyName, req.params.routeNum, moment(req.params.date), true)
+  _route(
+    req.params.companyName,
+    req.params.routeNum,
+    moment(req.params.date),
+    req.query.first_stop_time !== 'true'
+  )
     .then(route =>
       res.json(req.query.details === 'true' ? route : route.map(trip => trip.map(stop => stop.id)))
     )
