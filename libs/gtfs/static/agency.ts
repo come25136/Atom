@@ -1,12 +1,10 @@
+import * as csvParse from 'csv-parse'
+import * as fs from 'fs'
 import { promisify } from 'util'
 
-import * as fs from 'fs'
+import { getDataDir } from '../../util'
 
-import * as csvParse from 'csv-parse'
-
-import { getDataDir } from '../util'
-
-interface row {
+interface GtfsAgency {
   agency_id?: string
   agency_name: string
   agency_url: string
@@ -17,24 +15,23 @@ interface row {
   agency_email?: string
 }
 
-export interface calendarDates {
-  // バス会社名(ディレクトリ名)
-  [k: string]: row
+export type getAgency = {
+  [companyName: string]: GtfsAgency
 }
 
-const readDir = promisify(fs.readdir),
-  readFile = promisify(fs.readFile),
-  csvParser = promisify<string, csvParse.Options, row[]>(csvParse)
+const readDir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
+const csvParser = promisify<string, csvParse.Options, GtfsAgency[]>(csvParse)
 
-const companies: calendarDates = {}
+const companies: getAgency = {}
 
-export default async function() {
+export async function getAgency(): Promise<getAgency> {
   if (Object.keys(companies).length) return companies
 
   const dirs = await readDir(getDataDir())
 
   for (const dir of dirs) {
-    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+    if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
 
     const [row] = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/agency.txt`, 'utf8'),

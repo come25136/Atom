@@ -1,43 +1,41 @@
+import * as csvParse from 'csv-parse'
+import * as fs from 'fs'
 import { promisify } from 'util'
 
-import * as fs from 'fs'
+import { getDataDir, translate } from '../../util'
 
-import * as csvParse from 'csv-parse'
-
-import { getDataDir, translate } from '../util'
-
-interface Itranslation {
+interface GtfsTranslation {
   trans_id: string
   lang: string
   translation: string
 }
 
-export interface Inames {
+export interface Translation {
   ja: string
   'ja-Hira': string
   'ja-Kana': string
-  en?: string
+  en: string | null
 }
 
-export interface Itranslations {
-  [k: string]: {
-    [k: string]: Inames
+export type getTranslations = {
+  [companyName: string]: {
+    [transId: string]: Translation
   }
 }
 
-const readDir = promisify(fs.readdir),
-  readFile = promisify(fs.readFile),
-  csvParser = promisify<string, csvParse.Options, Itranslation[]>(csvParse)
+const readDir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
+const csvParser = promisify<string, csvParse.Options, GtfsTranslation[]>(csvParse)
 
-const companies: Itranslations = {}
+const companies: getTranslations = {}
 
-export default async function() {
+export async function getTranslations(): Promise<getTranslations> {
   if (Object.keys(companies).length) return companies
 
   const dirs = await readDir(getDataDir())
 
   for (let dir of dirs) {
-    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+    if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
 
     const rows = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/translations.txt`, 'utf8'),
@@ -46,7 +44,7 @@ export default async function() {
       }
     )
 
-    let stops: { [k: string]: Inames } = {}
+    let stops: { [trans_id: string]: Translation } = {}
 
     rows.forEach(
       stop =>
@@ -66,14 +64,17 @@ export default async function() {
           {},
           stop,
           {
+            en: stop.en || null,
             ja: stop.ja.replace(/[Ａ-Ｚａ-ｚ０-９]/g, char =>
               String.fromCharCode(char.charCodeAt(0) - 0xfee0)
             )
           },
-          stop['ja-Hira'] && !stop['ja-Kana']
+          stop['ja-Hira'] !== undefined && stop['ja-Kana'] === undefined
             ? { 'ja-Kana': translate(stop['ja-Hira'], 'ja-Kana') }
-            : !stop['ja-Hira'] &&
-              stop['ja-Kana'] && { 'ja-Hira': translate(stop['ja-Kana'], 'ja-Hira') }
+            : stop['ja-Hira'] === undefined &&
+                stop['ja-Kana'] !== undefined && {
+                  'ja-Hira': translate(stop['ja-Kana'], 'ja-Hira')
+                }
         )
       }),
       {}

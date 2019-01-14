@@ -1,59 +1,74 @@
+import * as csvParse from 'csv-parse'
+import * as fs from 'fs'
 import { promisify } from 'util'
 
-import * as fs from 'fs'
+import { getDataDir } from '../../util'
 
-import * as csvParse from 'csv-parse'
-
-import { getDataDir } from '../util'
-
-export interface Itrip {
+interface GtfsRawTrip {
   route_id: string
   service_id: string
   trip_id: string
   trip_headsign?: string
   trip_short_name?: string
-  direction_id?: number
+  direction_id?: '0' | '1'
   block_id?: string
   shape_id?: string
-  wheelchair_accessible?: number
-  bikes_allowed?: number
+  wheelchair_accessible?: '0' | '1' | '2'
+  bikes_allowed?: '0' | '1' | '2'
 }
 
-export interface Itrips {
-  [k: string]: {
-    [k: string]: {
-      [k: string]: Itrip
+export interface GtfsTrip {
+  route_id: string
+  service_id: string
+  trip_id: string
+  trip_headsign?: string
+  trip_short_name?: string
+  direction_id: null | 0 | 1
+  block_id?: string
+  shape_id?: string
+  wheelchair_accessible: 0 | 1 | 2
+  bikes_allowed: 0 | 1 | 2
+}
+
+export type getTrips = {
+  [companyName: string]: {
+    [routeId: string]: {
+      [tripId: string]: GtfsTrip
     }
   }
 }
 
-const readDir = promisify(fs.readdir),
-  readFile = promisify(fs.readFile),
-  csvParser = promisify<string, csvParse.Options, Itrip[]>(csvParse)
+const readDir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
+const csvParser = promisify<string, csvParse.Options, GtfsRawTrip[]>(csvParse)
 
-const companies: Itrips = {}
+const companies: getTrips = {}
 
-export default async function() {
+export async function getTrips(): Promise<getTrips> {
   if (Object.keys(companies).length) return companies
 
-  const dirs = await readDir(getDataDir())
+  const dirs: string[] = await readDir(getDataDir())
 
   for (let dir of dirs) {
-    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+    if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
 
-    const rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/trips.txt`, 'utf8'), {
-      columns: true
-    })
+    const rows: GtfsRawTrip[] = await csvParser(
+      await readFile(`${getDataDir()}/${dir}/gtfs/trips.txt`, 'utf8'),
+      {
+        columns: true
+      }
+    )
 
     companies[dir] = rows.reduce(
-      (prev: { [k: string]: { [k: string]: Itrip } }, stop) => ({
+      (prev: { [k: string]: { [k: string]: GtfsTrip } }, stop) => ({
         ...prev,
         [stop.route_id]: {
           ...prev[stop.route_id],
           [stop.trip_id]: Object.assign(stop, {
-            direction_id: Number(stop.direction_id),
-            wheelchair_accessible: Number(stop.wheelchair_accessible),
-            bikes_allowed: Number(stop.bikes_allowed)
+            direction_id: stop.direction_id === undefined ? null : Number(stop.direction_id),
+            wheelchair_accessible:
+              stop.wheelchair_accessible === undefined ? 0 : Number(stop.wheelchair_accessible),
+            bikes_allowed: stop.bikes_allowed === undefined ? 0 : Number(stop.bikes_allowed)
           })
         }
       }),

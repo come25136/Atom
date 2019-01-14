@@ -1,18 +1,18 @@
 import { Router } from 'express'
+import * as createHttpError from 'http-errors'
 
-import schedule from './schedule'
-
+import { getStops } from '../../../libs/gtfs/static'
 import { stopToBroadcastStop } from '../../../libs/util'
 
-import stops from '../../../libs/gtfs_loader/stops'
+import timetable from './timetable'
 
 const router = Router({ mergeParams: true })
 
-router.use('/:id/schedule', schedule)
+router.use('/:id/timetable', timetable)
 
 // 停留所一覧
-router.get('/', (req, res) =>
-  stops()
+router.get('/', async (req, res, next) =>
+  getStops()
     .then(async stops =>
       res.json(
         req.query.details === 'true'
@@ -24,27 +24,23 @@ router.get('/', (req, res) =>
           : Object.keys(stops[req.params.companyName])
       )
     )
-    .catch(err => res.status(404).json({ error: { message: 'There is no such bus company.' } }))
+    .catch(() => next(createHttpError(404, 'There is no such company.')))
 )
 
 // 停留所情報
-router.get('/:id', (req, res) =>
-  stops()
-    .then(
-      async stops =>
-        stops[req.params.companyName][req.params.id]
-          ? res.json(
-              await stopToBroadcastStop(
-                req.params.companyName,
-                stops[req.params.companyName][req.params.id]
-              )
+router.get('/:id', async (req, res, next) =>
+  getStops()
+    .then(async stops =>
+      stops[req.params.companyName][req.params.id]
+        ? res.json(
+            await stopToBroadcastStop(
+              req.params.companyName,
+              stops[req.params.companyName][req.params.id]
             )
-          : res.status(404).json({ error: { message: 'There is no such bus stop.' } })
+          )
+        : next(createHttpError(404, 'There is no such bus stop.'))
     )
-    .catch(err => {
-      res.status(500).end()
-      throw err
-    })
+    .catch(next)
 )
 
 export default router

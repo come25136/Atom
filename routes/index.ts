@@ -1,14 +1,14 @@
 import { Router } from 'express'
 
-import v1 from './v1'
+import { getStops } from '../libs/gtfs/static'
 
-import stops from '../libs/gtfs_loader/stops'
+import v1 from './v1'
 
 const router = Router({ mergeParams: true })
 
-// バス会社一覧
-router.get('/v1', (req, res) => stops().then(stops => res.json(Object.keys(stops))))
-
 router.use('/v1/:companyName', v1)
+
+// バス会社一覧
+router.get('/v1', async (req, res) => getStops().then(stops => res.json(Object.keys(stops))))
 
 export default router

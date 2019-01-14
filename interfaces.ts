@@ -1,32 +1,32 @@
-import { Inames } from './libs/gtfs_loader/translation'
+import { Translation } from './libs/gtfs/static'
+import { RouteInfo } from './libs/route'
 
-export interface Ierror extends Error {
-  code?: number
+export interface StopDate {
+  schedule: string // ISO 8601
 }
 
-export interface busDate {
-  schedule: string // 00:00
-  pass?: string // 00:00
-}
-
-export interface stop {
+export interface Stop {
   id: string // 固有id
-  name: Inames
+  name: Translation
   location: {
     lat: number
     lon: number
   }
 }
 
-export interface broadcastStop extends stop {
-  location: broadcastLocation
+export interface BroadcastStop extends Stop {
+  location: BroadcastLocation
 }
 
-export interface broadcastBusStop extends broadcastStop {
-  date: busDate
+export interface BroadcastBusStop<passed extends boolean = false> extends BroadcastStop {
+  date: passed extends true
+    ? StopDate & {
+        passed: string // ISO 8601
+      }
+    : StopDate
 }
 
-export interface broadcastLocation {
+export interface BroadcastLocation {
   latitude: number
   lat: number
   longitude: number
@@ -35,24 +35,48 @@ export interface broadcastLocation {
   long: number
 }
 
-export interface broadcastPosition {
+interface BroadcastBaseBus {
   run: boolean
-  license_number?: string
-  headsign?: string
-  delay?: number
-  route_num: string
-  direction?: number // 方角(右回り 0~359)
+
+  route: {
+    id: RouteInfo['id']
+  }
   stations: string[]
-  location?: broadcastLocation
   stops: {
-    first: broadcastBusStop
-    passing?: broadcastBusStop
-    next?: broadcastBusStop
-    last: broadcastBusStop
+    first: BroadcastBusStop
+    last: BroadcastBusStop
   }
 }
 
-export interface emitPositions {
+export interface BroadcastNotRunBus extends BroadcastBaseBus {
+  run: false
+}
+
+export interface BroadcastRunBus extends BroadcastBaseBus {
+  run: true
+
+  descriptors: {
+    id: string | null
+    label: string | null
+    license_plate: string | null
+  }
+  headsign: string | null
+  delay: number
+
+  direction: number // 方角(右回り 0~359)
+  stations: string[]
+  location: BroadcastLocation
+  stops: {
+    first: BroadcastBusStop
+    passed: BroadcastBusStop<true>
+    next: BroadcastBusStop
+    last: BroadcastBusStop
+  }
+}
+
+export type BroadcastBus = BroadcastNotRunBus | BroadcastRunBus
+
+export interface EmitPositions {
   company_name: string
-  buses: broadcastPosition[]
+  buses: BroadcastBus[]
 }

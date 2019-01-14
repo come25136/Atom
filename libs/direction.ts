@@ -1,7 +1,5 @@
 import { getRhumbLineBearing } from 'geolib'
 
-import stopsPromise from './gtfs_loader/stops'
-
 export default async function(
   passing: { lat: number; lon: number },
   next: { lat: number; lon: number },

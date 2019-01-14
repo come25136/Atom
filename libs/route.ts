@@ -1,81 +1,119 @@
-import { dateToServiceIds, h24ToLessH24 } from './util'
-
+import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 
-import _stopTimes, { Istop } from './gtfs_loader/stop_times'
-import { default as _stops } from './gtfs_loader/stops'
-import _translations from './gtfs_loader/translation'
-import __trips from './gtfs_loader/trips'
-import _calendar from './gtfs_loader/calendar'
+import { Stop, StopDate } from '../interfaces'
 
-import _shapes from './gtfs_loader/shapes'
+import {
+  getRoutes,
+  getShapes,
+  getStops,
+  getStopTimes,
+  getTranslations,
+  getTrips,
+  GtfsStopTime,
+  GtfsTrip
+} from './gtfs/static'
+import { dateToServiceIds, h24ToLessH24 } from './util'
 
-import { Ierror, busDate, stop } from '../interfaces'
-
-export interface route extends stop {
-  sequence: Istop['stop_sequence']
-  date: busDate
+export interface RouteInfo {
+  type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+  id: string
+  name: {
+    short: string
+    long: string
+  }
+  description: string | null
+  color: string | null
+  text: {
+    color: string | null
+  }
 }
 
-export async function route(
+export interface RouteStop extends Stop {
+  sequence: GtfsStopTime['stop_sequence']
+  date: StopDate
+  headsign: GtfsTrip['trip_headsign']
+  direction: GtfsTrip['direction_id']
+}
+
+export async function getRouteInfo(companyName: string, routeId: string): Promise<RouteInfo> {
+  const routes = await getRoutes()
+
+  if (routes[companyName] === undefined) throw createHttpError(404, 'There is no such company.')
+
+  if (routes[companyName][routeId] === undefined)
+    throw createHttpError(404, 'There is no such route.')
+
+  const route = routes[companyName][routeId]
+
+  return {
+    type: route.route_type,
+    id: route.route_id,
+    name: {
+      short: route.route_short_name,
+      long: route.route_long_name
+    },
+    description: route.route_desc,
+    color: route.route_color,
+    text: {
+      color: route.route_text_color
+    }
+  }
+}
+
+export async function getRoutesStops(
   companyName: string,
-  routeNum: string,
-  firstStopDate: moment.Moment,
+  routeId: string,
+  firstStopDate: moment.Moment = moment(),
   dayOnly: boolean = false
-): Promise<route[][]> {
+): Promise<RouteStop[][]> {
   const [stopTimes, stops, translations, _trips] = await Promise.all([
-    _stopTimes(),
-    _stops(),
-    _translations(),
-    __trips(),
-    _calendar()
+    getStopTimes(),
+    getStops(),
+    getTranslations(),
+    getTrips()
   ])
 
-  const trips = await dateToServiceIds(companyName, firstStopDate).then(
-    days =>
-      _trips[companyName][routeNum]
-        ? Object.values(_trips[companyName][routeNum]).filter(
-            trip =>
-              days.includes(trip.service_id) && dayOnly
-                ? true
-                : firstStopDate.format('HH:mm:ss') ===
-                  stopTimes[companyName][trip.trip_id][0].arrival_time
-          )
-        : []
+  const trips: GtfsTrip[] = await dateToServiceIds(companyName, firstStopDate).then(days =>
+    _trips[companyName][routeId]
+      ? Object.values(_trips[companyName][routeId]).filter(trip =>
+          days.includes(trip.service_id) && dayOnly
+            ? true
+            : firstStopDate.format('HH:mm:ss') ===
+              stopTimes[companyName][trip.trip_id][0].arrival_time
+        )
+      : []
   )
 
   if (trips.length === 0) {
-    if (process.env.NODE_ENV !== 'test') console.warn(companyName, routeNum)
+    if (process.env.NODE_ENV !== 'test') console.warn(companyName, routeId)
 
-    const err: Ierror = new Error('There is no such route.')
-    err.code = 404
-    return Promise.reject(err)
+    throw createHttpError(404, 'There is no such route.')
   }
 
-  return trips.map(trip =>
-    stopTimes[companyName][trip.trip_id].map(stop => ({
-      sequence: stop.stop_sequence,
-      id: stop.stop_id,
-      name: translations[companyName][stops[companyName][stop.stop_id].stop_name],
+  return trips.map<RouteStop[]>(trip =>
+    stopTimes[companyName][trip.trip_id].map<RouteStop>(stopTime => ({
+      sequence: stopTime.stop_sequence,
+      id: stopTime.stop_id,
+      name: translations[companyName][stops[companyName][stopTime.stop_id].stop_name],
       date: {
-        schedule: h24ToLessH24(stop.arrival_time, firstStopDate).format()
+        schedule: h24ToLessH24(stopTime.arrival_time, firstStopDate).format()
       },
       location: {
-        lat: stops[companyName][stop.stop_id].stop_lat,
-        lon: stops[companyName][stop.stop_id].stop_lon
-      }
+        lat: stops[companyName][stopTime.stop_id].stop_lat,
+        lon: stops[companyName][stopTime.stop_id].stop_lon
+      },
+      headsign: stopTime.stop_headsign || trip.trip_headsign,
+      direction: trip.direction_id
     }))
   )
 }
 
-export async function getGeo(companyName: string, routeNum: string) {
-  const shapes = await _shapes()
+export async function getGeoRoute(companyName: string, routeNum: string) {
+  const shapes = await getShapes()
 
-  if (!shapes[companyName][routeNum]) {
-    const err: Ierror = new Error('There is no such route.')
-    err.code = 404
-    return Promise.reject(err)
-  }
+  if (shapes[companyName][routeNum] === undefined)
+    throw createHttpError(404, 'There is no such route.')
 
   return {
     type: 'FeatureCollection',

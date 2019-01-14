@@ -1,31 +1,32 @@
-import * as _moment from 'moment'
-import { extendMoment } from 'moment-range'
-
+import * as createHttpError from 'http-errors'
+import * as moment from 'moment'
 import { Server as socketIoServer } from 'socket.io'
 
-import direction from '../../libs/direction'
-
-import { bus } from '../classes/create_bus'
-
 import {
-  broadcastLocation,
-  broadcastPosition,
-  broadcastStop,
-  emitPositions
+  BroadcastBus,
+  BroadcastBusStop,
+  BroadcastLocation,
+  BroadcastStop,
+  EmitPositions
 } from '../../interfaces'
-
-import stops, { Istop } from '../gtfs_loader/stops'
-import translation from '../gtfs_loader/translation'
-import calendar from '../gtfs_loader/calendar'
-import calendar_dates from '../gtfs_loader/calendar_dates'
-import trips from '../gtfs_loader/trips'
-import stopTimes from '../gtfs_loader/stop_times'
-
-const moment = extendMoment(_moment)
+import direction from '../../libs/direction'
+import { Vehicle } from '../classes/create_vehicle'
+import {
+  getCalendarDates,
+  getCalendars,
+  getStops,
+  getStopTimes,
+  getTranslations,
+  getTrips,
+  GtfsStop,
+  GtfsStopTime,
+  GtfsTrip
+} from '../gtfs/static'
+import { RouteStop } from '../route'
 
 export * from './translate'
 
-export function getDataDir() {
+export function getDataDir(): string {
   const dataDir = process.env.DATA || './data'
 
   return dataDir.slice(-1) === '/' ? dataDir.slice(0, -1) : dataDir
@@ -37,16 +38,16 @@ export function getDataDir() {
  */
 export function h24ToLessH24(
   _time: string,
-  standard: _moment.Moment = moment(),
+  standard: moment.Moment = moment(),
   override: boolean = true,
   subtract: boolean = false
-) {
-  const timeSplit = _time.split(':'),
-    time = {
-      hour: Number(timeSplit[0]),
-      minute: Number(timeSplit[1] || 0),
-      second: Number(timeSplit[2] || 0)
-    }
+): moment.Moment {
+  const timeSplit = _time.split(':')
+  const time = {
+    hour: Number(timeSplit[0]),
+    minute: Number(timeSplit[1] || 0),
+    second: Number(timeSplit[2] || 0)
+  }
 
   return override
     ? subtract
@@ -76,7 +77,7 @@ export function locationToBroadcastLocation({
 }: {
   lat: number
   lon: number
-}): broadcastLocation {
+}): BroadcastLocation {
   return {
     latitude: lat,
     lat: lat,
@@ -87,71 +88,133 @@ export function locationToBroadcastLocation({
   }
 }
 
-export async function createBusToBroadcastObject(bus: bus): Promise<broadcastPosition> {
-  const trip = await dateToServiceIds(bus.companyName, bus.startDate).then(async days =>
-    Object.values((await trips())[bus.companyName][bus.routeNumber]).find(trip =>
-      days.includes(trip.service_id)
-    )
-  )
-
-  if (!trip) throw new Error('not trip')
-
-  const passingHeadsign = (await stopTimes())[bus.companyName][trip.trip_id].find(
-    stop => bus.passingStop.date.schedule === stop.arrival_time
-  )
-
-  return {
-    run: bus.isRun,
-    license_number: bus.licenseNumber,
-    headsign:
-      passingHeadsign && passingHeadsign.stop_headsign
-        ? passingHeadsign.stop_headsign
-        : trip.trip_headsign,
-    delay: bus.delay,
-    route_num: bus.routeNumber,
-    direction: await direction(bus.passingStop.location, bus.nextStop.location, bus.location),
-    stations: bus.stations.map(station => station.id),
-    location: locationToBroadcastLocation(bus.location),
-    stops: {
-      first: {
-        ...(await stopToBroadcastStop(
-          bus.companyName,
-          (await stops())[bus.companyName][bus.firstStop.id]
-        )),
-        date: bus.firstStop.date
+export async function createBusToBroadcastBus(bus: Vehicle): Promise<BroadcastBus> {
+  if (bus.isRun === false)
+    return {
+      run: false,
+      route: {
+        id: bus.routeId
       },
-      passing: {
-        ...(await stopToBroadcastStop(
-          bus.companyName,
-          (await stops())[bus.companyName][bus.firstStop.id]
-        )),
-        date: bus.passingStop.date
-      },
-      next: {
-        ...(await stopToBroadcastStop(
-          bus.companyName,
-          (await stops())[bus.companyName][bus.nextStop.id]
-        )),
-        date: bus.nextStop.date
-      },
-      last: {
-        ...(await stopToBroadcastStop(
-          bus.companyName,
-          (await stops())[bus.companyName][bus.nextStop.id]
-        )),
-        date: bus.lastStop.date
+      stations: bus.stations.map(station => station.id),
+      stops: {
+        first: {
+          ...(await stopToBroadcastStop(
+            bus.companyName,
+            (await getStops())[bus.companyName][bus.firstStop.id]
+          )),
+          date: bus.firstStop.date
+        },
+        last: {
+          ...(await stopToBroadcastStop(
+            bus.companyName,
+            (await getStops())[bus.companyName][bus.lastStop.id]
+          )),
+          date: bus.lastStop.date
+        }
       }
     }
-  }
+
+  const trip: GtfsTrip | undefined = await dateToServiceIds(bus.companyName, bus.startDate).then(
+    async days =>
+      getTrips().then(trips =>
+        Object.values(trips[bus.companyName][bus.routeId]).find(trip =>
+          days.includes(trip.service_id)
+        )
+      )
+  )
+
+  if (trip === undefined) throw createHttpError(404, `Not trip: ${bus.companyName} ${bus.routeId}`)
+
+  const passedHeadsign: GtfsStopTime | undefined = (await getStopTimes())[bus.companyName][
+    trip.trip_id
+  ].find(stop => (bus.passedStop as BroadcastBusStop<true>).date.schedule === stop.arrival_time)
+
+  return bus.isRun
+    ? {
+        run: true,
+        descriptors: {
+          id: bus.id,
+          label: bus.label,
+          license_plate: bus.licensePlate
+        },
+        headsign:
+          passedHeadsign && passedHeadsign.stop_headsign
+            ? passedHeadsign.stop_headsign
+            : trip.trip_headsign || null,
+        delay: bus.delay as number,
+        route: {
+          id: bus.routeId
+        },
+        direction: await direction(
+          (bus.passedStop as BroadcastBusStop<true>).location,
+          (bus.nextStop as RouteStop).location,
+          bus.location as { lat: number; lon: number }
+        ),
+        stations: bus.stations.map(station => station.id),
+        location: locationToBroadcastLocation(bus.location as { lat: number; lon: number }),
+        stops: {
+          first: {
+            ...(await stopToBroadcastStop(
+              bus.companyName,
+              (await getStops())[bus.companyName][bus.firstStop.id]
+            )),
+            date: bus.firstStop.date
+          },
+          passed: {
+            ...(await stopToBroadcastStop(
+              bus.companyName,
+              (await getStops())[bus.companyName][(bus.passedStop as BroadcastBusStop<true>).id]
+            )),
+            date: (bus.passedStop as BroadcastBusStop<true>).date
+          },
+          next: {
+            ...(await stopToBroadcastStop(
+              bus.companyName,
+              (await getStops())[bus.companyName][(bus.nextStop as RouteStop).id]
+            )),
+            date: (bus.nextStop as RouteStop).date
+          },
+          last: {
+            ...(await stopToBroadcastStop(
+              bus.companyName,
+              (await getStops())[bus.companyName][bus.lastStop.id]
+            )),
+            date: bus.lastStop.date
+          }
+        }
+      }
+    : {
+        run: false,
+        route: {
+          id: bus.routeId
+        },
+        stations: bus.stations.map(station => station.id),
+        stops: {
+          first: {
+            ...(await stopToBroadcastStop(
+              bus.companyName,
+              (await getStops())[bus.companyName][bus.firstStop.id]
+            )),
+            date: bus.firstStop.date
+          },
+          last: {
+            ...(await stopToBroadcastStop(
+              bus.companyName,
+              (await getStops())[bus.companyName][bus.lastStop.id]
+            )),
+            date: bus.lastStop.date
+          }
+        }
+      }
 }
 
 export async function stopToBroadcastStop(
   companyName: string,
-  stop: Istop
-): Promise<broadcastStop> {
+  stop: GtfsStop
+): Promise<BroadcastStop> {
   return {
     id: stop.stop_id,
-    name: await translation().then(data => data[companyName][stop.stop_name]),
+    name: await getTranslations().then(data => data[companyName][stop.stop_name]),
     location: locationToBroadcastLocation({
       lat: stop.stop_lat,
       lon: stop.stop_lon
@@ -159,40 +222,57 @@ export async function stopToBroadcastStop(
   }
 }
 
-export async function dateToServiceIds(companyName: string, date: _moment.Moment) {
-  const _calendar = await calendar(),
-    _calendar_dates = await calendar_dates(),
-    dateString = date.format('YYYYMMDD')
+const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
-  return Object.values(_calendar[companyName])
-    .filter(
-      service =>
-        moment
-          .range(moment(service.start_date, 'YYYYMMDD'), moment(service.end_date, 'YYYYMMDD'))
-          .contains(date) &&
-        (_calendar_dates[companyName][service.service_id] &&
-          (_calendar_dates[companyName][service.service_id].some(
-            service => dateString === service.date && service.exception_type === 1
-          ) ||
-            !_calendar_dates[companyName][service.service_id].some(
-              service => dateString === service.date && service.exception_type === 2
-            ))) &&
-        service[
-          ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][
-            date.day()
-          ] as 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'
-        ] === 1
-    )
+export async function dateToServiceIds(
+  companyName: string,
+  date: moment.Moment
+): Promise<string[]> {
+  const [calendar, calendar_dates] = await Promise.all([getCalendars(), getCalendarDates()])
+
+  return Object.values(calendar[companyName])
+    .filter(calendar => {
+      if (date.isBetween(calendar.start_date, calendar.end_date) === false) return
+
+      // calendar_datesで上書き可能
+      const base =
+        calendar[
+          dayNames[date.day()] as
+            | 'sunday'
+            | 'monday'
+            | 'tuesday'
+            | 'wednesday'
+            | 'thursday'
+            | 'friday'
+            | 'saturday'
+        ]
+
+      // undefinedの可能性あり
+      const calendarDate = calendar_dates[companyName][calendar.service_id]
+
+      const add =
+        calendarDate &&
+        calendarDate.some(
+          service => date.isSame(service.date, 'day') && service.exception_type === 1
+        )
+
+      const remove =
+        calendarDate &&
+        calendarDate.some(
+          service => date.isSame(service.date, 'day') && service.exception_type === 2
+        )
+
+      if (add) return true
+      if (remove) return false
+
+      return base
+    })
     .map(row => row.service_id)
 }
 
-export function ioEmitPosition(
-  io: socketIoServer,
-  companyName: string,
-  buses: broadcastPosition[]
-) {
-  io.to(companyName).emit('position', {
+export function ioEmitBus(io: socketIoServer, companyName: string, buses: BroadcastBus[]) {
+  io.to(companyName).emit('bus', {
     company_name: companyName,
     buses
-  } as emitPositions)
+  } as EmitPositions)
 }

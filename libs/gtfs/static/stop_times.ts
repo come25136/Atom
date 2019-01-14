@@ -1,12 +1,10 @@
+import * as csvParse from 'csv-parse'
+import * as fs from 'fs'
 import { promisify } from 'util'
 
-import * as fs from 'fs'
+import { getDataDir } from '../../util'
 
-import * as csvParse from 'csv-parse'
-
-import { getDataDir } from '../util'
-
-export interface Istop {
+export interface GtfsStopTime {
   trip_id: string
   arrival_time: string
   departure_time: string
@@ -19,32 +17,33 @@ export interface Istop {
   timepoint?: string
 }
 
-export interface IstopTimes {
-  // バス会社名(ディレクトリ名)
-  [k: string]: {
-    // trip_id
-    [k: string]: Istop[]
+export type getStopTimes = {
+  [companyName: string]: {
+    [tripId: string]: GtfsStopTime[]
   }
 }
 
-const readDir = promisify(fs.readdir),
-  readFile = promisify(fs.readFile),
-  csvParser = promisify<string, csvParse.Options, Istop[]>(csvParse)
+const readDir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
+const csvParser = promisify<string, csvParse.Options, GtfsStopTime[]>(csvParse)
 
-const companies: IstopTimes = {}
+const companies: getStopTimes = {}
 
-export default async function() {
+export async function getStopTimes(): Promise<getStopTimes> {
   if (Object.keys(companies).length) return companies
 
-  const dirs = await readDir(getDataDir())
+  const dirNames = await readDir(getDataDir())
 
-  for (const dir of dirs) {
-    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+  for (const dirName of dirNames) {
+    if (fs.statSync(`${getDataDir()}/${dirName}`).isDirectory() === false) continue
 
-    const routes: { [k: string]: Istop[] } = {},
-      rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/stop_times.txt`, 'utf8'), {
+    const routes: { [k: string]: GtfsStopTime[] } = {}
+    const rows = await csvParser(
+      await readFile(`${getDataDir()}/${dirName}/gtfs/stop_times.txt`, 'utf8'),
+      {
         columns: true
-      })
+      }
+    )
 
     rows.forEach(stop => {
       if (!routes[stop.trip_id]) routes[stop.trip_id] = []
@@ -56,7 +55,7 @@ export default async function() {
     for (const stops of Object.values(routes))
       stops.sort((a, b) => a.stop_sequence - b.stop_sequence)
 
-    companies[dir] = routes
+    companies[dirName] = routes
   }
 
   return companies

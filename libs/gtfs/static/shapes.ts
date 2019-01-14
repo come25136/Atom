@@ -1,12 +1,10 @@
+import * as csvParse from 'csv-parse'
+import * as fs from 'fs'
 import { promisify } from 'util'
 
-import * as fs from 'fs'
+import { getDataDir } from '../../util'
 
-import * as csvParse from 'csv-parse'
-
-import { getDataDir } from '../util'
-
-export interface Ishape {
+export interface GtfsShape {
   shape_id: string
   shape_pt_lat: number
   shape_pt_lon: number
@@ -14,33 +12,33 @@ export interface Ishape {
   shape_dist_traveled?: number
 }
 
-export interface Ishapes {
-  [k: string]: {
-    [k: string]: Ishape[]
+export type getShapes = {
+  [companyName: string]: {
+    [shapeId: string]: GtfsShape[]
   }
 }
 
-const readDir = promisify(fs.readdir),
-  readFile = promisify(fs.readFile),
-  csvParser = promisify<string, csvParse.Options, Ishape[]>(csvParse)
+const readDir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
+const csvParser = promisify<string, csvParse.Options, GtfsShape[]>(csvParse)
 
-const companies: Ishapes = {}
+const companies: getShapes = {}
 
-export default async function() {
+export async function getShapes(): Promise<getShapes> {
   if (Object.keys(companies).length) return companies
 
   const dirs = await readDir(getDataDir())
 
   for (let dir of dirs) {
-    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+    if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
 
-    const shapes: { [k: string]: Ishape[] } = {},
-      rows = await csvParser(
-        await readFile(`${getDataDir()}/${dir}/gtfs/shapes.txt`, 'utf8').catch(() => ''),
-        {
-          columns: true
-        }
-      )
+    const shapes: { [k: string]: GtfsShape[] } = {}
+    const rows = await csvParser(
+      await readFile(`${getDataDir()}/${dir}/gtfs/shapes.txt`, 'utf8').catch(() => ''),
+      {
+        columns: true
+      }
+    )
 
     rows.forEach(shape => {
       if (!shapes[shape.shape_id]) shapes[shape.shape_id] = []

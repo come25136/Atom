@@ -1,6 +1,6 @@
 {
   "name": "atom",
-  "version": "1.0.0",
+  "version": "1.9.1",
   "description": "",
   "main": "dist/app.js",
   "author": "come25136",
@@ -8,19 +8,23 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
-    "test": "cross-env NODE_ENV=test nyc --reporter=html mocha dist/test",
-    "format": "prettier \"./**/*.ts\" --write"
+    "lint": "yarn tslint --fix -p .",
+    "format": "prettier \"./**/*.ts\" --write",
+    "test": "cross-env NODE_ENV=test mocha dist/test --recursive",
+    "coverage": "nyc --reporter=html cross-env NODE_ENV=test mocha dist/test --recursive",
+    "make:api:blueprint": "aglio -i api.apib -o static/api.html --theme-template triple"
   },
   "dependencies": {
     "cors": "^2.8.4",
-    "csv": "^3.1.0",
+    "csv": "^4.0.0",
     "express": "^4.16.3",
     "geolib": "^2.0.24",
+    "http-errors": "^1.7.1",
     "moment": "^2.22.2",
-    "moment-range": "^4.0.1",
     "prettier": "^1.14.2",
+    "protobufjs": "^6.8.8",
     "socket.io": "^2.1.1",
-    "superagent": "^3.8.3"
+    "superagent": "^4.0.0-beta.5"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
@@ -28,18 +32,20 @@
     "@types/cors": "^2.8.4",
     "@types/csv-parse": "^1.1.11",
     "@types/express": "^4.16.0",
+    "@types/http-errors": "^1.6.1",
     "@types/mocha": "^5.2.5",
-    "@types/moment-range": "^3.1.0",
     "@types/node": "^10.7.1",
     "@types/socket.io": "^1.4.37",
     "@types/socket.io-client": "^1.4.32",
     "@types/superagent": "^3.8.3",
     "@types/supertest": "^2.0.5",
+    "aglio": "^2.3.0",
     "chai": "^4.1.2",
     "cross-env": "^5.2.0",
     "mocha": "^5.2.0",
-    "nyc": "^12.0.2",
+    "nyc": "^13.1.0",
     "supertest": "^3.1.0",
+    "tslint": "^5.11.0",
     "typescript": "^3.0.1"
   }
 }

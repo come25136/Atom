@@ -10,7 +10,10 @@
       "name": "Debug: Server",
       "preLaunchTask": "TypeScript: Build",
       "cwd": "${workspaceFolder}",
-      "program": "${workspaceFolder}/dist/app.js"
+      "program": "${workspaceFolder}/dist/app.js",
+      "env": {
+        "RAW_SAVE": "true"
+      }
     }
   ]
 }

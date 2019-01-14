@@ -1,12 +1,10 @@
+import * as csvParse from 'csv-parse'
+import * as fs from 'fs'
 import { promisify } from 'util'
 
-import * as fs from 'fs'
+import { getDataDir } from '../../util'
 
-import * as csvParse from 'csv-parse'
-
-import { getDataDir } from '../util'
-
-export interface Istop {
+export interface GtfsStop {
   stop_id: string
   stop_code?: string
   stop_name: string
@@ -21,25 +19,25 @@ export interface Istop {
   wheelchair_boarding?: string
 }
 
-export interface Istops {
-  [k: string]: {
-    [k: string]: Istop
+export type getStops = {
+  [companyName: string]: {
+    [stopId: string]: GtfsStop
   }
 }
 
-const readDir = promisify(fs.readdir),
-  readFile = promisify(fs.readFile),
-  csvParser = promisify<string, csvParse.Options, Istop[]>(csvParse)
+const readDir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
+const csvParser = promisify<string, csvParse.Options, GtfsStop[]>(csvParse)
 
-const companies: Istops = {}
+const companies: getStops = {}
 
-export default async function() {
+export async function getStops(): Promise<getStops> {
   if (Object.keys(companies).length) return companies
 
   const dirs = await readDir(getDataDir())
 
   for (let dir of dirs) {
-    if (fs.statSync(`${getDataDir()}/${dir}`).isFile()) continue
+    if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
 
     const rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/stops.txt`, 'utf8'), {
       columns: true
