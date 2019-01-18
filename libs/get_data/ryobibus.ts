@@ -2,7 +2,7 @@ import * as moment from 'moment'
 import { Server } from 'socket.io'
 import * as superagent from 'superagent'
 
-import { BroadcastBus, BroadcastNotRunBus } from '../../interfaces'
+import { BroadcastBus } from '../../interfaces'
 import { createVehicle, Vehicle } from '../classes/create_vehicle'
 import { decode, FeedMessage, StopTimeUpdate, TripUpdate } from '../gtfs/realtime'
 import { getTrips, GtfsTrip } from '../gtfs/static'
@@ -43,7 +43,7 @@ export class RyobiBusLoop {
         this._prev.data.broadcastBuses.length !== 0 &&
         (vehiclePositions.entity === undefined || tripUpdates.entity === undefined)
       )
-        ioEmitBus(this.io, 'unobus', (this._prev.data.broadcastBuses = []))
+        ioEmitBus(this.io, this.name, (this._prev.data.broadcastBuses = []))
       if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
         setTimeout(this.getBusLoop.bind(this), 20000)
 
