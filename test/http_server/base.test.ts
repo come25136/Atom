@@ -3,6 +3,13 @@ import * as req from 'supertest'
 
 import app from '../../app'
 
+describe('api blueprint', () => {
+  it('api.html', async () =>
+    req(app)
+      .get('/')
+      .expect(200))
+})
+
 describe('companies', () => {
   it('list', async () =>
     req(app)

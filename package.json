@@ -12,7 +12,7 @@
     "format": "prettier \"./**/*.ts\" --write",
     "test": "cross-env NODE_ENV=test mocha dist/test --recursive",
     "coverage": "nyc --reporter=html cross-env NODE_ENV=test mocha dist/test --recursive",
-    "make:api:blueprint": "aglio -i api.apib -o static/api.html --theme-template triple"
+    "generate:api:document": "aglio -i api.apib -o static/api.html --theme-template triple"
   },
   "dependencies": {
     "cors": "^2.8.4",

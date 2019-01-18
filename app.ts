@@ -20,6 +20,8 @@ app.use(cors())
 
 app.use('/', wwwRoot)
 
+app.use('/', express.static(`${__dirname}/../static`, { index: 'api.html' })) // distからの相対パス
+
 app.use((req: Request, res: Response, next: NextFunction): any => res.status(404).end())
 
 app.use(

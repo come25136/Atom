@@ -1,0 +1,284 @@
+FORMAT: 1A
+HOST: https://atom.momizi.app/v1
+
+# Data Structures
+
+## 404
++ error
+    + message: There is no such company. (optional, string) - error message
+
+## Translation
++ ja: 岡山駅 (required, string) - stop name ja
++ `ja-Hira`: おかやまえき (required, string) - stop name ja-Hira
++ `ja-Kana`: オカヤマエキ (required, string) - stop name ja-Kana
++ en: Okayama Station (required, string) - stop name en
+
+## Location
++ latitude: 34.6650806666667,
++ lat: 34.6650806666667,
++ longitude: 133.918666571428,
++ lon: 133.918666571428,
++ lng: 133.918666571428,
++ long: 133.918666571428
+
+## Stop
++ id: 2_01 (required, string) - stop id
++ name (Translation)
++ location (Location)
+
+## NoteData
++ id: 1 (required, number) - Unique identifier
++ title: Grocery list (required) - Single line description
++ body: Buy milk - Full description of the note which supports Markdown.
+
+# Group すべての始まり
+
+## データへの入口 [/]
+### Company names [GET]
+サーバーが対応しているGeneral Transit Feed Specification (GTFS)の会社名
+
+::: warning
+#### <i class="fa fa-warning"></i> 注意
+これは正式な会社名ではありません  
+今後、**変更される可能性があります**
+:::
+
++ Response 200 (application/json)
+        
+        ["ryobibus", "shimodenbus", "tutujibus", "unobus"]
+        
+## 会社情報 [/{company_name}]
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+
+### Company info [GET]
+詳しくは https://developers.google.com/transit/gtfs/reference/?hl=ja#agencytxt を参照
+
++ Response 200 (application/json)
+    + Attributes
+        + id: 1260001000674
+        + name: 宇野自動車株式会社
+        + url: http://www.unobus.co.jp/
+        + timezone: Asia/Tokyo
+        + lang: ja
+        + phone: `086-225-3311`
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+# Group 停留所 / 駅
+
+## 基本的に特定の場所にしか止まりません [/{company_name}/stops]
+### Stops / Stations [GET]
+{company_name}が管理している停留所のid一覧
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+
++ Response 200 (application/json)
+    + Body
+            
+            ["2_01", "2_02", "2_04", "2_08", "2_09", "2_11", "3_03", "4_01", "4_02", "4_03", "5_01"]
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+## 全ての停留所の詳細を取得できます [/{company_name}/stops/{?details}]
+### Stops / Stations - details [GET]
+{company_name}が管理している停留所の詳細一覧
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+    + details: `true` (optional, string) - Get the details of the stop.
+
++ Response 200 (application/json)
+    + Attributes (array[Stop], fixed-type)
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+## 特定の停留所の情報が欲しいのかい？ [/{company_name}/stops/{id}]
+贅沢なクライアントだねぇ
+
+### Stop / Station [GET]
++ Parameters
+    + company_name: unobus (required, string) - company name
+    + id: `2_01` (required, string) - stop id
+
++ Response 200 (application/json)
+    + Attributes (Stop)
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+# Group 時刻表
+
+## 定時通りに来ると困る時がある [/{company_name}/stops/{id}/timetable/{date}]
+### Timetable [GET]
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+    + id: `2_01` (required, string) - stop id
+    + date: `2019-01-18` (optional, string) - reference date
+
++ Response 200 (application/json)
+    + Body
+            
+            [
+                {
+                    "route": {
+                        "id": "5692",
+                        "headsign": "瀬戸駅 (ネオ西9 経由) 【11番のりば】"
+                    },
+                    "date": "2019-01-18T07:00:00+09:00"
+                }
+            ]
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+# Group 路線
+
+## typeはroutes.txtのリファレンスを見な [/{company_name}/routes/{id}]
+### Route [GET]
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+    + id: `5692` (required, string) - route id
+
++ Response 200 (application/json)
+    + Body
+            
+            {
+                "type": 3,
+                "id": "5692",
+                "name": {
+                    "short": "東岡山線",
+                    "long": "東岡山線[5692]"
+                },
+                "description": "四御神車庫(東岡山)→桜が丘運動公園口",
+                "color": "9C4E1F",
+                "text": {
+                    "color": "FFFFFF"
+                }
+            }
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+## 通り道 [/{company_name}/routes/{id}/geojson]
+### GeoJSON [GET]
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+    + id: `5692` (required, string) - route id
+
++ Response 200 (application/json)
+    + Body
+            
+            {
+                "type": "FeatureCollection",
+                "features": {
+                    "id": "5692",
+                    "type": "Feature",
+                    "properties": {
+                        "shape_id": "5692"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [
+                                133.981635,
+                                34.691699
+                            ]
+                        }
+                    }
+                }
+            }
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+## 通り停留所 [/{company_name}/routes/{id}/timetable/{date}]
+### Timetable [GET]
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+    + id: `5692` (required, string) - route id
+    + date: `2019-01-18 06:25:00` (optional, string) - first stop date
+
++ Response 200 (application/json)
+    + Body
+            
+            [
+                [
+                    "249_05",
+                    "664_05",
+                    "662_05",
+                    "660_05",
+                    "658_05"
+                ]
+            ]
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+## 通り停留所の詳細 [/{company_name}/routes/{id}/timetable/{date}/{?details}]
+### Timetable - details [GET]
+
++ Parameters
+    + company_name: unobus (required, string) - company name
+    + id: `5692` (required, string) - route id
+    + date: `2019-01-18 06:25:00` (required, string) - first stop date
+    + details: `true` (optional, string) - Get the details of the stop.
+
++ Response 200 (application/json)
+    + Body
+            
+            [
+                [
+                    {
+                        "sequence": 1,
+                        "id": "249_05",
+                        "name": {
+                            "ja": "四御神車庫(東岡山)",
+                            "ja-Hira": "ひがしおかやま",
+                            "ja-Kana": "ヒガシオカヤマ",
+                            "en": null
+                        },
+                        "date": {
+                            "schedule": "2018-01-18T06:25:00+09:00"
+                        },
+                        "location": {
+                            "lat": 34.691699,
+                            "lon": 133.981635
+                        },
+                        "headsign": "表町BC (高島団地・岡山駅前 経由",
+                        "direction": null
+                    }
+                ]
+            ]
+
++ Response 404 (application/json)
+    + Attributes (404)
+
+# Group ストリーミング
+## これが主役  [/dummy]
+### Streaming [GET]
+エンドポイントは https://atom.momizi.app です
+
+
+
+```javascript
+const companyNames = ['unobus', 'ryobibus']
+
+const stream = io('https://atom.momizi.app')
+
+stream.on('bus', bus => console.log(bus))
+
+companyNames.forEach(companyName => stream.emit('registration', companyName))
+```
+
+
++ Response 200
