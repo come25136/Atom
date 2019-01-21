@@ -15,9 +15,7 @@ describe('companies', () => {
     req(app)
       .get('/v1')
       .expect(200)
-      .then(({ body }) =>
-        assert.sameMembers(body, ['tutujibus', 'unobus', 'ryobibus', 'shimodenbus'])
-      ))
+      .then(({ body }) => assert.sameMembers(body, ['unobus', 'ryobibus', 'shimodenbus'])))
 
   describe('agency', () => {
     it('unobus', async () =>
