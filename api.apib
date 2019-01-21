@@ -271,11 +271,8 @@ Name | URL | Update at
     + Attributes (404)
 
 # Group ストリーミング
-## これが主役  [/dummy]
-### Streaming [GET]
+## socket.io
 エンドポイントは https://atom.momizi.app です
-
-
 
 ```javascript
 const companyNames = ['unobus', 'ryobibus']
@@ -286,6 +283,3 @@ stream.on('bus', bus => console.log(bus))
 
 companyNames.forEach(companyName => stream.emit('registration', companyName))
 ```
-
-
-+ Response 200
