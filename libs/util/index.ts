@@ -276,3 +276,15 @@ export function ioEmitBus(io: socketIoServer, companyName: string, buses: Broadc
     buses
   } as EmitPositions)
 }
+
+export function convertStringFullWidthToHalfWidth<char extends string | null>(
+  char: char
+): string | char {
+  return typeof char === 'string'
+    ? char
+        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, char => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
+        .replace(/（(.*)）/, '($1)')
+        .replace(/(\S)(?!\s)(\()/, '$1 $2')
+        .replace(/(\))(?!\s)(\S)/, '$1 $2')
+    : char
+}

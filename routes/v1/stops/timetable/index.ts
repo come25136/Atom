@@ -11,7 +11,7 @@ const router = Router({ mergeParams: true })
 interface Row {
   route: {
     id: string
-    headsign?: string
+    headsign: string | null
     routes?: {
       id: RouteStop['id']
       date: RouteStop['date']

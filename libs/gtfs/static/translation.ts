@@ -2,7 +2,7 @@ import * as csvParse from 'csv-parse'
 import * as fs from 'fs'
 import { promisify } from 'util'
 
-import { getDataDir, translate } from '../../util'
+import { convertStringFullWidthToHalfWidth, getDataDir, translate } from '../../util'
 
 interface GtfsTranslation {
   trans_id: string
@@ -64,16 +64,18 @@ export async function getTranslations(): Promise<getTranslations> {
           {},
           stop,
           {
-            en: stop.en || null,
-            ja: stop.ja.replace(/[Ａ-Ｚａ-ｚ０-９]/g, char =>
-              String.fromCharCode(char.charCodeAt(0) - 0xfee0)
-            )
+            en: convertStringFullWidthToHalfWidth(stop.en || null),
+            ja: convertStringFullWidthToHalfWidth(stop.ja)
           },
           stop['ja-Hira'] !== undefined && stop['ja-Kana'] === undefined
-            ? { 'ja-Kana': translate(stop['ja-Hira'], 'ja-Kana') }
+            ? {
+                'ja-Kana': convertStringFullWidthToHalfWidth(translate(stop['ja-Hira'], 'ja-Kana'))
+              }
             : stop['ja-Hira'] === undefined &&
                 stop['ja-Kana'] !== undefined && {
-                  'ja-Hira': translate(stop['ja-Kana'], 'ja-Hira')
+                  'ja-Hira': convertStringFullWidthToHalfWidth(
+                    translate(stop['ja-Kana'], 'ja-Hira')
+                  )
                 }
         )
       }),

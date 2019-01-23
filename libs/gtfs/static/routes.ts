@@ -2,7 +2,7 @@ import * as csvParse from 'csv-parse'
 import * as fs from 'fs'
 import { promisify } from 'util'
 
-import { getDataDir } from '../../util'
+import { convertStringFullWidthToHalfWidth, getDataDir } from '../../util'
 
 interface GtfsRawRoutes {
   route_id: string
@@ -61,9 +61,9 @@ export async function getRoutes(): Promise<getRoutes> {
       routes[row.route_id] = {
         route_id: row.route_id,
         agency_id: row.agency_id || null,
-        route_short_name: row.route_short_name,
-        route_long_name: row.route_long_name,
-        route_desc: row.route_desc || null,
+        route_short_name: convertStringFullWidthToHalfWidth(row.route_short_name),
+        route_long_name: convertStringFullWidthToHalfWidth(row.route_long_name),
+        route_desc: convertStringFullWidthToHalfWidth(row.route_desc || null),
         route_type: Number(row.route_type) as GtfsRoutes['route_type'],
         route_url: row.route_url || null,
         route_color: row.route_color || null,

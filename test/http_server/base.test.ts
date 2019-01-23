@@ -24,6 +24,8 @@ describe('companies', () => {
         .expect(200)
         .then(({ body }) =>
           assert.deepEqual(body, {
+            email: null,
+            fare_url: null,
             id: '1260001000674',
             name: '宇野自動車株式会社',
             url: 'http://www.unobus.co.jp/',

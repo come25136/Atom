@@ -2,7 +2,7 @@ import * as csvParse from 'csv-parse'
 import * as fs from 'fs'
 import { promisify } from 'util'
 
-import { getDataDir } from '../../util'
+import { convertStringFullWidthToHalfWidth, getDataDir } from '../../util'
 
 interface GtfsRawTrip {
   route_id: string
@@ -21,8 +21,8 @@ export interface GtfsTrip {
   route_id: string
   service_id: string
   trip_id: string
-  trip_headsign?: string
-  trip_short_name?: string
+  trip_headsign: string | null
+  trip_short_name: string | null
   direction_id: null | 0 | 1
   block_id?: string
   shape_id?: string
@@ -65,6 +65,7 @@ export async function getTrips(): Promise<getTrips> {
         [stop.route_id]: {
           ...prev[stop.route_id],
           [stop.trip_id]: Object.assign(stop, {
+            trip_headsign: convertStringFullWidthToHalfWidth(stop.trip_headsign || null),
             direction_id: stop.direction_id === undefined ? null : Number(stop.direction_id),
             wheelchair_accessible:
               stop.wheelchair_accessible === undefined ? 0 : Number(stop.wheelchair_accessible),

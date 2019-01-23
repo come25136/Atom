@@ -4256,7 +4256,7 @@ describe('unobus', function () {
             {
               id: '249_05',
               name: {
-                ja: '四御神車庫(東岡山)',
+                ja: '四御神車庫 (東岡山)',
                 'ja-Hira': 'ひがしおかやま',
                 'ja-Kana': 'ヒガシオカヤマ',
                 en: null
@@ -4273,7 +4273,7 @@ describe('unobus', function () {
             {
               id: '249_09',
               name: {
-                ja: '四御神車庫(東岡山)',
+                ja: '四御神車庫 (東岡山)',
                 'ja-Hira': 'ひがしおかやま',
                 'ja-Kana': 'ヒガシオカヤマ',
                 en: null
@@ -6449,7 +6449,7 @@ describe('unobus', function () {
             {
               id: '664_03',
               name: {
-                ja: '四御神南(東岡山)',
+                ja: '四御神南 (東岡山)',
                 'ja-Hira': 'しのごぜみなみ',
                 'ja-Kana': 'シノゴゼミナミ',
                 en: null
@@ -6466,7 +6466,7 @@ describe('unobus', function () {
             {
               id: '664_05',
               name: {
-                ja: '四御神南(東岡山)',
+                ja: '四御神南 (東岡山)',
                 'ja-Hira': 'しのごぜみなみ',
                 'ja-Kana': 'シノゴゼミナミ',
                 en: null

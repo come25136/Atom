@@ -2,7 +2,7 @@ import * as csvParse from 'csv-parse'
 import * as fs from 'fs'
 import { promisify } from 'util'
 
-import { getDataDir } from '../../util'
+import { convertStringFullWidthToHalfWidth, getDataDir } from '../../util'
 
 export interface GtfsStop {
   stop_id: string
