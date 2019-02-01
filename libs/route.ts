@@ -75,14 +75,11 @@ export async function getRoutesStops(
   ])
 
   const trips: GtfsTrip[] = await dateToServiceIds(companyName, firstStopDate).then(days =>
-    _trips[companyName][routeId]
-      ? Object.values(_trips[companyName][routeId]).filter(trip =>
-          days.includes(trip.service_id) && dayOnly
-            ? true
-            : firstStopDate.format('HH:mm:ss') ===
-              stopTimes[companyName][trip.trip_id][0].arrival_time
-        )
-      : []
+    Object.values(_trips[companyName][routeId] || []).filter(
+      trip =>
+        (days.includes(trip.service_id) && dayOnly) ||
+        firstStopDate.format('HH:mm:ss') === stopTimes[companyName][trip.trip_id][0].arrival_time
+    )
   )
 
   if (trips.length === 0) {
@@ -116,20 +113,11 @@ export async function getGeoRoute(companyName: string, routeNum: string) {
     throw createHttpError(404, 'There is no such route.')
 
   return {
-    type: 'FeatureCollection',
-    features: {
-      id: routeNum,
-      type: 'Feature',
-      properties: {
-        shape_id: routeNum
-      },
-      geometry: {
-        type: 'LineString',
-        coordinates: shapes[companyName][routeNum].map(shape => [
-          shape.shape_pt_lon,
-          shape.shape_pt_lat
-        ])
-      }
-    }
+    id: routeNum,
+    type: 'LineString',
+    coordinates: shapes[companyName][routeNum].map(shape => [
+      shape.shape_pt_lon,
+      shape.shape_pt_lat
+    ])
   }
 }
