@@ -1,11 +1,12 @@
 import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 
-import { BroadcastBusStop, BroadcastLocation, Stop } from '../../interfaces'
+import { BroadcastLocation, BroadcastVehicleStop, Stop } from '../../interfaces'
+import { Location } from '../../interfaces'
 import { getTranslations, GtfsStopTime } from '../gtfs/static'
 import { getRoutesStops, RouteStop } from '../route'
 import stations from '../station_loader'
-import { locationToBroadcastLocation } from '../util'
+import { correctionPosition, locationToBroadcastLocation } from '../util'
 
 export class Vehicle {
   private _startDate: moment.Moment
@@ -22,11 +23,8 @@ export class Vehicle {
     id: string // 系統番号
     stops: RouteStop[] // 路線
   }
-  private _location: {
-    lat: number // 緯度(y)
-    lon: number // 経度(x)
-  } | null = null
-  private _passed: BroadcastBusStop<true> | null = null
+  private _location: Location | null = null
+  private _passed: BroadcastVehicleStop<true> | null = null
   private _nextIndex: number | null = null
 
   constructor(
@@ -43,7 +41,7 @@ export class Vehicle {
         licensePlate?: string
       }
       delay: number
-      location: { lat: number; lon: number }
+      location: Location
       currentStop: {
         sequence: GtfsStopTime['stop_sequence']
         passingDate?: moment.Moment
@@ -75,7 +73,7 @@ export class Vehicle {
       RouteStop,
       {
         location: BroadcastLocation
-        date: BroadcastBusStop<true>['date']
+        date: BroadcastVehicleStop<true>['date']
       }
     >({}, route.stops[passedIndex], {
       location: locationToBroadcastLocation(route.stops[passedIndex].location),
@@ -114,11 +112,12 @@ export class Vehicle {
     return this._delay
   }
 
-  get location(): {
-    lat: number
-    lon: number
-  } | null {
+  get location(): Location | null {
     return this._location
+  }
+
+  set location(location: Location | null) {
+    this._location = location
   }
 
   get stations(): Stop[] {
@@ -141,7 +140,7 @@ export class Vehicle {
     return this._route.stops[0]
   }
 
-  get passedStop(): BroadcastBusStop<true> | null {
+  get passedStop(): BroadcastVehicleStop<true> | null {
     return this._passed
   }
 
@@ -160,10 +159,7 @@ export async function createVehicle(
   firstStopTime: moment.Moment,
   vehicle?: {
     secondsDelay: number
-    location: {
-      lat: number
-      lon: number
-    }
+    location: Location
     currentStop: {
       sequence: GtfsStopTime['stop_sequence'] | string
       passedDate?: moment.Moment
@@ -198,7 +194,7 @@ export async function createVehicle(
 
   if (!currentStopSequence) throw createHttpError(404, 'Current stop sequence not found.')
 
-  return new Vehicle(
+  const _vehicle = new Vehicle(
     companyName,
 
     {
@@ -219,4 +215,14 @@ export async function createVehicle(
       }
     }
   )
+
+  await correctionPosition(
+    companyName,
+    _vehicle.routeId,
+    _vehicle.route!,
+    _vehicle.passedStop!,
+    vehicle.location!
+  ).then(({ location }) => (_vehicle.location = location))
+
+  return _vehicle
 }

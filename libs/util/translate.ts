@@ -1,4 +1,9 @@
-const translationList = [
+interface Translation {
+  'ja-Hira': string
+  'ja-Kana': string
+}
+
+const translationList: Translation[] = [
   {
     'ja-Hira': 'あ',
     'ja-Kana': 'ア'
@@ -325,13 +330,15 @@ const translationList = [
   }
 ]
 
-export function translate(source: string, destination: 'ja-Hira' | 'ja-Kana') {
-  return translationList.reduce(
-    (prev, char) =>
-      prev.replace(
-        new RegExp(destination === 'ja-Hira' ? char['ja-Kana'] : char['ja-Hira'], 'g'),
-        destination === 'ja-Hira' ? char['ja-Hira'] : char['ja-Kana']
-      ),
-    source
-  )
+export function translate<T extends string | null>(
+  source: T,
+  destination: 'ja-Hira' | 'ja-Kana'
+): string | T {
+  return typeof source === 'string'
+    ? translationList.reduce(
+        (prev: string, char: Translation) =>
+          prev.replace(new RegExp(Object.values(char).join('|'), 'g'), char[destination]),
+        source
+      )
+    : source
 }

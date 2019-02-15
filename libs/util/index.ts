@@ -1,15 +1,17 @@
+import { Distance, findNearest, getRhumbLineBearing, isPointInLine, orderByDistance } from 'geolib'
 import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 import { Server as socketIoServer } from 'socket.io'
 
 import {
-  BroadcastBus,
-  BroadcastBusStop,
   BroadcastLocation,
   BroadcastStop,
-  EmitPositions
+  BroadcastVehicle,
+  BroadcastVehicleStop,
+  EmitPositions,
+  Location,
+  Stop
 } from '../../interfaces'
-import direction from '../../libs/direction'
 import { Vehicle } from '../classes/create_vehicle'
 import {
   getCalendarDates,
@@ -22,7 +24,7 @@ import {
   GtfsStopTime,
   GtfsTrip
 } from '../gtfs/static'
-import { RouteStop } from '../route'
+import { getShapes, GetShapes, RouteStop } from '../route'
 
 export * from './translate'
 
@@ -71,13 +73,160 @@ export function h24ToLessH24(
         .add(time.second, 's')
 }
 
-export function locationToBroadcastLocation({
-  lat,
-  lon
-}: {
-  lat: number
-  lon: number
-}): BroadcastLocation {
+function dot(v1: [number, number], v2: [number, number]) {
+  return v1[0] * v2[0] + v1[1] * v2[1]
+}
+
+// https://jsfiddle.net/soulwire/UA6H5/
+function closestPoint(
+  location: Location,
+  p1: Location,
+  p2: Location
+): {
+  location: Location
+  isLeft: boolean
+  dot: number
+  t: number
+} {
+  const atob = { x: p2.lon - p1.lon, y: p2.lat - p1.lat }
+  const atop = { x: location.lon - p1.lon, y: location.lat - p1.lat }
+  const len = atob.x * atob.x + atob.y * atob.y
+  let dot = atop.x * atob.x + atop.y * atob.y
+  const t = dot / len
+
+  dot = (p2.lon - p1.lon) * (location.lat - p1.lat) - (p2.lat - location.lat) * (p1.lon - p1.lon)
+
+  return {
+    location: {
+      lat: p1.lat + atob.y * t,
+      lon: p1.lon + atob.x * t
+    },
+    isLeft: dot < 1,
+    dot: dot,
+    t: t
+  }
+}
+
+function a(routeStop1: Stop, routeStop2: Stop, shape: GetShapes) {
+  const shapes = shape.coordinates.map(({ location }) => ({
+    latitude: location.lat,
+    longitude: location.lon
+  }))
+
+  const pointsNearPassStop = (findNearest(
+    {
+      latitude: routeStop1.location.lat,
+      longitude: routeStop1.location.lon
+    },
+    shapes
+  ) as unknown) as Distance
+
+  const pointsNearNextStop = (findNearest(
+    {
+      latitude: routeStop2.location.lat,
+      longitude: routeStop2.location.lon
+    },
+    shapes
+  ) as unknown) as Distance
+
+  let betweenPassStopAndNextStop: boolean = false
+
+  const shapesBetweenPassStopPointAndNextStopPoint = shape.coordinates.filter(({ location }) => {
+    if (
+      betweenPassStopAndNextStop === false &&
+      (location.lat === pointsNearPassStop.latitude &&
+        location.lon === pointsNearPassStop.longitude)
+    )
+      return (betweenPassStopAndNextStop = true)
+
+    if (
+      betweenPassStopAndNextStop &&
+      location.lat === pointsNearNextStop.latitude &&
+      location.lon === pointsNearNextStop.longitude
+    ) {
+      betweenPassStopAndNextStop = false
+
+      return true
+    }
+
+    return betweenPassStopAndNextStop
+  })
+
+  return shapesBetweenPassStopPointAndNextStopPoint
+}
+
+export async function correctionPosition(
+  companyName: string,
+  routeId: string,
+  route: RouteStop[],
+  passStop: Stop,
+  position: Location
+): Promise<{
+  location: Location
+  p0: Location
+  p1: Location
+}> {
+  let passStopIndex: number = route.findIndex(routeStop => routeStop.id === passStop.id)
+  passStopIndex = 0 < passStopIndex ? passStopIndex - 1 : 0 // 停留所通過しても通過ボタンすぐに押さないからその為のコード
+
+  let nextStopIndex: number = passStopIndex + 1
+
+  for (let i = 0; i < 5; i++) {
+    if (route[passStopIndex + i + 1] === undefined) break
+    passStopIndex = passStopIndex + i
+
+    nextStopIndex = passStopIndex + 1
+
+    const shape = await getShapes(companyName, routeId)
+
+    const shapesBetweenPassStopPointAndNextStopPoint = a(
+      route[passStopIndex],
+      route[nextStopIndex],
+      shape
+    )
+
+    for (let i = 0; i < shapesBetweenPassStopPointAndNextStopPoint.length - 1; i++) {
+      const correctionAfterPosition = closestPoint(
+        position,
+        shapesBetweenPassStopPointAndNextStopPoint[i].location,
+        shapesBetweenPassStopPointAndNextStopPoint[i + 1].location
+      )
+
+      if (correctionAfterPosition.t < 0 || 1 < correctionAfterPosition.t) continue
+
+      return {
+        location: correctionAfterPosition.location,
+        p0: shapesBetweenPassStopPointAndNextStopPoint[i].location,
+        p1: shapesBetweenPassStopPointAndNextStopPoint[i + 1].location
+      }
+    }
+  }
+
+  return {
+    location: position,
+    p0: route[passStopIndex].location,
+    p1: route[nextStopIndex].location
+  }
+}
+
+export async function direction(
+  companyName: string,
+  routeId: string,
+  route: RouteStop[],
+  passStop: BroadcastVehicleStop | BroadcastVehicleStop<true>,
+  position: Location
+): Promise<number> {
+  const { location, p1 } = await correctionPosition(companyName, routeId, route, passStop, position)
+
+  const bearing = getRhumbLineBearing(
+    { latitude: location.lat, longitude: location.lon },
+    { latitude: p1.lat, longitude: p1.lon }
+  )
+
+  return bearing
+}
+
+export function locationToBroadcastLocation({ lat, lon }: Location): BroadcastLocation {
   return {
     latitude: lat,
     lat: lat,
@@ -88,7 +237,7 @@ export function locationToBroadcastLocation({
   }
 }
 
-export async function createBusToBroadcastBus(bus: Vehicle): Promise<BroadcastBus> {
+export async function createBusToBroadcastVehicle(bus: Vehicle): Promise<BroadcastVehicle> {
   if (bus.isRun === false)
     return {
       run: false,
@@ -127,7 +276,7 @@ export async function createBusToBroadcastBus(bus: Vehicle): Promise<BroadcastBu
 
   const passedHeadsign: GtfsStopTime | undefined = (await getStopTimes())[bus.companyName][
     trip.trip_id
-  ].find(stop => (bus.passedStop as BroadcastBusStop<true>).date.schedule === stop.arrival_time)
+  ].find(stop => bus.passedStop!.date.schedule === stop.arrival_time)
 
   return bus.isRun
     ? {
@@ -141,17 +290,19 @@ export async function createBusToBroadcastBus(bus: Vehicle): Promise<BroadcastBu
           passedHeadsign && passedHeadsign.stop_headsign
             ? passedHeadsign.stop_headsign
             : trip.trip_headsign || null,
-        delay: bus.delay as number,
+        delay: bus.delay!,
         route: {
           id: bus.routeId
         },
         direction: await direction(
-          (bus.passedStop as BroadcastBusStop<true>).location,
-          (bus.nextStop as RouteStop).location,
-          bus.location as { lat: number; lon: number }
+          bus.companyName,
+          bus.routeId,
+          bus.route,
+          bus.passedStop!,
+          bus.location!
         ),
         stations: bus.stations.map(station => station.id),
-        location: locationToBroadcastLocation(bus.location as { lat: number; lon: number }),
+        location: locationToBroadcastLocation(bus.location!),
         stops: {
           first: {
             ...(await stopToBroadcastStop(
@@ -163,16 +314,16 @@ export async function createBusToBroadcastBus(bus: Vehicle): Promise<BroadcastBu
           passed: {
             ...(await stopToBroadcastStop(
               bus.companyName,
-              (await getStops())[bus.companyName][(bus.passedStop as BroadcastBusStop<true>).id]
+              (await getStops())[bus.companyName][bus.passedStop!.id]
             )),
-            date: (bus.passedStop as BroadcastBusStop<true>).date
+            date: bus.passedStop!.date
           },
           next: {
             ...(await stopToBroadcastStop(
               bus.companyName,
-              (await getStops())[bus.companyName][(bus.nextStop as RouteStop).id]
+              (await getStops())[bus.companyName][bus.nextStop!.id]
             )),
-            date: (bus.nextStop as RouteStop).date
+            date: bus.nextStop!.date
           },
           last: {
             ...(await stopToBroadcastStop(
@@ -270,7 +421,7 @@ export async function dateToServiceIds(
     .map(row => row.service_id)
 }
 
-export function ioEmitBus(io: socketIoServer, companyName: string, buses: BroadcastBus[]) {
+export function ioEmitBus(io: socketIoServer, companyName: string, buses: BroadcastVehicle[]) {
   io.to(companyName).emit('bus', {
     company_name: companyName,
     buses

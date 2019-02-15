@@ -4,8 +4,10 @@ import { NextFunction, Request, Response } from 'express-serve-static-core'
 import { Server as httpServer } from 'http'
 import * as socketIo from 'socket.io'
 
-import { RyobiBusLoop } from './libs/get_data/ryobibus'
-import { UnoBusLoop } from './libs/get_data/unobus'
+import { dataUpdatedCallback, LoopGetData } from './libs/get_data/loop_get_data'
+import { LoopOkadenBus } from './libs/get_data/okadenbus'
+import { LoopRyobiBus } from './libs/get_data/ryobibus'
+import { LoopUnoBus } from './libs/get_data/unobus'
 import { ioEmitBus } from './libs/util'
 import wwwRoot from './routes'
 
@@ -22,10 +24,12 @@ app.use('/', wwwRoot)
 
 app.use('/', express.static(`${__dirname}/../static`, { index: 'api.html' })) // distからの相対パス
 
-app.use((req: Request, res: Response, next: NextFunction): any => res.status(404).end())
+app.use((req: Request, res: Response): any => res.status(404).end())
 
 app.use(
   (err: any, req: Request, res: Response, next: NextFunction): any => {
+    process.stdout.write(req.originalUrl, err.message)
+
     if (err.statusCode === undefined || err.statusCode === 500) {
       console.error(err.message)
 
@@ -41,7 +45,14 @@ app.use(
 )
 
 if (process.env.NODE_ENV !== 'test') {
-  const loops = [new UnoBusLoop(io), new RyobiBusLoop(io)]
+  const dataUpdatedCallback: dataUpdatedCallback = (loopName, broadcastVehicles) =>
+    ioEmitBus(io, loopName, broadcastVehicles)
+
+  const loops: LoopGetData[] = [
+    new LoopUnoBus(dataUpdatedCallback),
+    new LoopRyobiBus(dataUpdatedCallback),
+    new LoopOkadenBus(dataUpdatedCallback)
+  ]
 
   io.on('connection', socket => {
     socket.on('registration', (companyName: string) => {
@@ -57,7 +68,7 @@ if (process.env.NODE_ENV !== 'test') {
             socket.emit('registration', {
               success: true
             })
-            ioEmitBus(io, loop.name, loop.buses)
+            ioEmitBus(io, loop.name, loop.broadcastVehicles)
           })
     })
 
@@ -75,7 +86,19 @@ if (process.env.NODE_ENV !== 'test') {
   })
 
   // httpサーバー起動
-  server.listen(port, () => console.log(`Bus API server | port: ${port}`))
+  server.listen(port, () => process.stdout.write(`Bus API server | port: ${port}`))
+
+  let ctrlCPushFlag: boolean = false
+
+  //  Ctrl-C
+  process.on('SIGINT', () => {
+    if (ctrlCPushFlag) process.exit()
+
+    ctrlCPushFlag = true
+    process.stdout.write('Waiting for all connections to be disconnected...')
+
+    server.close(() => process.exit())
+  })
 }
 
 export default app

@@ -2,7 +2,7 @@ import { assert } from 'chai'
 import * as moment from 'moment'
 
 import { rawToObject } from '../libs/basumada'
-import { createBusToBroadcastBus } from '../libs/util'
+import { createBusToBroadcastVehicle } from '../libs/util'
 
 const testData = `
 15:32:37\n
@@ -36,7 +36,7 @@ describe('basumada', function() {
   it('rawToObject & createBusToBroadcastObject', async () =>
     rawToObject('unobus', testData, undefined, moment('2018-07-13'))
       .then(async ({ buses }) =>
-        Promise.all(Object.values(buses).map(async bus => createBusToBroadcastBus(bus)))
+        Promise.all(Object.values(buses).map(async bus => createBusToBroadcastVehicle(bus)))
       )
       .then(buses =>
         assert.sameDeepMembers(buses, [

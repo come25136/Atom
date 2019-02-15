@@ -1,11 +1,11 @@
 import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 
-import { Stop, StopDate } from '../interfaces'
+import { Location, Stop, StopDate } from '../interfaces'
 
 import {
   getRoutes,
-  getShapes,
+  getShapes as getGtfsShapes,
   getStops,
   getStopTimes,
   getTranslations,
@@ -34,6 +34,14 @@ export interface RouteStop extends Stop {
   date: StopDate
   headsign: GtfsTrip['trip_headsign']
   direction: GtfsTrip['direction_id']
+}
+
+export interface GetShapes {
+  id: string
+  coordinates: {
+    location: Location
+    distTraveled?: number
+  }[]
 }
 
 export async function getRouteInfo(companyName: string, routeId: string): Promise<RouteInfo> {
@@ -106,18 +114,45 @@ export async function getRoutesStops(
   )
 }
 
-export async function getGeoRoute(companyName: string, routeNum: string) {
-  const shapes = await getShapes()
+export async function getShapes(companyName: string, routeId: string): Promise<GetShapes> {
+  const [trips, shapes] = await Promise.all([getTrips(), getGtfsShapes()])
 
-  if (shapes[companyName][routeNum] === undefined)
-    throw createHttpError(404, 'There is no such route.')
+  if (companyName in trips === false || companyName in shapes === false)
+    throw createHttpError(404, 'There is no such company.')
+
+  const shapeId = trips[companyName][routeId][Object.keys(trips[companyName][routeId])[0]].shape_id
+
+  if (shapeId === undefined || shapeId in shapes[companyName] === false)
+    throw createHttpError(404, 'There is no such shape.')
 
   return {
-    id: routeNum,
+    id: shapes[companyName][shapeId][0].shape_id,
+    coordinates: shapes[companyName][shapeId].map(shape => ({
+      location: {
+        lat: shape.shape_pt_lat,
+        lon: shape.shape_pt_lon
+      },
+      distTraveled: shape.shape_dist_traveled
+    }))
+  }
+}
+
+export async function getGeoRoute(
+  companyName: string,
+  routeId: string
+): Promise<{
+  id: string
+  type: string
+  coordinates: [number, number][]
+}> {
+  const shapes = await getShapes(companyName, routeId)
+
+  return {
+    id: routeId,
     type: 'LineString',
-    coordinates: shapes[companyName][routeNum].map(shape => [
-      shape.shape_pt_lon,
-      shape.shape_pt_lat
+    coordinates: shapes.coordinates.map<[number, number]>(({ location }) => [
+      location.lon,
+      location.lat
     ])
   }
 }

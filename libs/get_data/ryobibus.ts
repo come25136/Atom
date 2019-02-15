@@ -1,32 +1,25 @@
 import * as moment from 'moment'
-import { Server } from 'socket.io'
 import * as superagent from 'superagent'
 
-import { BroadcastBus } from '../../interfaces'
 import { createVehicle, Vehicle } from '../classes/create_vehicle'
 import { decode, FeedMessage, StopTimeUpdate, TripUpdate } from '../gtfs/realtime'
 import { getTrips, GtfsTrip } from '../gtfs/static'
 import { getRoutesStops, RouteStop } from '../route'
-import { createBusToBroadcastBus, ioEmitBus } from '../util'
 
-export class RyobiBusLoop {
-  private _loopTimer: NodeJS.Timer | null = null
+import { LoopGetData } from './loop_get_data'
 
-  private _changeTimes: number[] = []
-
-  private _prev: {
-    date: moment.Moment | null
-    data: {
-      broadcastBuses: BroadcastBus[]
-    }
-  } = {
-    date: null,
-    data: {
-      broadcastBuses: []
-    }
+export class LoopRyobiBus extends LoopGetData {
+  public get name(): string {
+    return 'ryobibus'
   }
 
-  private async getBusLoop(): Promise<void> {
+  async loop(): Promise<void> {
+    if (moment().isBetween(moment('0:40', 'H:mm'), moment('5:00', 'H:mm'))) {
+      setTimeout(this.loop.bind(this), moment('5:00', 'H:mm').diff(moment()))
+
+      return
+    }
+
     try {
       const [vehiclePositions, tripUpdates]: [FeedMessage, FeedMessage] = await Promise.all([
         superagent
@@ -39,18 +32,18 @@ export class RyobiBusLoop {
           .then(async ({ body }) => decode(body))
       ])
 
+      const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
+
       if (
-        this._prev.data.broadcastBuses.length !== 0 &&
+        this._prev.data.vehicles.length !== 0 &&
         (vehiclePositions.entity === undefined || tripUpdates.entity === undefined)
       )
-        ioEmitBus(this.io, this.name, (this._prev.data.broadcastBuses = []))
+        this.updateData([], feedGeneratedTimestamp)
       if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
-        setTimeout(this.getBusLoop.bind(this), 20000)
+        setTimeout(this.loop.bind(this), 18000)
 
         return
       }
-
-      const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
 
       const prevDiffTime: number | null =
         this._prev.date && this._changeTimes.length
@@ -65,7 +58,7 @@ export class RyobiBusLoop {
           : null
 
       const awaitTime =
-        prevDiffTime !== null && 13000 < prevDiffTime && prevDiffTime <= 20000
+        prevDiffTime !== null && 13000 <= prevDiffTime && prevDiffTime <= 20000
           ? prevDiffTime
           : 18000 // 過度なアクセスをすると物理的に怒られる
 
@@ -82,7 +75,6 @@ export class RyobiBusLoop {
             | {
                 id: string
                 is_deleted?: boolean
-
                 trip_update: TripUpdate
               }
             | undefined
@@ -145,58 +137,38 @@ export class RyobiBusLoop {
           )
         }
 
-        process.env.NODE_ENV !== 'production' && console.log(`${this.name}: Bus update!!`)
-
-        const broadcastBuses = await Promise.all(
-          Object.values(buses).map(async bus => createBusToBroadcastBus(bus))
+        this.save(
+          JSON.stringify(vehiclePositions),
+          'json',
+          feedGeneratedTimestamp,
+          false,
+          '/vehicle_positions/'
+        )
+        this.save(
+          JSON.stringify(tripUpdates),
+          'json',
+          feedGeneratedTimestamp,
+          false,
+          '/trip_updates/'
         )
 
-        ioEmitBus(this.io, this.name, this._prev.data.broadcastBuses)
+        this.updateData(buses, feedGeneratedTimestamp)
 
         if (this._prev.date) {
           this._changeTimes.push(feedGeneratedTimestamp.diff(this._prev.date))
           if (10 < this._changeTimes.length) this._changeTimes.shift()
         }
-
-        this._prev.date = moment.unix(vehiclePositions.header.timestamp)
-        this._prev.data.broadcastBuses = broadcastBuses
       }
 
       process.env.NODE_ENV !== 'production' &&
-        console.log(
+        process.stdout.write(
           `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${prevDiffTime}`
         )
 
-      setTimeout(this.getBusLoop.bind(this), awaitTime)
+      setTimeout(this.loop.bind(this), awaitTime)
     } catch (err) {
       console.warn(err)
-      setTimeout(this.getBusLoop.bind(this), 3000)
-    }
-  }
-
-  constructor(private io: Server) {
-    this.loopStart()
-  }
-  public get name(): string {
-    return 'ryobibus'
-  }
-
-  public get buses(): BroadcastBus[] {
-    return this._prev.data.broadcastBuses
-  }
-
-  public loopStart(): void {
-    this.getBusLoop()
-  }
-
-  public get loopStatus(): boolean {
-    return this._loopTimer !== null
-  }
-
-  public loopStop(): void {
-    if (this._loopTimer) {
-      clearTimeout(this._loopTimer)
-      this._loopTimer = null
+      setTimeout(this.loop.bind(this), 3000)
     }
   }
 }
