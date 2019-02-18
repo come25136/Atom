@@ -47,8 +47,11 @@ export async function getStopTimes(): Promise<getStopTimes> {
 
     rows.forEach(stop => {
       if (!routes[stop.trip_id]) routes[stop.trip_id] = []
+
       routes[stop.trip_id].push(
-        Object.assign({}, stop, { stop_sequence: Number(stop.stop_sequence) })
+        Object.assign({}, stop, {
+          stop_sequence: Number(stop.stop_sequence)
+        })
       )
     })
 

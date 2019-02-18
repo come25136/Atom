@@ -41,8 +41,7 @@ export class LoopGetData {
       vehicles.map(async vehicle => createBusToBroadcastVehicle(vehicle))
     )
 
-    process.env.NODE_ENV !== 'production' && process.stdout.write(`${this.name}: Bus update!!`)
-
+    process.env.NODE_ENV !== 'production' && console.log(`${this.name}: Bus update!!`)
     this.dataUpdatedCallback(this.name, this.broadcastVehicles)
 
     return this.broadcastVehicles
@@ -88,6 +87,10 @@ export class LoopGetData {
 
   protected loop() {}
 
+  public nextLoop(cb: (...args: any[]) => void, time: number): void {
+    this._loopTimer = setTimeout(cb.bind(this), time)
+  }
+
   public loopStart(): void {
     this.loop()
   }
@@ -101,5 +104,9 @@ export class LoopGetData {
       clearTimeout(this._loopTimer)
       this._loopTimer = null
     }
+  }
+
+  public dispose() {
+    this.loopStop()
   }
 }

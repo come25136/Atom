@@ -65,7 +65,7 @@ export interface BroadcastRunVehicle extends BroadcastBaseVehicle {
   headsign: string | null
   delay: number
 
-  direction: number // 方角(右回り 0~359)
+  bearing: number // 方角(右回り 0~359)
   stations: string[]
   location: BroadcastLocation
   stops: {

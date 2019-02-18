@@ -34,12 +34,9 @@ export class LoopRyobiBus extends LoopGetData {
 
       const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
 
-      if (
-        this._prev.data.vehicles.length !== 0 &&
-        (vehiclePositions.entity === undefined || tripUpdates.entity === undefined)
-      )
-        this.updateData([], feedGeneratedTimestamp)
       if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
+        if (this._prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
+
         setTimeout(this.loop.bind(this), 18000)
 
         return
@@ -66,7 +63,13 @@ export class LoopRyobiBus extends LoopGetData {
         let buses: Vehicle[] = []
 
         for (const { vehicle } of vehiclePositions.entity) {
-          if (vehicle === undefined) continue
+          if (
+            vehicle === undefined ||
+            vehicle.position === undefined ||
+            Number.isNaN(vehicle.position.latitude) ||
+            Number.isNaN(vehicle.position.longitude)
+          )
+            continue
 
           const tripUpdate = tripUpdates.entity.find(
             ({ trip_update }) =>
@@ -161,7 +164,7 @@ export class LoopRyobiBus extends LoopGetData {
       }
 
       process.env.NODE_ENV !== 'production' &&
-        process.stdout.write(
+        console.log(
           `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${prevDiffTime}`
         )
 

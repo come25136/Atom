@@ -15,7 +15,7 @@ export class LoopUnoBus extends LoopGetData {
 
   async loop(): Promise<void> {
     if (moment().isBetween(moment('1:30', 'H:mm'), moment('6:30', 'H:mm'))) {
-      setTimeout(this.loop.bind(this), moment('6:30', 'H:mm').diff(moment()))
+      this.nextLoop(this.loop, moment('6:30', 'H:mm').diff(moment()))
 
       return
     }
@@ -46,10 +46,10 @@ export class LoopUnoBus extends LoopGetData {
       const awaitTime =
         prevDiffTime !== null && 3000 <= prevDiffTime && prevDiffTime <= 10000 ? prevDiffTime : 3000 // 過度なアクセスをすると怒られる
 
-      if (this._prev.data.vehicles.length !== 0 && Object.keys(buses).length === 0)
-        this.updateData([], generatedDate)
       if (Object.keys(buses).length === 0) {
-        setTimeout(this.loop.bind(this), 6000)
+        if (this._prev.data.vehicles.length !== 0) this.updateData([], generatedDate)
+
+        this.nextLoop(this.loop, 6000)
 
         return
       }
@@ -66,14 +66,14 @@ export class LoopUnoBus extends LoopGetData {
       if (10 < this._changeTimes.length) this._changeTimes.shift()
 
       process.env.NODE_ENV !== 'production' &&
-        process.stdout.write(
+        console.log(
           `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${prevDiffTime}`
         )
 
-      setTimeout(this.loop.bind(this), awaitTime)
+      this.nextLoop(this.loop, awaitTime)
     } catch (err) {
       console.warn(err)
-      setTimeout(this.loop.bind(this), 1000)
+      this.nextLoop(this.loop, 1000)
     }
   }
 }

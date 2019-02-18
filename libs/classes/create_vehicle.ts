@@ -1,3 +1,4 @@
+import { getRhumbLineBearing } from 'geolib'
 import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 
@@ -18,6 +19,7 @@ export class Vehicle {
     label?: string
     licensePlate?: string
   } = {}
+  private _bearing: number | null = null
   private _stations: Stop[]
   private _route: {
     id: string // 系統番号
@@ -42,6 +44,7 @@ export class Vehicle {
       }
       delay: number
       location: Location
+      bearing?: number
       currentStop: {
         sequence: GtfsStopTime['stop_sequence']
         passingDate?: moment.Moment
@@ -118,6 +121,14 @@ export class Vehicle {
 
   set location(location: Location | null) {
     this._location = location
+  }
+
+  get bearing(): number | null {
+    return this._bearing
+  }
+
+  set bearing(bearing: number | null) {
+    this._bearing = bearing
   }
 
   get stations(): Stop[] {
@@ -222,7 +233,14 @@ export async function createVehicle(
     _vehicle.route!,
     _vehicle.passedStop!,
     vehicle.location!
-  ).then(({ location }) => (_vehicle.location = location))
+  ).then(({ location, p1 }) => {
+    _vehicle.location = location
+
+    _vehicle.bearing = getRhumbLineBearing(
+      { latitude: location.lat, longitude: location.lon },
+      { latitude: p1.lat, longitude: p1.lon }
+    )
+  })
 
   return _vehicle
 }

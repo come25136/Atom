@@ -73,10 +73,6 @@ export function h24ToLessH24(
         .add(time.second, 's')
 }
 
-function dot(v1: [number, number], v2: [number, number]) {
-  return v1[0] * v2[0] + v1[1] * v2[1]
-}
-
 // https://jsfiddle.net/soulwire/UA6H5/
 function closestPoint(
   location: Location,
@@ -92,7 +88,7 @@ function closestPoint(
   const atop = { x: location.lon - p1.lon, y: location.lat - p1.lat }
   const len = atob.x * atob.x + atob.y * atob.y
   let dot = atop.x * atob.x + atop.y * atob.y
-  const t = dot / len
+  const t = dot / len || 0
 
   dot = (p2.lon - p1.lon) * (location.lat - p1.lat) - (p2.lat - location.lat) * (p1.lon - p1.lon)
 
@@ -167,7 +163,7 @@ export async function correctionPosition(
   p1: Location
 }> {
   let passStopIndex: number = route.findIndex(routeStop => routeStop.id === passStop.id)
-  passStopIndex = 0 < passStopIndex ? passStopIndex - 1 : 0 // 停留所通過しても通過ボタンすぐに押さないからその為のコード
+  passStopIndex = 0 < passStopIndex ? passStopIndex - 1 : 0 // 停留所通過する前に通過ボタンを押した時用のコード
 
   let nextStopIndex: number = passStopIndex + 1
 
@@ -237,126 +233,99 @@ export function locationToBroadcastLocation({ lat, lon }: Location): BroadcastLo
   }
 }
 
-export async function createBusToBroadcastVehicle(bus: Vehicle): Promise<BroadcastVehicle> {
-  if (bus.isRun === false)
+export async function createBusToBroadcastVehicle(vehicle: Vehicle): Promise<BroadcastVehicle> {
+  if (vehicle.isRun === false)
     return {
       run: false,
       route: {
-        id: bus.routeId
+        id: vehicle.routeId
       },
-      stations: bus.stations.map(station => station.id),
+      stations: vehicle.stations.map(station => station.id),
       stops: {
         first: {
           ...(await stopToBroadcastStop(
-            bus.companyName,
-            (await getStops())[bus.companyName][bus.firstStop.id]
+            vehicle.companyName,
+            (await getStops())[vehicle.companyName][vehicle.firstStop.id]
           )),
-          date: bus.firstStop.date
+          date: vehicle.firstStop.date
         },
         last: {
           ...(await stopToBroadcastStop(
-            bus.companyName,
-            (await getStops())[bus.companyName][bus.lastStop.id]
+            vehicle.companyName,
+            (await getStops())[vehicle.companyName][vehicle.lastStop.id]
           )),
-          date: bus.lastStop.date
+          date: vehicle.lastStop.date
         }
       }
     }
 
-  const trip: GtfsTrip | undefined = await dateToServiceIds(bus.companyName, bus.startDate).then(
-    async days =>
-      getTrips().then(trips =>
-        Object.values(trips[bus.companyName][bus.routeId]).find(trip =>
-          days.includes(trip.service_id)
-        )
+  const trip: GtfsTrip | undefined = await dateToServiceIds(
+    vehicle.companyName,
+    vehicle.startDate
+  ).then(async days =>
+    getTrips().then(trips =>
+      Object.values(trips[vehicle.companyName][vehicle.routeId]).find(trip =>
+        days.includes(trip.service_id)
       )
+    )
   )
 
-  if (trip === undefined) throw createHttpError(404, `Not trip: ${bus.companyName} ${bus.routeId}`)
+  if (trip === undefined)
+    throw createHttpError(404, `Not trip: ${vehicle.companyName} ${vehicle.routeId}`)
 
-  const passedHeadsign: GtfsStopTime | undefined = (await getStopTimes())[bus.companyName][
+  const passedHeadsign: GtfsStopTime | undefined = (await getStopTimes())[vehicle.companyName][
     trip.trip_id
-  ].find(stop => bus.passedStop!.date.schedule === stop.arrival_time)
+  ].find(stop => vehicle.passedStop!.date.schedule === stop.arrival_time)
 
-  return bus.isRun
-    ? {
-        run: true,
-        descriptors: {
-          id: bus.id,
-          label: bus.label,
-          license_plate: bus.licensePlate
-        },
-        headsign:
-          passedHeadsign && passedHeadsign.stop_headsign
-            ? passedHeadsign.stop_headsign
-            : trip.trip_headsign || null,
-        delay: bus.delay!,
-        route: {
-          id: bus.routeId
-        },
-        direction: await direction(
-          bus.companyName,
-          bus.routeId,
-          bus.route,
-          bus.passedStop!,
-          bus.location!
-        ),
-        stations: bus.stations.map(station => station.id),
-        location: locationToBroadcastLocation(bus.location!),
-        stops: {
-          first: {
-            ...(await stopToBroadcastStop(
-              bus.companyName,
-              (await getStops())[bus.companyName][bus.firstStop.id]
-            )),
-            date: bus.firstStop.date
-          },
-          passed: {
-            ...(await stopToBroadcastStop(
-              bus.companyName,
-              (await getStops())[bus.companyName][bus.passedStop!.id]
-            )),
-            date: bus.passedStop!.date
-          },
-          next: {
-            ...(await stopToBroadcastStop(
-              bus.companyName,
-              (await getStops())[bus.companyName][bus.nextStop!.id]
-            )),
-            date: bus.nextStop!.date
-          },
-          last: {
-            ...(await stopToBroadcastStop(
-              bus.companyName,
-              (await getStops())[bus.companyName][bus.lastStop.id]
-            )),
-            date: bus.lastStop.date
-          }
-        }
+  return {
+    run: true,
+    descriptors: {
+      id: vehicle.id,
+      label: vehicle.label,
+      license_plate: vehicle.licensePlate
+    },
+    headsign:
+      passedHeadsign && passedHeadsign.stop_headsign
+        ? passedHeadsign.stop_headsign
+        : trip.trip_headsign || null,
+    delay: vehicle.delay!,
+    route: {
+      id: vehicle.routeId
+    },
+    bearing: vehicle.bearing!,
+    stations: vehicle.stations.map(station => station.id),
+    location: locationToBroadcastLocation(vehicle.location!),
+    stops: {
+      first: {
+        ...(await stopToBroadcastStop(
+          vehicle.companyName,
+          (await getStops())[vehicle.companyName][vehicle.firstStop.id]
+        )),
+        date: vehicle.firstStop.date
+      },
+      passed: {
+        ...(await stopToBroadcastStop(
+          vehicle.companyName,
+          (await getStops())[vehicle.companyName][vehicle.passedStop!.id]
+        )),
+        date: vehicle.passedStop!.date
+      },
+      next: {
+        ...(await stopToBroadcastStop(
+          vehicle.companyName,
+          (await getStops())[vehicle.companyName][vehicle.nextStop!.id]
+        )),
+        date: vehicle.nextStop!.date
+      },
+      last: {
+        ...(await stopToBroadcastStop(
+          vehicle.companyName,
+          (await getStops())[vehicle.companyName][vehicle.lastStop.id]
+        )),
+        date: vehicle.lastStop.date
       }
-    : {
-        run: false,
-        route: {
-          id: bus.routeId
-        },
-        stations: bus.stations.map(station => station.id),
-        stops: {
-          first: {
-            ...(await stopToBroadcastStop(
-              bus.companyName,
-              (await getStops())[bus.companyName][bus.firstStop.id]
-            )),
-            date: bus.firstStop.date
-          },
-          last: {
-            ...(await stopToBroadcastStop(
-              bus.companyName,
-              (await getStops())[bus.companyName][bus.lastStop.id]
-            )),
-            date: bus.lastStop.date
-          }
-        }
-      }
+    }
+  }
 }
 
 export async function stopToBroadcastStop(
@@ -381,12 +350,16 @@ export async function dateToServiceIds(
 ): Promise<string[]> {
   const [calendar, calendar_dates] = await Promise.all([getCalendars(), getCalendarDates()])
 
+  if (companyName in calendar === undefined) {
+    console.log(calendar)
+  }
+
   return Object.values(calendar[companyName])
     .filter(calendar => {
       if (date.isBetween(calendar.start_date, calendar.end_date) === false) return
 
       // calendar_datesで上書き可能
-      const base =
+      const base: boolean =
         calendar[
           dayNames[date.day()] as
             | 'sunday'
@@ -401,13 +374,13 @@ export async function dateToServiceIds(
       // undefinedの可能性あり
       const calendarDate = calendar_dates[companyName][calendar.service_id]
 
-      const add =
+      const add: boolean =
         calendarDate &&
         calendarDate.some(
           service => date.isSame(service.date, 'day') && service.exception_type === 1
         )
 
-      const remove =
+      const remove: boolean =
         calendarDate &&
         calendarDate.some(
           service => date.isSame(service.date, 'day') && service.exception_type === 2

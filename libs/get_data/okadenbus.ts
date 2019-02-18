@@ -15,7 +15,7 @@ export class LoopOkadenBus extends LoopGetData {
 
   async loop(): Promise<void> {
     if (moment().isBetween(moment('0:40', 'H:mm'), moment('5:00', 'H:mm'))) {
-      setTimeout(this.loop.bind(this), moment('5:00', 'H:mm').diff(moment()))
+      this.nextLoop(this.loop, moment('5:00', 'H:mm').diff(moment()))
 
       return
     }
@@ -34,14 +34,13 @@ export class LoopOkadenBus extends LoopGetData {
 
       const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
 
-      if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined)
-        if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
-          if (this._prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
+      if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
+        if (this._prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
 
-          setTimeout(this.loop.bind(this), 18000)
+        this.nextLoop(this.loop, 18000)
 
-          return
-        }
+        return
+      }
 
       const prevDiffTime: number | null =
         this._prev.date && this._changeTimes.length
@@ -64,7 +63,13 @@ export class LoopOkadenBus extends LoopGetData {
         let buses: Vehicle[] = []
 
         for (const { vehicle } of vehiclePositions.entity) {
-          if (vehicle === undefined) continue
+          if (
+            vehicle === undefined ||
+            vehicle.position === undefined ||
+            Number.isNaN(vehicle.position.latitude) ||
+            Number.isNaN(vehicle.position.longitude)
+          )
+            continue
 
           const tripUpdate = tripUpdates.entity.find(
             ({ trip_update }) =>
@@ -173,14 +178,14 @@ export class LoopOkadenBus extends LoopGetData {
       }
 
       process.env.NODE_ENV !== 'production' &&
-        process.stdout.write(
+        console.log(
           `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${prevDiffTime}`
         )
 
-      setTimeout(this.loop.bind(this), awaitTime)
+      this.nextLoop(this.loop, awaitTime)
     } catch (err) {
       console.warn(err)
-      setTimeout(this.loop.bind(this), 3000)
+      this.nextLoop(this.loop, 3000)
     }
   }
 }

@@ -28,8 +28,6 @@ app.use((req: Request, res: Response): any => res.status(404).end())
 
 app.use(
   (err: any, req: Request, res: Response, next: NextFunction): any => {
-    process.stdout.write(req.originalUrl, err.message)
-
     if (err.statusCode === undefined || err.statusCode === 500) {
       console.error(err.message)
 
@@ -86,16 +84,11 @@ if (process.env.NODE_ENV !== 'test') {
   })
 
   // httpサーバー起動
-  server.listen(port, () => process.stdout.write(`Bus API server | port: ${port}`))
-
-  let ctrlCPushFlag: boolean = false
+  server.listen(port, () => console.log(`Bus API server | port: ${port}`))
 
   //  Ctrl-C
   process.on('SIGINT', () => {
-    if (ctrlCPushFlag) process.exit()
-
-    ctrlCPushFlag = true
-    process.stdout.write('Waiting for all connections to be disconnected...')
+    console.log('Waiting for all connections to be disconnected...')
 
     server.close(() => process.exit())
   })
