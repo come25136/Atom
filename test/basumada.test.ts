@@ -42,11 +42,16 @@ describe('basumada', function() {
         assert.sameDeepMembers(buses, [
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1184' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1184',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '四御神 (県庁前 経由)',
             delay: 0,
             route: { id: '1111' },
-            direction: 71.75366715525718,
+            bearing: 71.75366715525718,
             stations: ['2_02'],
             location: {
               latitude: 34.66489,
@@ -133,11 +138,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1329' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1329',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '岡山後楽園 (Korakuen) (県立美術館 経由)',
             delay: 60,
             route: { id: '8001' },
-            direction: 34.917426313051806,
+            bearing: 34.917426313051806,
             stations: ['2_11', '2_08'],
             location: {
               latitude: 34.66588,
@@ -224,11 +234,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1341' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1341',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: 'ネオ西9 (西 ・下市 経由)',
             delay: 360,
             route: { id: '1631' },
-            direction: 104.65647581739347,
+            bearing: 104.65647581739347,
             stations: ['2_04'],
             location: {
               latitude: 34.75276,
@@ -315,11 +330,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1343' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1343',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '片上',
             delay: 180,
             route: { id: '3101' },
-            direction: 59.316747503710985,
+            bearing: 59.316747503710985,
             stations: ['2_01'],
             location: {
               latitude: 34.6697,
@@ -396,11 +416,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1344' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1344',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '表町BC経由岡山駅 (清水 経由)',
             delay: 300,
             route: { id: '1112' },
-            direction: 265.38878598057113,
+            bearing: 265.38878598057113,
             stations: ['2_09'],
             location: {
               latitude: 34.66124,
@@ -487,11 +512,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1345' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1345',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '表町BC経由岡山駅 (清水 経由)',
             delay: 60,
             route: { id: '1112' },
-            direction: 279.10803184569966,
+            bearing: 279.10803184569966,
             stations: ['2_09'],
             location: {
               latitude: 34.69709,
@@ -578,11 +608,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1352' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1352',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '岡山駅前経由表町BC (下市・中 経由)',
             delay: 120,
             route: { id: '1282' },
-            direction: 185.47935536714698,
+            bearing: 185.47935536714698,
             stations: [],
             location: {
               latitude: 34.68617,
@@ -664,11 +699,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1353' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1353',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '林野駅 (新道河本 経由)',
             delay: 240,
             route: { id: '1181' },
-            direction: 323.62939620890984,
+            bearing: 323.62939620890984,
             stations: ['2_04'],
             location: {
               latitude: 34.84142,
@@ -750,11 +790,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1367' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1367',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '四御神 (県庁前 経由)',
             delay: 240,
             route: { id: '1111' },
-            direction: 357.58060444755955,
+            bearing: 357.58060444755955,
             stations: ['2_02'],
             location: {
               latitude: 34.6919,
@@ -836,11 +881,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1369' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1369',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '岡山駅前経由表町BC (下市・中 経由)',
             delay: 240,
             route: { id: '1622' },
-            direction: 229.38121190993903,
+            bearing: 229.38121190993903,
             stations: [],
             location: {
               latitude: 34.72851,
@@ -927,11 +977,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1371' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1371',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '東岡山 (岡山駅 経由)',
             delay: 420,
             route: { id: '5141' },
-            direction: 1.6359302504662878,
+            bearing: 1.6359302504662878,
             stations: ['2_02'],
             location: {
               latitude: 34.66821,
@@ -1018,11 +1073,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1396' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1396',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '表町BC経由岡山駅',
             delay: 600,
             route: { id: '3102' },
-            direction: 254.09028763058356,
+            bearing: 254.09028763058356,
             stations: ['2_09'],
             location: {
               latitude: 34.7295,
@@ -1104,11 +1164,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1486' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1486',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '瀬戸駅 (岡山駅 経由)',
             delay: 1020,
             route: { id: '1642' },
-            direction: 243.929197989586,
+            bearing: 243.929197989586,
             stations: ['2_09'],
             location: {
               latitude: 34.67849,
@@ -1190,11 +1255,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1525' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1525',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: 'ネオ西9 (西 ・下市 経由)',
             delay: 0,
             route: { id: '1631' },
-            direction: 240.68331380692808,
+            bearing: 240.68331380692808,
             stations: ['2_04'],
             location: {
               latitude: 34.6658,
@@ -1281,11 +1351,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1585' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1585',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: 'ネオ東6 (新道河本 経由)',
             delay: 180,
             route: { id: '2011' },
-            direction: 91.12997463852832,
+            bearing: 91.12997463852832,
             stations: ['2_04'],
             location: {
               latitude: 34.66573,
@@ -1367,11 +1442,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1613' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1613',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: 'ネオ東6 (中 ・下市 経由)',
             delay: 60,
             route: { id: '2021' },
-            direction: 109.585391134985,
+            bearing: 109.585391134985,
             stations: ['2_04'],
             location: {
               latitude: 34.71792,
@@ -1448,11 +1528,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1616' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1616',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '瀬戸駅 (岡山駅 経由)',
             delay: 60,
             route: { id: '1072' },
-            direction: 220.75407180544929,
+            bearing: 220.75407180544929,
             stations: ['2_09'],
             location: {
               latitude: 34.75641,
@@ -1572,11 +1657,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '1619' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '1619',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '岡山駅前経由表町BC (下市・西 経由)',
             delay: 60,
             route: { id: '1632' },
-            direction: 272.9081442404258,
+            bearing: 272.9081442404258,
             stations: [],
             location: {
               latitude: 34.75335,
@@ -1658,11 +1748,16 @@ describe('basumada', function() {
           },
           {
             run: true,
-            descriptors: { id: null, label: null, license_plate: '4111' },
+            descriptors: {
+              id: null,
+              label: null,
+              license_plate: '4111',
+              expansion: { electrical_outlet: [100] }
+            },
             headsign: '表町BC経由岡山駅',
             delay: 0,
             route: { id: '1082' },
-            direction: 243.70108095449774,
+            bearing: 243.70108095449774,
             stations: ['2_09'],
             location: {
               latitude: 34.67509,

@@ -9,16 +9,22 @@ import { getRoutesStops, RouteStop } from '../route'
 import stations from '../station_loader'
 import { correctionPosition, locationToBroadcastLocation } from '../util'
 
+interface Expansion {
+  electricalOutlet?: number[] // 電圧: 100VとUSB(5V)などが混合している場合を想定した配列
+}
+
+interface Descriptors {
+  // https://developers.google.com/transit/gtfs-realtime/reference/?hl=ja#message_vehicledescriptor
+  id?: string
+  label?: string
+  licensePlate?: string
+  expansion?: Expansion
+}
+
 export class Vehicle {
   private _startDate: moment.Moment
   private _isRun: boolean // 運休の場合false
   private _delay: number | null = null
-  private _descriptors: {
-    // https://developers.google.com/transit/gtfs-realtime/reference/?hl=ja#message_vehicledescriptor
-    id?: string
-    label?: string
-    licensePlate?: string
-  } = {}
   private _bearing: number | null = null
   private _stations: Stop[]
   private _route: {
@@ -29,6 +35,7 @@ export class Vehicle {
   private _passed: BroadcastVehicleStop<true> | null = null
   private _nextIndex: number | null = null
 
+  private _descriptors: Descriptors = {}
   constructor(
     private _companyName: string,
     route: {
@@ -37,11 +44,6 @@ export class Vehicle {
     },
     stations: string[],
     vehicle?: {
-      descriptors?: {
-        id?: string
-        label?: string
-        licensePlate?: string
-      }
       delay: number
       location: Location
       bearing?: number
@@ -49,6 +51,7 @@ export class Vehicle {
         sequence: GtfsStopTime['stop_sequence']
         passingDate?: moment.Moment
       }
+      descriptors?: Descriptors
     }
   ) {
     this._startDate = moment(route.stops[0].date.schedule)
@@ -162,6 +165,10 @@ export class Vehicle {
   get lastStop(): RouteStop {
     return this._route.stops[this._route.stops.length - 1]
   }
+
+  get expansion(): Expansion {
+    return this._descriptors.expansion || {}
+  }
 }
 
 export async function createVehicle(
@@ -175,12 +182,9 @@ export async function createVehicle(
       sequence: GtfsStopTime['stop_sequence'] | string
       passedDate?: moment.Moment
     }
-    descriptors?: {
-      id?: string
-      label?: string
-      licensePlate?: string
-    }
-  }
+    descriptors?: Descriptors
+  },
+  expansion?: Expansion
 ): Promise<Vehicle> {
   const route = await getRoutesStops(companyName, routeId, firstStopTime)
 
@@ -207,7 +211,6 @@ export async function createVehicle(
 
   const _vehicle = new Vehicle(
     companyName,
-
     {
       id: routeId,
       stops: route[0]

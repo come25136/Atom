@@ -41,6 +41,27 @@ export interface Basumada {
 
 const csvParser = util.promisify<string, csvParse.Options, BasumadaRaw[]>(csvParse)
 
+const unobusVehicleWithOutlet: string[] = [
+  '1486',
+  '1525',
+  '1584',
+  '1585',
+  '1613',
+  '1614',
+  '1615',
+  '1616',
+  '1617',
+  '1618',
+  '1619',
+  '1620',
+  '1658',
+  '1659',
+  '1660',
+  '1661',
+  '1662',
+  '1663'
+]
+
 export async function rawToObject(
   companyName: string,
   rawData: string,
@@ -89,7 +110,10 @@ export async function rawToObject(
             passedDate: h24ToLessH24(busRaw.passingStop.substr(6, 5), startDate)
           },
           descriptors: {
-            licensePlate: busRaw.licensePlate
+            licensePlate: busRaw.licensePlate,
+            expansion: {
+              electricalOutlet: unobusVehicleWithOutlet.includes(busRaw.licensePlate) ? [100] : []
+            }
           }
         }))
 
