@@ -15,7 +15,7 @@ export class LoopRyobiBus extends LoopGetData {
 
   async loop(): Promise<void> {
     if (moment().isBetween(moment('0:40', 'H:mm'), moment('5:00', 'H:mm'))) {
-      setTimeout(this.loop.bind(this), moment('5:00', 'H:mm').diff(moment()))
+      this.nextLoop(this.loop, moment('5:00', 'H:mm').diff(moment()))
 
       return
     }
@@ -37,7 +37,7 @@ export class LoopRyobiBus extends LoopGetData {
       if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
         if (this._prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
 
-        setTimeout(this.loop.bind(this), 18000)
+        this.nextLoop(this.loop, 18000)
 
         return
       }
@@ -168,10 +168,10 @@ export class LoopRyobiBus extends LoopGetData {
           `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${prevDiffTime}`
         )
 
-      setTimeout(this.loop.bind(this), awaitTime)
+      this.nextLoop(this.loop, awaitTime)
     } catch (err) {
       console.warn(err)
-      setTimeout(this.loop.bind(this), 3000)
+      this.nextLoop(this.loop, 3000)
     }
   }
 }

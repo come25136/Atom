@@ -61,9 +61,6 @@ export interface BroadcastRunVehicle extends BroadcastBaseVehicle {
     id: string | null
     label: string | null
     license_plate: string | null
-    expansion: {
-      electrical_outlet: number[]
-    }
   }
   headsign: string | null
   delay: number

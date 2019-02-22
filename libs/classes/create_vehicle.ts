@@ -183,8 +183,7 @@ export async function createVehicle(
       passedDate?: moment.Moment
     }
     descriptors?: Descriptors
-  },
-  expansion?: Expansion
+  }
 ): Promise<Vehicle> {
   const route = await getRoutesStops(companyName, routeId, firstStopTime)
 

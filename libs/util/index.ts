@@ -282,10 +282,7 @@ export async function createBusToBroadcastVehicle(vehicle: Vehicle): Promise<Bro
     descriptors: {
       id: vehicle.id,
       label: vehicle.label,
-      license_plate: vehicle.licensePlate,
-      expansion: {
-        electrical_outlet: vehicle.expansion.electricalOutlet || []
-      }
+      license_plate: vehicle.licensePlate
     },
     headsign:
       passedHeadsign && passedHeadsign.stop_headsign

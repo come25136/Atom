@@ -5,11 +5,13 @@ import { getAgency } from '../../libs/gtfs/static'
 
 import route from './routes'
 import stops from './stops'
+import vehicles from './vehicles'
 
 const router = Router({ mergeParams: true })
 
 router.use('/stops', stops)
 router.use('/routes', route)
+router.use('/vehicles', vehicles)
 
 router.get('/', async (req, res, next) =>
   getAgency()

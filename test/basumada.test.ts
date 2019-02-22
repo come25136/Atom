@@ -45,8 +45,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1184',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1184'
             },
             headsign: '四御神 (県庁前 経由)',
             delay: 0,
@@ -141,8 +140,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1329',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1329'
             },
             headsign: '岡山後楽園 (Korakuen) (県立美術館 経由)',
             delay: 60,
@@ -237,8 +235,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1341',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1341'
             },
             headsign: 'ネオ西9 (西 ・下市 経由)',
             delay: 360,
@@ -333,8 +330,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1343',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1343'
             },
             headsign: '片上',
             delay: 180,
@@ -419,8 +415,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1344',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1344'
             },
             headsign: '表町BC経由岡山駅 (清水 経由)',
             delay: 300,
@@ -515,8 +510,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1345',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1345'
             },
             headsign: '表町BC経由岡山駅 (清水 経由)',
             delay: 60,
@@ -611,8 +605,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1352',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1352'
             },
             headsign: '岡山駅前経由表町BC (下市・中 経由)',
             delay: 120,
@@ -702,8 +695,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1353',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1353'
             },
             headsign: '林野駅 (新道河本 経由)',
             delay: 240,
@@ -793,8 +785,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1367',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1367'
             },
             headsign: '四御神 (県庁前 経由)',
             delay: 240,
@@ -884,8 +875,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1369',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1369'
             },
             headsign: '岡山駅前経由表町BC (下市・中 経由)',
             delay: 240,
@@ -980,8 +970,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1371',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1371'
             },
             headsign: '東岡山 (岡山駅 経由)',
             delay: 420,
@@ -1076,8 +1065,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1396',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1396'
             },
             headsign: '表町BC経由岡山駅',
             delay: 600,
@@ -1167,8 +1155,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1486',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1486'
             },
             headsign: '瀬戸駅 (岡山駅 経由)',
             delay: 1020,
@@ -1258,8 +1245,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1525',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1525'
             },
             headsign: 'ネオ西9 (西 ・下市 経由)',
             delay: 0,
@@ -1354,8 +1340,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1585',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1585'
             },
             headsign: 'ネオ東6 (新道河本 経由)',
             delay: 180,
@@ -1445,8 +1430,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1613',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1613'
             },
             headsign: 'ネオ東6 (中 ・下市 経由)',
             delay: 60,
@@ -1531,8 +1515,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1616',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1616'
             },
             headsign: '瀬戸駅 (岡山駅 経由)',
             delay: 60,
@@ -1660,8 +1643,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '1619',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '1619'
             },
             headsign: '岡山駅前経由表町BC (下市・西 経由)',
             delay: 60,
@@ -1751,8 +1733,7 @@ describe('basumada', function() {
             descriptors: {
               id: null,
               label: null,
-              license_plate: '4111',
-              expansion: { electrical_outlet: [100] }
+              license_plate: '4111'
             },
             headsign: '表町BC経由岡山駅',
             delay: 0,
