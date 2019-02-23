@@ -42,7 +42,8 @@ export async function getStops(): Promise<getStops> {
     const rows = await csvParser(
       await readFile(`${getDataDir()}/${dirName}/gtfs/stops.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 

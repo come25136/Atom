@@ -55,7 +55,8 @@ export async function getTrips(): Promise<getTrips> {
     const rows: GtfsRawTrip[] = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/trips.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 

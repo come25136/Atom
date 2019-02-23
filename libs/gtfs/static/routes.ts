@@ -51,7 +51,8 @@ export async function getRoutes(): Promise<getRoutes> {
     const rows: GtfsRawRoutes[] = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/routes.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 

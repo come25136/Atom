@@ -40,7 +40,8 @@ export async function getCalendarDates(): Promise<getCalendarDates> {
     const rows: GtfsRawCalendarDate[] = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/calendar_dates.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 

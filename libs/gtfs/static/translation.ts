@@ -41,7 +41,8 @@ export async function getTranslations(): Promise<getTranslations> {
     const rows = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/translations.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 
