@@ -19,7 +19,7 @@
     "csv-parse": "^3.2.0",
     "express": "^4.16.3",
     "geolib": "^2.0.24",
-    "http-errors": "^1.7.1",
+    "http-errors": "^1.7.2",
     "moment": "^2.24.0",
     "prettier": "^1.16.4",
     "protobufjs": "^6.8.8",
@@ -43,6 +43,6 @@
     "mocha": "^5.2.0",
     "nyc": "^13.3.0",
     "tslint": "^5.11.0",
-    "typescript": "^3.3.3"
+    "typescript": "^3.3.3333"
   }
 }
