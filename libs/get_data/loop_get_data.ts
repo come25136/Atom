@@ -7,18 +7,20 @@ import { createBusToBroadcastVehicle } from '../util'
 
 export type dataUpdatedCallback = (loopName: string, broadcastVehicles: BroadcastVehicle[]) => void
 
+interface Prev {
+  date: moment.Moment | null
+  data: {
+    vehicles: Vehicle[]
+    broadcastVehicles: BroadcastVehicle[]
+  }
+}
+
 export class LoopGetData {
-  protected _loopTimer: NodeJS.Timer | null = null
+  private _loopTimer: NodeJS.Timer | null = null
 
-  protected _changeTimes: number[] = []
+  private _changeTimes: number[] = []
 
-  protected _prev: {
-    date: moment.Moment | null
-    data: {
-      vehicles: Vehicle[]
-      broadcastVehicles: BroadcastVehicle[]
-    }
-  } = {
+  private _prev: Prev = {
     date: null,
     data: {
       vehicles: [],
@@ -77,7 +79,11 @@ export class LoopGetData {
     return 'base'
   }
 
-  public get buses(): Vehicle[] {
+  protected get prev(): Prev {
+    return this._prev
+  }
+
+  protected get buses(): Vehicle[] {
     return this._prev.data.vehicles
   }
 
@@ -85,10 +91,31 @@ export class LoopGetData {
     return this._prev.data.broadcastVehicles
   }
 
+  protected get changeTimes(): number[] {
+    return this._changeTimes
+  }
+
+  protected addChangeTime(ms: number) {
+    this._changeTimes.push(ms)
+    if (10 < this._changeTimes.length) this._changeTimes.shift()
+  }
+
+  protected get averageChangeTime(): number | null {
+    return this._prev.date && 0 < this._changeTimes.length
+      ? this._prev.date
+          .clone()
+          .add(
+            this._changeTimes.reduce((prev, current) => prev + current) / this._changeTimes.length,
+            'ms'
+          )
+          .diff(moment())
+      : 0
+  }
+
   protected loop() {}
 
-  public nextLoop(cb: (...args: any[]) => void, time: number): void {
-    this._loopTimer = setTimeout(cb.bind(this), time)
+  public nextLoop(time: number): void {
+    this._loopTimer = setTimeout(() => this.loop(), time)
   }
 
   public loopStart(): void {

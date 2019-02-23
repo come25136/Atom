@@ -15,7 +15,7 @@ export class LoopRyobiBus extends LoopGetData {
 
   async loop(): Promise<void> {
     if (moment().isBetween(moment('0:40', 'H:mm'), moment('5:00', 'H:mm'))) {
-      this.nextLoop(this.loop, moment('5:00', 'H:mm').diff(moment()))
+      this.nextLoop(moment('5:00', 'H:mm').diff(moment()))
 
       return
     }
@@ -35,32 +35,22 @@ export class LoopRyobiBus extends LoopGetData {
       const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
 
       if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
-        if (this._prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
+        if (this.prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
 
-        this.nextLoop(this.loop, 18000)
+        this.nextLoop(18000)
 
         return
       }
 
-      const prevDiffTime: number | null =
-        this._prev.date && this._changeTimes.length
-          ? this._prev.date
-              .clone()
-              .add(
-                this._changeTimes.reduce((prev, current) => prev + current) /
-                  this._changeTimes.length,
-                'ms'
-              )
-              .diff(moment())
-          : null
-
       const awaitTime =
-        prevDiffTime !== null && 13000 <= prevDiffTime && prevDiffTime <= 20000
-          ? prevDiffTime
+        this.averageChangeTime !== null &&
+        13000 <= this.averageChangeTime &&
+        this.averageChangeTime <= 20000
+          ? this.averageChangeTime
           : 18000 // 過度なアクセスをすると物理的に怒られる
 
-      if (this._prev.date === null || feedGeneratedTimestamp.isAfter(this._prev.date)) {
-        let buses: Vehicle[] = []
+      if (this.prev.date === null || feedGeneratedTimestamp.isAfter(this.prev.date)) {
+        const buses: Vehicle[] = []
 
         for (const { vehicle } of vehiclePositions.entity) {
           if (
@@ -155,23 +145,21 @@ export class LoopRyobiBus extends LoopGetData {
           '/trip_updates/'
         )
 
+        if (this.prev.date) this.addChangeTime(feedGeneratedTimestamp.diff(this.prev.date))
         this.updateData(buses, feedGeneratedTimestamp)
-
-        if (this._prev.date) {
-          this._changeTimes.push(feedGeneratedTimestamp.diff(this._prev.date))
-          if (10 < this._changeTimes.length) this._changeTimes.shift()
-        }
       }
 
       process.env.NODE_ENV !== 'production' &&
         console.log(
-          `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${prevDiffTime}`
+          `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${
+            this.averageChangeTime
+          }`
         )
 
-      this.nextLoop(this.loop, awaitTime)
+      this.nextLoop(awaitTime)
     } catch (err) {
       console.warn(err)
-      this.nextLoop(this.loop, 3000)
+      this.nextLoop(3000)
     }
   }
 }
