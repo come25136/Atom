@@ -4,10 +4,10 @@ import * as moment from 'moment'
 
 import { BroadcastLocation, BroadcastVehicleStop, Stop } from '../../interfaces'
 import { Location } from '../../interfaces'
+import { correctionPosition, locationToBroadcastLocation } from '../../libs/gtfs/util'
 import { getTranslations, GtfsStopTime } from '../gtfs/static'
 import { getRoutesStops, RouteStop } from '../route'
 import stations from '../station_loader'
-import { correctionPosition, locationToBroadcastLocation } from '../util'
 
 interface Expansion {
   electricalOutlet?: number[] // 電圧: 100VとUSB(5V)などが混合している場合を想定した配列

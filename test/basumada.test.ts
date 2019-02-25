@@ -2,7 +2,7 @@ import { assert } from 'chai'
 import * as moment from 'moment'
 
 import { rawToObject } from '../libs/basumada'
-import { createBusToBroadcastVehicle } from '../libs/util'
+import { createBusToBroadcastVehicle } from '../libs/gtfs/util'
 
 const testData = `
 15:32:37\n

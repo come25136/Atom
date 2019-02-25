@@ -13,7 +13,8 @@ import {
   GtfsStopTime,
   GtfsTrip
 } from './gtfs/static'
-import { dateToServiceIds, h24ToLessH24 } from './util'
+import { dateToServiceIds } from './gtfs/util'
+import { h24ToLessH24 } from './util'
 
 export interface RouteInfo {
   type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7

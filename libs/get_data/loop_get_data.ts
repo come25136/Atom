@@ -3,7 +3,7 @@ import * as moment from 'moment'
 
 import { BroadcastVehicle } from '../../interfaces'
 import { Vehicle } from '../classes/create_vehicle'
-import { createBusToBroadcastVehicle } from '../util'
+import { createBusToBroadcastVehicle } from '../gtfs/util'
 
 export type dataUpdatedCallback = (loopName: string, broadcastVehicles: BroadcastVehicle[]) => void
 

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import * as createHttpError from 'http-errors'
 
 import { getStops } from '../../../libs/gtfs/static'
-import { stopToBroadcastStop } from '../../../libs/util'
+import { stopToBroadcastStop } from '../../../libs/gtfs/util'
 
 import timetable from './timetable'
 

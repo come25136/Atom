@@ -3,8 +3,9 @@ import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 
 import { getStops, getStopTimes, getTrips } from '../../../../libs/gtfs/static'
+import { dateToServiceIds } from '../../../../libs/gtfs/util'
 import { getRoutesStops, RouteStop } from '../../../../libs/route'
-import { dateToServiceIds, h24ToLessH24 } from '../../../../libs/util'
+import { h24ToLessH24 } from '../../../../libs/util'
 
 const router = Router({ mergeParams: true })
 
