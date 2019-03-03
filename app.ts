@@ -8,6 +8,7 @@ import { dataUpdatedCallback, LoopGetData } from './libs/get_data/loop_get_data'
 import { LoopOkadenBus } from './libs/get_data/okadenbus'
 import { LoopRyobiBus } from './libs/get_data/ryobibus'
 import { LoopUnoBus } from './libs/get_data/unobus'
+import { loadGtfs } from './libs/gtfs/static'
 import { ioEmitBus } from './libs/util'
 import wwwRoot from './routes'
 
@@ -43,54 +44,57 @@ app.use(
 )
 
 if (process.env.NODE_ENV !== 'test') {
-  const dataUpdatedCallback: dataUpdatedCallback = (loopName, broadcastVehicles) =>
-    ioEmitBus(io, loopName, broadcastVehicles)
+  console.info('Loading GTFS...')
+  loadGtfs().then(() => {
+    const dataUpdatedCallback: dataUpdatedCallback = (loopName, broadcastVehicles) =>
+      ioEmitBus(io, loopName, broadcastVehicles)
 
-  const loops: LoopGetData[] = [
-    new LoopUnoBus(dataUpdatedCallback),
-    new LoopRyobiBus(dataUpdatedCallback),
-    new LoopOkadenBus(dataUpdatedCallback)
-  ]
+    const loops: LoopGetData[] = [
+      new LoopUnoBus(dataUpdatedCallback),
+      new LoopRyobiBus(dataUpdatedCallback),
+      new LoopOkadenBus(dataUpdatedCallback)
+    ]
 
-  io.on('connection', socket => {
-    socket.on('registration', (companyName: string) => {
-      const loop = loops.find(({ name }) => name === companyName)
+    io.on('connection', socket => {
+      socket.on('registration', (companyName: string) => {
+        const loop = loops.find(({ name }) => name === companyName)
 
-      loop === undefined
-        ? socket.emit('registration', {
-            success: false,
-            error: { code: 404 },
-            company_name: companyName
-          })
-        : socket.join(companyName, () => {
-            socket.emit('registration', {
-              success: true
+        loop === undefined
+          ? socket.emit('registration', {
+              success: false,
+              error: { code: 404 },
+              company_name: companyName
             })
-            ioEmitBus(io, loop.name, loop.broadcastVehicles)
-          })
+          : socket.join(companyName, () => {
+              socket.emit('registration', {
+                success: true
+              })
+              ioEmitBus(io, loop.name, loop.broadcastVehicles)
+            })
+      })
+
+      socket.on('unregistration', (companyName: string) => {
+        const loop = loops.find(({ name }) => name === companyName)
+
+        loop === undefined
+          ? socket.emit('unregistration', {
+              success: false,
+              error: { code: 404 },
+              company_name: companyName
+            })
+          : socket.leave(companyName, () => socket.emit('unregistration', { success: true }))
+      })
     })
 
-    socket.on('unregistration', (companyName: string) => {
-      const loop = loops.find(({ name }) => name === companyName)
+    // httpサーバー起動
+    server.listen(port, () => console.log(`GTFS API server | port: ${port}`))
 
-      loop === undefined
-        ? socket.emit('unregistration', {
-            success: false,
-            error: { code: 404 },
-            company_name: companyName
-          })
-        : socket.leave(companyName, () => socket.emit('unregistration', { success: true }))
+    //  Ctrl-C
+    process.on('SIGINT', () => {
+      console.info('Waiting for all connections to be disconnected...')
+
+      server.close(() => process.exit())
     })
-  })
-
-  // httpサーバー起動
-  server.listen(port, () => console.log(`Bus API server | port: ${port}`))
-
-  //  Ctrl-C
-  process.on('SIGINT', () => {
-    console.log('Waiting for all connections to be disconnected...')
-
-    server.close(() => process.exit())
   })
 }
 
