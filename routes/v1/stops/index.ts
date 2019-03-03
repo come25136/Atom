@@ -2,7 +2,7 @@ import { Router } from 'express'
 import * as createHttpError from 'http-errors'
 
 import { getStops } from '../../../libs/gtfs/static'
-import { stopToBroadcastStop } from '../../../libs/util'
+import { stopToBroadcastStop } from '../../../libs/gtfs/util'
 
 import timetable from './timetable'
 
@@ -14,17 +14,19 @@ router.use('/:id/timetable', timetable)
 router.get('/', async (req, res, next) =>
   getStops()
     .then(async stops =>
-      res.json(
-        req.query.details === 'true'
-          ? await Promise.all(
-              Object.values(stops[req.params.companyName]).map(
-                async stop => await stopToBroadcastStop(req.params.companyName, stop)
-              )
-            )
-          : Object.keys(stops[req.params.companyName])
-      )
+      req.params.companyName in stops
+        ? res.json(
+            req.query.details === 'true'
+              ? await Promise.all(
+                  Object.values(stops[req.params.companyName]).map(
+                    async stop => await stopToBroadcastStop(req.params.companyName, stop)
+                  )
+                )
+              : Object.keys(stops[req.params.companyName])
+          )
+        : next(createHttpError(404, 'There is no such company.'))
     )
-    .catch(() => next(createHttpError(404, 'There is no such company.')))
+    .catch(next)
 )
 
 // 停留所情報

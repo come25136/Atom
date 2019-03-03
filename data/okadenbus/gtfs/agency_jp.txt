@@ -1,0 +1,2 @@
+"agency_id","agency_official_name","agency_zip_number","agency_address","agency_president_pos","agency_president_name"
+"6260001001189","岡山電気軌道(バス)","7038291","岡山市中区徳吉町2丁目8-22","取締役社長","小嶋 光信"

@@ -2,7 +2,7 @@ import * as csvParse from 'csv-parse'
 import * as fs from 'fs'
 import { promisify } from 'util'
 
-import { getDataDir } from '../../util'
+import { convertStringFullWidthToHalfWidth, getDataDir } from '../../util'
 
 export interface GtfsStopTime {
   trip_id: string
@@ -41,14 +41,23 @@ export async function getStopTimes(): Promise<getStopTimes> {
     const rows = await csvParser(
       await readFile(`${getDataDir()}/${dirName}/gtfs/stop_times.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 
     rows.forEach(stop => {
+      if (stop.trip_id === '') {
+        console.log()
+      }
+
       if (!routes[stop.trip_id]) routes[stop.trip_id] = []
+
       routes[stop.trip_id].push(
-        Object.assign({}, stop, { stop_sequence: Number(stop.stop_sequence) })
+        Object.assign({}, stop, {
+          stop_sequence: Number(stop.stop_sequence),
+          stop_headsign: stop.stop_headsign && convertStringFullWidthToHalfWidth(stop.stop_headsign)
+        })
       )
     })
 

@@ -36,7 +36,8 @@ export async function getShapes(): Promise<getShapes> {
     const rows = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/shapes.txt`, 'utf8').catch(() => ''),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 

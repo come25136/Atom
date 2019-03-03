@@ -12,7 +12,7 @@
       "cwd": "${workspaceFolder}",
       "program": "${workspaceFolder}/dist/app.js",
       "env": {
-        "RAW_SAVE": "true"
+        "REALTIME_DATA_SAVE": "false"
       }
     }
   ]

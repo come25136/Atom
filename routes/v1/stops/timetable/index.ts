@@ -3,8 +3,9 @@ import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 
 import { getStops, getStopTimes, getTrips } from '../../../../libs/gtfs/static'
+import { dateToServiceIds } from '../../../../libs/gtfs/util'
 import { getRoutesStops, RouteStop } from '../../../../libs/route'
-import { dateToServiceIds, h24ToLessH24 } from '../../../../libs/util'
+import { h24ToLessH24 } from '../../../../libs/util'
 
 const router = Router({ mergeParams: true })
 
@@ -12,10 +13,12 @@ interface Row {
   route: {
     id: string
     headsign: string | null
-    routes?: {
-      id: RouteStop['id']
-      date: RouteStop['date']
-    }[][]
+    stops?: {
+      first: {
+        id: RouteStop['id']
+        date: RouteStop['date']
+      }
+    }
   }
   date: string
 }
@@ -31,7 +34,7 @@ router.get('/(:date)?', async (req, res, next) =>
 
       const stopTimes = await getStopTimes()
 
-      const standardDate = req.params.date ? moment(req.params.date) : moment()
+      const standardDate = moment(req.params.date)
 
       const trips = await getTrips()
 
@@ -52,18 +55,38 @@ router.get('/(:date)?', async (req, res, next) =>
                       route: {
                         id: trip.route_id,
                         headsign: stop.stop_headsign || trip.trip_headsign,
-                        routes:
+                        stops:
                           req.query.details === 'true'
-                            ? await getRoutesStops(
-                                req.params.companyName,
-                                trip.route_id,
-                                standardDate,
-                                true
-                              ).then(routes =>
-                                routes.map(route =>
-                                  route.map(stop => ({ id: stop.id, date: stop.date }))
-                                )
-                              )
+                            ? {
+                                first: await getRoutesStops(
+                                  req.params.companyName,
+                                  trip.route_id,
+                                  standardDate,
+                                  true
+                                ).then(routes => {
+                                  const route = routes.find(route =>
+                                    route.some(routeStop => {
+                                      const a = h24ToLessH24(
+                                        stop.arrival_time,
+                                        standardDate
+                                      ).format()
+
+                                      return (
+                                        routeStop.id === stop.stop_id &&
+                                        routeStop.date.schedule === a &&
+                                        routeStop.sequence === stop.stop_sequence
+                                      )
+                                    })
+                                  )
+
+                                  if (route === undefined) throw createHttpError()
+
+                                  return {
+                                    id: route[0].id,
+                                    date: route[0].date
+                                  }
+                                })
+                              }
                             : undefined
                       },
                       date: h24ToLessH24(stop.arrival_time, standardDate).format()
@@ -77,7 +100,7 @@ router.get('/(:date)?', async (req, res, next) =>
         )
       ).then(rows =>
         rows
-          .reduce((prev, current) => [...prev, ...current], [])
+          .reduce((prev, current) => [...prev, ...current], []) // FIXME: flatが実装されたらflatに変える
           .sort((a, b) => (moment(a.date).isBefore(moment(b.date), 'm') ? -1 : 1))
       )
 

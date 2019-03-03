@@ -1,0 +1,179 @@
+import * as moment from 'moment'
+import * as superagent from 'superagent'
+
+import { createVehicle, Vehicle } from '../classes/create_vehicle'
+import { decode, FeedMessage, StopTimeUpdate, TripUpdate } from '../gtfs/realtime'
+import { getTrips, GtfsTrip } from '../gtfs/static'
+import { getRoutesStops, RouteStop } from '../route'
+
+import { LoopGetData } from './loop_get_data'
+
+export class LoopOkadenBus extends LoopGetData {
+  public get name(): string {
+    return 'okadenbus'
+  }
+
+  async loop(): Promise<void> {
+    if (moment().isBetween(moment('0:40', 'H:mm'), moment('5:00', 'H:mm'))) {
+      this.nextLoop(moment('5:00', 'H:mm').diff(moment()))
+
+      return
+    }
+
+    try {
+      const [vehiclePositions, tripUpdates]: [FeedMessage, FeedMessage] = await Promise.all([
+        superagent
+          .get('http://loc.bus-vision.jp/realtime/okaden_vpos_update.bin')
+          .responseType('blob')
+          .then(async ({ body }) => decode(body)),
+        superagent
+          .get('http://loc.bus-vision.jp/realtime/okaden_trip_update.bin')
+          .responseType('blob')
+          .then(async ({ body }) => decode(body))
+      ])
+
+      const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
+
+      if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
+        if (this.prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
+
+        this.nextLoop(18000)
+
+        return
+      }
+
+      const awaitTime =
+        this.averageChangeTime !== null &&
+        13000 <= this.averageChangeTime &&
+        this.averageChangeTime <= 20000
+          ? this.averageChangeTime
+          : 18000 // 過度なアクセスをすると物理的に怒られる
+
+      if (this.prev.date === null || feedGeneratedTimestamp.isAfter(this.prev.date)) {
+        const buses: Vehicle[] = []
+
+        for (const { vehicle } of vehiclePositions.entity) {
+          if (
+            vehicle === undefined ||
+            vehicle.position === undefined ||
+            Number.isNaN(vehicle.position.latitude) ||
+            Number.isNaN(vehicle.position.longitude)
+          )
+            continue
+
+          const tripUpdate = tripUpdates.entity.find(
+            ({ trip_update }) =>
+              trip_update !== undefined && trip_update.trip.trip_id === vehicle.trip!.trip_id
+          ) as
+            | {
+                id: string
+                is_deleted?: boolean
+                trip_update: TripUpdate
+              }
+            | undefined
+          if (tripUpdate === undefined) continue
+
+          if (tripUpdate.trip_update.stop_time_update !== undefined) {
+            tripUpdate.trip_update.stop_time_update.sort(
+              (a, b) => a.stop_sequence! - b.stop_sequence!
+            )
+
+            if (
+              vehicle.current_stop_sequence ===
+              tripUpdate.trip_update.stop_time_update[
+                tripUpdate.trip_update.stop_time_update.length - 1
+              ].stop_sequence
+            )
+              continue
+          }
+
+          const stopTimeUpdate:
+            | StopTimeUpdate
+            | undefined = tripUpdate.trip_update.stop_time_update!.find(
+            ({ stop_sequence }) =>
+              stop_sequence !== undefined && stop_sequence === vehicle.current_stop_sequence
+          )
+          if (stopTimeUpdate === undefined) continue
+
+          let routeId: string
+          if ('route_id' in vehicle.trip!) routeId = vehicle.trip!.route_id!
+          else {
+            const trips:
+              | {
+                  [tripId: string]: GtfsTrip
+                }
+              | undefined = await getTrips().then(trips =>
+              Object.values(trips[this.name]).find(route => vehicle.trip!.trip_id! in route)
+            )
+
+            if (trips === undefined || trips[vehicle.trip!.trip_id!] === undefined) continue
+
+            routeId = trips[vehicle.trip!.trip_id!].route_id
+          }
+
+          const startDate = moment(
+            vehicle.trip!.start_date! + vehicle.trip!.start_time!,
+            'YYYYMMDDhh:mm:ss'
+          )
+
+          const currentStop = await getRoutesStops(this.name, routeId, startDate).then(
+            ([route]) =>
+              route.find(({ sequence }) => sequence === vehicle.current_stop_sequence) as RouteStop
+          )
+
+          buses.push(
+            await createVehicle(this.name, routeId, startDate, {
+              secondsDelay: stopTimeUpdate.arrival!.delay!,
+              location: {
+                lat: vehicle.position!.latitude,
+                lon: vehicle.position!.longitude
+              },
+              currentStop: {
+                sequence: vehicle.current_stop_sequence!,
+                passedDate: moment(currentStop.date.schedule).add(
+                  stopTimeUpdate.arrival!.delay,
+                  's'
+                )
+              },
+              descriptors: {
+                id: vehicle.vehicle!.id,
+                label: vehicle.vehicle!.label,
+                licensePlate: vehicle.vehicle!.license_plate
+              }
+            })
+          )
+        }
+
+        this.save(
+          JSON.stringify(vehiclePositions),
+          'json',
+          feedGeneratedTimestamp,
+          false,
+          '/vehicle_positions/'
+        )
+        this.save(
+          JSON.stringify(tripUpdates),
+          'json',
+          feedGeneratedTimestamp,
+          false,
+          '/trip_updates/'
+        )
+
+        if (this.prev.date) this.addChangeTime(feedGeneratedTimestamp.diff(this.prev.date))
+        this.updateData(buses, feedGeneratedTimestamp)
+      }
+
+      process.env.NODE_ENV !== 'production' &&
+        console.log(
+          `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${
+            this.averageChangeTime
+          }`
+        )
+
+      this.nextLoop(awaitTime)
+    } catch (err) {
+      console.warn(err)
+      this.nextLoop(3000)
+    }
+  }
+}

@@ -1,32 +1,25 @@
 import * as moment from 'moment'
-import { Server } from 'socket.io'
 import * as superagent from 'superagent'
 
-import { BroadcastBus } from '../../interfaces'
 import { createVehicle, Vehicle } from '../classes/create_vehicle'
 import { decode, FeedMessage, StopTimeUpdate, TripUpdate } from '../gtfs/realtime'
 import { getTrips, GtfsTrip } from '../gtfs/static'
 import { getRoutesStops, RouteStop } from '../route'
-import { createBusToBroadcastBus, ioEmitBus } from '../util'
 
-export class RyobiBusLoop {
-  private _loopTimer: NodeJS.Timer | null = null
+import { LoopGetData } from './loop_get_data'
 
-  private _changeTimes: number[] = []
-
-  private _prev: {
-    date: moment.Moment | null
-    data: {
-      broadcastBuses: BroadcastBus[]
-    }
-  } = {
-    date: null,
-    data: {
-      broadcastBuses: []
-    }
+export class LoopRyobiBus extends LoopGetData {
+  public get name(): string {
+    return 'ryobibus'
   }
 
-  private async getBusLoop(): Promise<void> {
+  async loop(): Promise<void> {
+    if (moment().isBetween(moment('0:40', 'H:mm'), moment('5:00', 'H:mm'))) {
+      this.nextLoop(moment('5:00', 'H:mm').diff(moment()))
+
+      return
+    }
+
     try {
       const [vehiclePositions, tripUpdates]: [FeedMessage, FeedMessage] = await Promise.all([
         superagent
@@ -39,41 +32,34 @@ export class RyobiBusLoop {
           .then(async ({ body }) => decode(body))
       ])
 
-      if (
-        this._prev.data.broadcastBuses.length !== 0 &&
-        (vehiclePositions.entity === undefined || tripUpdates.entity === undefined)
-      )
-        ioEmitBus(this.io, this.name, (this._prev.data.broadcastBuses = []))
+      const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
+
       if (vehiclePositions.entity === undefined || tripUpdates.entity === undefined) {
-        setTimeout(this.getBusLoop.bind(this), 20000)
+        if (this.prev.data.vehicles.length !== 0) this.updateData([], feedGeneratedTimestamp)
+
+        this.nextLoop(18000)
 
         return
       }
 
-      const feedGeneratedTimestamp: moment.Moment = moment.unix(vehiclePositions.header.timestamp)
-
-      const prevDiffTime: number | null =
-        this._prev.date && this._changeTimes.length
-          ? this._prev.date
-              .clone()
-              .add(
-                this._changeTimes.reduce((prev, current) => prev + current) /
-                  this._changeTimes.length,
-                'ms'
-              )
-              .diff(moment())
-          : null
-
       const awaitTime =
-        prevDiffTime !== null && 13000 < prevDiffTime && prevDiffTime <= 20000
-          ? prevDiffTime
+        this.averageChangeTime !== null &&
+        13000 <= this.averageChangeTime &&
+        this.averageChangeTime <= 20000
+          ? this.averageChangeTime
           : 18000 // 過度なアクセスをすると物理的に怒られる
 
-      if (this._prev.date === null || feedGeneratedTimestamp.isAfter(this._prev.date)) {
-        let buses: Vehicle[] = []
+      if (this.prev.date === null || feedGeneratedTimestamp.isAfter(this.prev.date)) {
+        const buses: Vehicle[] = []
 
         for (const { vehicle } of vehiclePositions.entity) {
-          if (vehicle === undefined) continue
+          if (
+            vehicle === undefined ||
+            vehicle.position === undefined ||
+            Number.isNaN(vehicle.position.latitude) ||
+            Number.isNaN(vehicle.position.longitude)
+          )
+            continue
 
           const tripUpdate = tripUpdates.entity.find(
             ({ trip_update }) =>
@@ -82,7 +68,6 @@ export class RyobiBusLoop {
             | {
                 id: string
                 is_deleted?: boolean
-
                 trip_update: TripUpdate
               }
             | undefined
@@ -145,58 +130,36 @@ export class RyobiBusLoop {
           )
         }
 
-        process.env.NODE_ENV !== 'production' && console.log(`${this.name}: Bus update!!`)
-
-        const broadcastBuses = await Promise.all(
-          Object.values(buses).map(async bus => createBusToBroadcastBus(bus))
+        this.save(
+          JSON.stringify(vehiclePositions),
+          'json',
+          feedGeneratedTimestamp,
+          false,
+          '/vehicle_positions/'
+        )
+        this.save(
+          JSON.stringify(tripUpdates),
+          'json',
+          feedGeneratedTimestamp,
+          false,
+          '/trip_updates/'
         )
 
-        ioEmitBus(this.io, this.name, this._prev.data.broadcastBuses)
-
-        if (this._prev.date) {
-          this._changeTimes.push(feedGeneratedTimestamp.diff(this._prev.date))
-          if (10 < this._changeTimes.length) this._changeTimes.shift()
-        }
-
-        this._prev.date = moment.unix(vehiclePositions.header.timestamp)
-        this._prev.data.broadcastBuses = broadcastBuses
+        if (this.prev.date) this.addChangeTime(feedGeneratedTimestamp.diff(this.prev.date))
+        this.updateData(buses, feedGeneratedTimestamp)
       }
 
       process.env.NODE_ENV !== 'production' &&
         console.log(
-          `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${prevDiffTime}`
+          `${this.name}: It gets the data after ${awaitTime / 1000} seconds. ${
+            this.averageChangeTime
+          }`
         )
 
-      setTimeout(this.getBusLoop.bind(this), awaitTime)
+      this.nextLoop(awaitTime)
     } catch (err) {
       console.warn(err)
-      setTimeout(this.getBusLoop.bind(this), 3000)
-    }
-  }
-
-  constructor(private io: Server) {
-    this.loopStart()
-  }
-  public get name(): string {
-    return 'ryobibus'
-  }
-
-  public get buses(): BroadcastBus[] {
-    return this._prev.data.broadcastBuses
-  }
-
-  public loopStart(): void {
-    this.getBusLoop()
-  }
-
-  public get loopStatus(): boolean {
-    return this._loopTimer !== null
-  }
-
-  public loopStop(): void {
-    if (this._loopTimer) {
-      clearTimeout(this._loopTimer)
-      this._loopTimer = null
+      this.nextLoop(3000)
     }
   }
 }

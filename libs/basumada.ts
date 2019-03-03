@@ -3,6 +3,8 @@ import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 import * as util from 'util'
 
+import { unobusVehicleWithOutlet } from '../routes/v1/vehicles'
+
 import { createVehicle, Vehicle } from './classes/create_vehicle'
 import { h24ToLessH24 } from './util'
 
@@ -34,7 +36,7 @@ export interface BasumadaRawNoOperation {
 
 export interface Basumada {
   change: boolean
-  buses: { [routeNumber_licenseNumber: string]: Vehicle }
+  buses: Vehicle[]
   generatedDate: moment.Moment
   raw: string
 }
@@ -66,7 +68,7 @@ export async function rawToObject(
     comment: '//'
   })
 
-  const buses: { [k: string]: Vehicle } = {}
+  const buses: Vehicle[] = []
 
   for (const busRaw of busesRaw) {
     if (busRaw.passingStop.substr(13, 3) === '《着》') continue
@@ -89,11 +91,14 @@ export async function rawToObject(
             passedDate: h24ToLessH24(busRaw.passingStop.substr(6, 5), startDate)
           },
           descriptors: {
-            licensePlate: busRaw.licensePlate
+            licensePlate: busRaw.licensePlate,
+            expansion: {
+              electricalOutlet: unobusVehicleWithOutlet.includes(busRaw.licensePlate) ? [100] : []
+            }
           }
         }))
 
-    buses[`${bus.routeId}_${bus.licensePlate}_${bus.isRun}`] = bus
+    buses.push(bus)
   }
 
   return {

@@ -2,7 +2,7 @@ import * as csvParse from 'csv-parse'
 import * as fs from 'fs'
 import { promisify } from 'util'
 
-import { convertStringFullWidthToHalfWidth, getDataDir } from '../../util'
+import { getDataDir } from '../../util'
 
 export interface GtfsStop {
   stop_id: string
@@ -34,27 +34,27 @@ const companies: getStops = {}
 export async function getStops(): Promise<getStops> {
   if (Object.keys(companies).length) return companies
 
-  const dirs = await readDir(getDataDir())
+  const dirNames = await readDir(getDataDir())
 
-  for (let dir of dirs) {
-    if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
+  for (let dirName of dirNames) {
+    if (fs.statSync(`${getDataDir()}/${dirName}`).isDirectory() === false) continue
 
-    const rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/stops.txt`, 'utf8'), {
-      columns: true
+    const rows = await csvParser(
+      await readFile(`${getDataDir()}/${dirName}/gtfs/stops.txt`, 'utf8'),
+      {
+        columns: true,
+        skip_empty_lines: true
+      }
+    )
+
+    companies[dirName] = {}
+
+    rows.forEach(row => {
+      companies[dirName][row.stop_id] = Object.assign({}, row, {
+        stop_lat: Number(row.stop_lat),
+        stop_lon: Number(row.stop_lon)
+      })
     })
-
-    companies[dir] =
-      rows &&
-      rows.reduce(
-        (prev, stop) => ({
-          ...prev,
-          [stop.stop_id]: Object.assign({}, stop, {
-            stop_lat: Number(stop.stop_lat),
-            stop_lon: Number(stop.stop_lon)
-          })
-        }),
-        {}
-      )
   }
 
   return companies

@@ -47,7 +47,8 @@ export async function getAgency(): Promise<getAgency> {
     const [row] = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/agency.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 

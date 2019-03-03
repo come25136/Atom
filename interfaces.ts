@@ -5,25 +5,15 @@ export interface StopDate {
   schedule: string // ISO 8601
 }
 
+export interface Location {
+  lat: number
+  lon: number
+}
+
 export interface Stop {
   id: string // 固有id
   name: Translation
-  location: {
-    lat: number
-    lon: number
-  }
-}
-
-export interface BroadcastStop extends Stop {
-  location: BroadcastLocation
-}
-
-export interface BroadcastBusStop<passed extends boolean = false> extends BroadcastStop {
-  date: passed extends true
-    ? StopDate & {
-        passed: string // ISO 8601
-      }
-    : StopDate
+  location: Location
 }
 
 export interface BroadcastLocation {
@@ -35,7 +25,19 @@ export interface BroadcastLocation {
   long: number
 }
 
-interface BroadcastBaseBus {
+export interface BroadcastStop extends Stop {
+  location: BroadcastLocation
+}
+
+export interface BroadcastVehicleStop<passed extends boolean = false> extends BroadcastStop {
+  date: passed extends true
+    ? StopDate & {
+        passed: string // ISO 8601
+      }
+    : StopDate
+}
+
+interface BroadcastBaseVehicle {
   run: boolean
 
   route: {
@@ -43,16 +45,16 @@ interface BroadcastBaseBus {
   }
   stations: string[]
   stops: {
-    first: BroadcastBusStop
-    last: BroadcastBusStop
+    first: BroadcastVehicleStop
+    last: BroadcastVehicleStop
   }
 }
 
-export interface BroadcastNotRunBus extends BroadcastBaseBus {
+export interface BroadcastNotRunVehicle extends BroadcastBaseVehicle {
   run: false
 }
 
-export interface BroadcastRunBus extends BroadcastBaseBus {
+export interface BroadcastRunVehicle extends BroadcastBaseVehicle {
   run: true
 
   descriptors: {
@@ -63,20 +65,20 @@ export interface BroadcastRunBus extends BroadcastBaseBus {
   headsign: string | null
   delay: number
 
-  direction: number // 方角(右回り 0~359)
+  bearing: number // 方角(右回り 0~359)
   stations: string[]
   location: BroadcastLocation
   stops: {
-    first: BroadcastBusStop
-    passed: BroadcastBusStop<true>
-    next: BroadcastBusStop
-    last: BroadcastBusStop
+    first: BroadcastVehicleStop
+    passed: BroadcastVehicleStop<true>
+    next: BroadcastVehicleStop
+    last: BroadcastVehicleStop
   }
 }
 
-export type BroadcastBus = BroadcastNotRunBus | BroadcastRunBus
+export type BroadcastVehicle = BroadcastNotRunVehicle | BroadcastRunVehicle
 
 export interface EmitPositions {
   company_name: string
-  buses: BroadcastBus[]
+  buses: BroadcastVehicle[]
 }

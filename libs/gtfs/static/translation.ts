@@ -12,8 +12,9 @@ interface GtfsTranslation {
 
 export interface Translation {
   ja: string
-  'ja-Hira': string
-  'ja-Kana': string
+  'ja-Hira'?: string
+  'ja-Kana'?: string
+  'ja-Hrkt'?: string
   en: string | null
 }
 
@@ -40,7 +41,8 @@ export async function getTranslations(): Promise<getTranslations> {
     const rows = await csvParser(
       await readFile(`${getDataDir()}/${dir}/gtfs/translations.txt`, 'utf8'),
       {
-        columns: true
+        columns: true,
+        skip_empty_lines: true
       }
     )
 
@@ -48,8 +50,11 @@ export async function getTranslations(): Promise<getTranslations> {
 
     rows.forEach(
       stop =>
-        (stops[stop.trans_id] = Object.assign(
-          { ja: '', 'ja-Hira': undefined, 'ja-Kana': undefined, en: undefined },
+        (stops[stop.trans_id] = Object.assign<Translation, Translation, { [lang: string]: string }>(
+          {
+            ja: '',
+            en: null
+          },
           stops[stop.trans_id],
           {
             [stop.lang]: stop.translation
@@ -58,23 +63,27 @@ export async function getTranslations(): Promise<getTranslations> {
     )
 
     stops = Object.entries(stops).reduce(
-      (prev, [key, stop]) => ({
+      (prev, [transId, trans]) => ({
         ...prev,
-        [key]: Object.assign(
+        [transId]: Object.assign(
           {},
-          stop,
+          trans,
           {
-            en: convertStringFullWidthToHalfWidth(stop.en || null),
-            ja: convertStringFullWidthToHalfWidth(stop.ja)
+            en: convertStringFullWidthToHalfWidth(trans.en || null),
+            ja: convertStringFullWidthToHalfWidth(trans.ja)
           },
-          stop['ja-Hira'] !== undefined && stop['ja-Kana'] === undefined
+          trans['ja-Hira'] !== undefined && trans['ja-Kana'] === undefined
             ? {
-                'ja-Kana': convertStringFullWidthToHalfWidth(translate(stop['ja-Hira'], 'ja-Kana'))
+                'ja-Kana': translate(
+                  convertStringFullWidthToHalfWidth(trans['ja-Hrkt'] || trans['ja-Hira']),
+                  'ja-Kana'
+                )
               }
-            : stop['ja-Hira'] === undefined &&
-                stop['ja-Kana'] !== undefined && {
-                  'ja-Hira': convertStringFullWidthToHalfWidth(
-                    translate(stop['ja-Kana'], 'ja-Hira')
+            : trans['ja-Hira'] === undefined &&
+                trans['ja-Kana'] !== undefined && {
+                  'ja-Hira': translate(
+                    convertStringFullWidthToHalfWidth(trans['ja-Hrkt'] || trans['ja-Kana']),
+                    'ja-Hira'
                   )
                 }
         )

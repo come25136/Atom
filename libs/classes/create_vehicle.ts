@@ -1,34 +1,41 @@
+import { getRhumbLineBearing } from 'geolib'
 import * as createHttpError from 'http-errors'
 import * as moment from 'moment'
 
-import { BroadcastBusStop, BroadcastLocation, Stop } from '../../interfaces'
+import { BroadcastLocation, BroadcastVehicleStop, Stop } from '../../interfaces'
+import { Location } from '../../interfaces'
+import { correctionPosition, locationToBroadcastLocation } from '../../libs/gtfs/util'
 import { getTranslations, GtfsStopTime } from '../gtfs/static'
 import { getRoutesStops, RouteStop } from '../route'
 import stations from '../station_loader'
-import { locationToBroadcastLocation } from '../util'
+
+interface Expansion {
+  electricalOutlet?: number[] // 電圧: 100VとUSB(5V)などが混合している場合を想定した配列
+}
+
+interface Descriptors {
+  // https://developers.google.com/transit/gtfs-realtime/reference/?hl=ja#message_vehicledescriptor
+  id?: string
+  label?: string
+  licensePlate?: string
+  expansion?: Expansion
+}
 
 export class Vehicle {
   private _startDate: moment.Moment
   private _isRun: boolean // 運休の場合false
   private _delay: number | null = null
-  private _descriptors: {
-    // https://developers.google.com/transit/gtfs-realtime/reference/?hl=ja#message_vehicledescriptor
-    id?: string
-    label?: string
-    licensePlate?: string
-  } = {}
+  private _bearing: number | null = null
   private _stations: Stop[]
   private _route: {
     id: string // 系統番号
     stops: RouteStop[] // 路線
   }
-  private _location: {
-    lat: number // 緯度(y)
-    lon: number // 経度(x)
-  } | null = null
-  private _passed: BroadcastBusStop<true> | null = null
+  private _location: Location | null = null
+  private _passed: BroadcastVehicleStop<true> | null = null
   private _nextIndex: number | null = null
 
+  private _descriptors: Descriptors = {}
   constructor(
     private _companyName: string,
     route: {
@@ -37,17 +44,14 @@ export class Vehicle {
     },
     stations: string[],
     vehicle?: {
-      descriptors?: {
-        id?: string
-        label?: string
-        licensePlate?: string
-      }
       delay: number
-      location: { lat: number; lon: number }
+      location: Location
+      bearing?: number
       currentStop: {
         sequence: GtfsStopTime['stop_sequence']
         passingDate?: moment.Moment
       }
+      descriptors?: Descriptors
     }
   ) {
     this._startDate = moment(route.stops[0].date.schedule)
@@ -75,7 +79,7 @@ export class Vehicle {
       RouteStop,
       {
         location: BroadcastLocation
-        date: BroadcastBusStop<true>['date']
+        date: BroadcastVehicleStop<true>['date']
       }
     >({}, route.stops[passedIndex], {
       location: locationToBroadcastLocation(route.stops[passedIndex].location),
@@ -114,11 +118,20 @@ export class Vehicle {
     return this._delay
   }
 
-  get location(): {
-    lat: number
-    lon: number
-  } | null {
+  get location(): Location | null {
     return this._location
+  }
+
+  set location(location: Location | null) {
+    this._location = location
+  }
+
+  get bearing(): number | null {
+    return this._bearing
+  }
+
+  set bearing(bearing: number | null) {
+    this._bearing = bearing
   }
 
   get stations(): Stop[] {
@@ -141,7 +154,7 @@ export class Vehicle {
     return this._route.stops[0]
   }
 
-  get passedStop(): BroadcastBusStop<true> | null {
+  get passedStop(): BroadcastVehicleStop<true> | null {
     return this._passed
   }
 
@@ -152,6 +165,10 @@ export class Vehicle {
   get lastStop(): RouteStop {
     return this._route.stops[this._route.stops.length - 1]
   }
+
+  get expansion(): Expansion {
+    return this._descriptors.expansion || {}
+  }
 }
 
 export async function createVehicle(
@@ -160,19 +177,12 @@ export async function createVehicle(
   firstStopTime: moment.Moment,
   vehicle?: {
     secondsDelay: number
-    location: {
-      lat: number
-      lon: number
-    }
+    location: Location
     currentStop: {
       sequence: GtfsStopTime['stop_sequence'] | string
       passedDate?: moment.Moment
     }
-    descriptors?: {
-      id?: string
-      label?: string
-      licensePlate?: string
-    }
+    descriptors?: Descriptors
   }
 ): Promise<Vehicle> {
   const route = await getRoutesStops(companyName, routeId, firstStopTime)
@@ -198,9 +208,8 @@ export async function createVehicle(
 
   if (!currentStopSequence) throw createHttpError(404, 'Current stop sequence not found.')
 
-  return new Vehicle(
+  const _vehicle = new Vehicle(
     companyName,
-
     {
       id: routeId,
       stops: route[0]
@@ -219,4 +228,21 @@ export async function createVehicle(
       }
     }
   )
+
+  await correctionPosition(
+    companyName,
+    _vehicle.routeId,
+    _vehicle.route!,
+    _vehicle.passedStop!,
+    vehicle.location!
+  ).then(({ location, p1 }) => {
+    _vehicle.location = location
+
+    _vehicle.bearing = getRhumbLineBearing(
+      { latitude: location.lat, longitude: location.lon },
+      { latitude: p1.lat, longitude: p1.lon }
+    )
+  })
+
+  return _vehicle
 }
