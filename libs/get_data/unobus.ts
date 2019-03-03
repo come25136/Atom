@@ -39,7 +39,7 @@ export class LoopUnoBus extends LoopGetData {
           ? this.averageChangeTime
           : 3000 // 過度なアクセスをすると怒られる
 
-      if (Object.keys(buses).length === 0) {
+      if (buses.length === 0) {
         if (this.prev.data.vehicles.length !== 0) this.updateData([], generatedDate)
 
         this.nextLoop(6000)
@@ -55,8 +55,6 @@ export class LoopUnoBus extends LoopGetData {
 
         this.addChangeTime(this.prev.date ? generatedDate.diff(this.prev.date) : awaitTime)
         this.updateData(buses, generatedDate)
-
-        buses.splice(0, buses.length)
       }
 
       process.env.NODE_ENV !== 'production' &&

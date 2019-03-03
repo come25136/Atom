@@ -44,7 +44,7 @@ export class LoopOkadenBus extends LoopGetData {
 
       const awaitTime =
         this.averageChangeTime !== null &&
-        13000 < this.averageChangeTime &&
+        13000 <= this.averageChangeTime &&
         this.averageChangeTime <= 20000
           ? this.averageChangeTime
           : 18000 // 過度なアクセスをすると物理的に怒られる
