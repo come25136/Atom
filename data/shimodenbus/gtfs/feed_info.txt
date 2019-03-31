@@ -1,2 +1,2 @@
 ﻿feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
-下津井電鉄株式会社,http://www.shimoden.net/,ja,20180705,20190704,20180705_2018年07月05日（30.07.05改正興除平日）
+下津井電鉄株式会社,http://www.shimoden.net/,ja,20190401,20200331,20190401_2019年04月01日（本番）
