@@ -52,7 +52,7 @@ export async function getCalendars(): Promise<getCalendars> {
     if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
 
     const rows: GtfsRawCalendar[] = await csvParser(
-      await readFile(`${getDataDir()}/${dir}/gtfs/calendar.txt`, 'utf8'),
+      await readFile(`${getDataDir()}/${dir}/gtfs/calendar.txt`, 'utf8').catch(() => ''),
       {
         columns: true,
         skip_empty_lines: true
