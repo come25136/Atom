@@ -15,17 +15,19 @@ router.use('/vehicles', vehicles)
 
 router.get('/', async (req, res, next) =>
   getAgency()
-    .then(agency =>
-      res.json({
-        id: agency[req.params.companyName].agency_id,
-        name: agency[req.params.companyName].agency_name,
-        url: agency[req.params.companyName].agency_url,
-        timezone: agency[req.params.companyName].agency_timezone,
-        lang: agency[req.params.companyName].agency_lang,
-        phone: agency[req.params.companyName].agency_phone,
-        fare_url: agency[req.params.companyName].agency_fare_url,
-        email: agency[req.params.companyName].agency_email
-      })
+    .then(agencys =>
+      res.json(
+        agencys[req.params.companyName].map(agency => ({
+          id: agency.agency_id,
+          name: agency.agency_name,
+          url: agency.agency_url,
+          timezone: agency.agency_timezone,
+          lang: agency.agency_lang,
+          phone: agency.agency_phone,
+          fare_url: agency.agency_fare_url,
+          email: agency.agency_email
+        }))
+      )
     )
     .catch(() => next(createHttpError(404, 'There is no such company.')))
 )
