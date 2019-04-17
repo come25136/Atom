@@ -1,6 +1,6 @@
 {
   "name": "atom",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "",
   "main": "dist/app.js",
   "author": "come25136",
