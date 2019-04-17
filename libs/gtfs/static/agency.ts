@@ -27,7 +27,7 @@ interface GtfsAgency {
 }
 
 export type getAgency = {
-  [companyName: string]: GtfsAgency
+  [companyName: string]: GtfsAgency[]
 }
 
 const readDir = promisify(fs.readdir)
@@ -39,20 +39,17 @@ const companies: getAgency = {}
 export async function getAgency(): Promise<getAgency> {
   if (Object.keys(companies).length) return companies
 
-  const dirs = await readDir(getDataDir())
+  const dirs: string[] = await readDir(getDataDir())
 
   for (const dir of dirs) {
     if (fs.statSync(`${getDataDir()}/${dir}`).isDirectory() === false) continue
 
-    const [row] = await csvParser(
-      await readFile(`${getDataDir()}/${dir}/gtfs/agency.txt`, 'utf8'),
-      {
-        columns: true,
-        skip_empty_lines: true
-      }
-    )
+    const rows = await csvParser(await readFile(`${getDataDir()}/${dir}/gtfs/agency.txt`, 'utf8'), {
+      columns: true,
+      skip_empty_lines: true
+    })
 
-    companies[dir] = {
+    companies[dir] = rows.map(row => ({
       agency_id: row.agency_id || null,
       agency_name: convertStringFullWidthToHalfWidth(row.agency_name),
       agency_url: row.agency_url,
@@ -61,7 +58,7 @@ export async function getAgency(): Promise<getAgency> {
       agency_phone: row.agency_phone || null,
       agency_fare_url: row.agency_fare_url || null,
       agency_email: row.agency_email || null
-    }
+    }))
   }
 
   return companies

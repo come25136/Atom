@@ -40,17 +40,8 @@ Name | URL | Update at
 ---- | --- | ---------
 宇野バス | http://www3.unobus.co.jp/opendata/ | 2018/12/20  
 下電バス | http://www.shimoden.net/busmada/opendata/ | 2018/07/05  
-両備バス | https://www.ryobi-holdings.jp/bus/<br>https://loc.bus-vision.jp/ryobi/view/opendata.html | 2018/12/31  
-
-## License
-Atomはデュアルライセンスです
-
-### 個人利用(アプリ配布や営利目的を含む)
-オープンデータを活用したサービスを手軽に開発出来るよう、無償提供しています
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/deed.ja"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>  
-
-### 法人利用(非営利目的など含む)
-詳しく決まっていませんが、このサーバーを維持する為のスポンサーに関する話をさせて頂く可能性があります
+両備バス | https://www.ryobi-holdings.jp/bus/<br>https://loc.bus-vision.jp/ryobi/view/opendata.html | 2019/04/15  
+岡電バス | http://www.okayama-kido.co.jp/bus/<br>https://loc.bus-vision.jp/ryobi/view/opendata.html | 2019/04/01
 
 
 ## データへの入口 [/]
@@ -76,13 +67,20 @@ Atomはデュアルライセンスです
 詳しくは https://developers.google.com/transit/gtfs/reference/?hl=ja#agencytxt を参照
 
 + Response 200 (application/json)
-    + Attributes
-        + id: 1260001000674
-        + name: 宇野自動車株式会社
-        + url: http://www.unobus.co.jp/
-        + timezone: Asia/Tokyo
-        + lang: ja
-        + phone: `086-225-3311`
+    + Body
+
+            [
+                {
+                    "id": "1260001000674",
+                    "name": "宇野自動車株式会社",
+                    "url": "http://www.unobus.co.jp/",
+                    "timezone": "Asia/Tokyo",
+                    "lang": "ja",
+                    "phone": "086-225-3311",
+                    "fare_url": null,
+                    "email": null
+                }
+            ]
 
 + Response 404 (application/json)
     + Attributes (404)
