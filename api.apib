@@ -277,11 +277,10 @@ Name | URL | Update at
 エンドポイントは https://atom.momizi.app です
 
 ```javascript
-const companyNames = ['unobus', 'ryobibus']
+const domain = 'https://atom.momizi.app'
+const stream = io(domain)
 
-const stream = io('https://atom.momizi.app')
+stream.on('bus', console.log)
 
-stream.on('bus', bus => console.log(bus))
-
-companyNames.forEach(companyName => stream.emit('registration', companyName))
+fetch(`${domain}/v1`).then(res => res.json()).then(companyNames => companyNames.forEach(companyName => stream.emit('subscribe', companyName)))
 ```

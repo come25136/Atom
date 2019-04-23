@@ -56,33 +56,33 @@ if (process.env.NODE_ENV !== 'test') {
     ]
 
     io.on('connection', socket => {
-      socket.on('registration', (companyName: string) => {
+      socket.on('subscribe', (companyName: string) => {
         const loop = loops.find(({ name }) => name === companyName)
 
         loop === undefined
-          ? socket.emit('registration', {
+          ? socket.emit('subscribe', {
               success: false,
               error: { code: 404 },
               company_name: companyName
             })
           : socket.join(companyName, () => {
-              socket.emit('registration', {
+              socket.emit('subscribe', {
                 success: true
               })
               ioEmitBus(io, loop.name, loop.broadcastVehicles)
             })
       })
 
-      socket.on('unregistration', (companyName: string) => {
+      socket.on('unsubscribe', (companyName: string) => {
         const loop = loops.find(({ name }) => name === companyName)
 
         loop === undefined
-          ? socket.emit('unregistration', {
+          ? socket.emit('unsubscribe', {
               success: false,
               error: { code: 404 },
               company_name: companyName
             })
-          : socket.leave(companyName, () => socket.emit('unregistration', { success: true }))
+          : socket.leave(companyName, () => socket.emit('unsubscribe', { success: true }))
       })
     })
 
