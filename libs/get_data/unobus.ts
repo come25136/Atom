@@ -14,7 +14,7 @@ export class LoopUnoBus extends LoopGetData {
   }
 
   async loop(): Promise<void> {
-    if (moment().isBetween(moment('1:30', 'H:mm'), moment('6:30', 'H:mm'))) {
+    if (moment().isBetween(moment('1:30', 'H:mm'), moment('5:30', 'H:mm'))) {
       this.nextLoop(moment('6:30', 'H:mm').diff(moment()))
 
       return
