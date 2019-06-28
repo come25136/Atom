@@ -8,7 +8,7 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:8.11.3
-      
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -28,14 +28,14 @@ jobs:
 
       - add_ssh_keys:
           fingerprints:
-            - "e5:f4:5c:00:12:6f:4a:a6:39:1f:70:aa:87:69:8e:1f"
+            - 'e5:f4:5c:00:12:6f:4a:a6:39:1f:70:aa:87:69:8e:1f'
 
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       - run: yarn install
 
@@ -43,10 +43,10 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-        
+
       # run build & tests!
       - run: yarn run build
-      - run: yarn test
+      # - run: yarn test
 
       - deploy:
           name: deploy
