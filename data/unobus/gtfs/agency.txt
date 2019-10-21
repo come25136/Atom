@@ -1,2 +1,0 @@
-﻿agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url
-1260001000674,宇野自動車株式会社,http://www.unobus.co.jp/,Asia/Tokyo,ja,086-225-3311,

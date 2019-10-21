@@ -1,2 +1,0 @@
-﻿feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
-下津井電鉄株式会社,http://www.shimoden.net/,ja,20190810,20200809,20190401_2019年04月01日（本番）new

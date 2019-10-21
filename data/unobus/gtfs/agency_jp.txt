@@ -1,2 +1,0 @@
-﻿agency_id,agency_official_name,agency_zip_number,agency_address,agency_president_pos,agency_president_name
-1260001000674,宇野自動車株式会社,7000822,岡山県岡山市北区表町2丁目3番18号,取締役社長,宇野　泰正

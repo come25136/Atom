@@ -1,2 +1,0 @@
-﻿agency_id,agency_official_name,agency_zip_number,agency_address,agency_president_pos,agency_president_name
-1260001003330,下津井電鉄株式会社,700-0913,岡山県岡山市北区大元駅前３番61号,代表取締役,永山　久人

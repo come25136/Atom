@@ -1,5 +1,0 @@
-"office_id","office_name","office_url","office_phone"
-"1","本社",,
-"2","岡南営業所",,
-"3","津高営業所",,
-"4","桑野営業所",,
