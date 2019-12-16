@@ -35,7 +35,7 @@ Use MySQL or MariaDB.
 
 # Where are the references?
 
-Try accessing `localhost:3000` after [Let's start up](#Let's-start-up).  
+Try accessing `localhost:3000` after [Let's start up](#lets-start-up).  
 There should be what you want.
 
 # Q&A
