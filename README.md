@@ -1,4 +1,4 @@
-# Atom Project
+# Atom Project <img src="icon.png" height="40px">
 I don't want to process GTFS as it is 😟,  
 Try using Atom at such times 🤗.
 
