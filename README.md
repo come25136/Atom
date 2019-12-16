@@ -6,6 +6,7 @@ Try using Atom at such times 🤗.
 
 ```bash
 $ npm i
+$ npm run build
 $ npm start
 ```
 
