@@ -1,17 +1,12 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "strict": true,
     "target": "es2017",
     "module": "commonjs",
     "outDir": "dist",
     "lib": ["es2017", "dom"],
     "removeComments": true,
-    "experimentalDecorators": true,
-    "baseUrl": ".",
-    "paths": {
-      "*": ["types/*"]
-    }
+    "experimentalDecorators": true
   },
   "exclude": [".history/"]
 }

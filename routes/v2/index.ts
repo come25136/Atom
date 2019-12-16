@@ -1,35 +1,62 @@
 import { Router } from 'express'
-import * as createHttpError from 'http-errors'
 
-import { getAgency } from '../../libs/gtfs/static'
-
+import { Agency } from '../../db/entitys/gtfs/agency'
+import { objSnakeCase } from '../../libs/util'
 import route from './routes'
 import stops from './stops'
-import vehicles from './vehicles'
+import translations from './translations'
+import trip from './trips'
 
 const router = Router({ mergeParams: true })
 
 router.use('/stops', stops)
 router.use('/routes', route)
-router.use('/vehicles', vehicles)
+router.use('/translations', translations)
+router.use('/trips', trip)
 
+/**
+ * @swagger
+ * /{remoteID}:
+ *   get:
+ *     summary: Agency
+ *     description: https://developers.google.com/transit/gtfs/reference#agencytxt
+ *     tags:
+ *       - Agency
+ *     parameters:
+ *       - $ref: '#/parameters/remoteID'
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 nullable: true
+ *               name:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *               timezone:
+ *                 type: string
+ *               lang:
+ *                 type: string
+ *                 nullable: true
+ *               phone:
+ *                 type: string
+ *                 nullable: true
+ *               fare_url:
+ *                 type: string
+ *                 nullable: true
+ *               email:
+ *                 type: string
+ *                 nullable: true
+ */
 router.get('/', async (req, res, next) =>
-  getAgency()
-    .then(agencys =>
-      res.json(
-        agencys[req.params.companyName].map(agency => ({
-          id: agency.agency_id,
-          name: agency.agency_name,
-          url: agency.agency_url,
-          timezone: agency.agency_timezone,
-          lang: agency.agency_lang,
-          phone: agency.agency_phone,
-          fare_url: agency.agency_fare_url,
-          email: agency.agency_email
-        }))
-      )
-    )
-    .catch(() => next(createHttpError(404, 'There is no such company.')))
+  Agency.find({ remote: res.middlelocals.remote })
+    .then(agencies => res.json(agencies.map(agency => objSnakeCase(agency.public))))
+    .catch(next)
 )
 
 export default router

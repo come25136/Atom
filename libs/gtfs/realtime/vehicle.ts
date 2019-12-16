@@ -2,7 +2,6 @@ import { CongestionLevel } from './congestion'
 import { OccupancyStatus } from './occupancy'
 import { Position } from './position'
 import { TripDescriptor } from './trip'
-import { VehicleDescriptor } from './vehicle'
 
 export interface VehiclePosition {
   trip?: TripDescriptor

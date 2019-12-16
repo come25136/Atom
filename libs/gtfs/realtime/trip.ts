@@ -24,6 +24,7 @@ export type TripDescriptor = (
       direction_id: string
       start_time: string
       start_date: string
-    }) & {
+    }
+) & {
   schedule_relationship?: ScheduleRelationship
 }

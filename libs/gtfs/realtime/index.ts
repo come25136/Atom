@@ -17,5 +17,7 @@ export async function decode(data: Reader | Uint8Array): Promise<FeedMessage> {
 
   const feed = proto.lookupType('transit_realtime.FeedMessage')
 
-  return (feed.toObject(feed.decode(data), { longs: Number }) as any) as FeedMessage
+  return (feed.toObject(feed.decode(data), {
+    longs: Number
+  }) as any) as FeedMessage
 }

@@ -137,7 +137,7 @@ message FeedEntity {
 message TripUpdate {
   // The Trip that this message applies to. There can be at most one
   // TripUpdate entity for each actual trip instance.
-  // If there is none, that means there is no prediction information available.
+  // If There's none, that means There's no prediction information available.
   // It does *not* mean that the trip is progressing according to schedule.
   required TripDescriptor trip = 1;
 
@@ -149,7 +149,7 @@ message TripUpdate {
   // Timing consists of delay and/or estimated time, and uncertainty.
   // - delay should be used when the prediction is given relative to some
   //   existing schedule in GTFS.
-  // - time should be given whether there is a predicted schedule or not. If
+  // - time should be given whether There's a predicted schedule or not. If
   //   both time and delay are specified, time will take precedence
   //   (although normally, time, if given for a scheduled trip, should be
   //   equal to scheduled time in GTFS + delay).
@@ -550,7 +550,7 @@ message TripDescriptor {
     ADDED = 1;
 
     // A trip that is running with no schedule associated to it, for example, if
-    // there is no schedule at all.
+    // There's no schedule at all.
     UNSCHEDULED = 2;
 
     // A trip that existed in the schedule but was removed.
