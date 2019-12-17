@@ -3,6 +3,7 @@ const env = require('env-var')
 
 module.exports = {
   type: 'mysql',
+  charset: 'utf8mb4',
   host: env.get('DB_HOST', 'mariadb').asString(),
   port: env.get('DB_PORT', '3306').asInt(),
   username: env.get('DB_USERNAME', 'root').asString(),
