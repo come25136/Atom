@@ -1,2 +1,0 @@
-"agency_id","agency_official_name","agency_zip_number","agency_address","agency_president_pos","agency_president_name"
-"7260001007086","両備バス","7000902","岡山市北区錦町7-23","代表取締役会長","小嶋 光信"

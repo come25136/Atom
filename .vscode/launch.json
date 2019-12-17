@@ -11,9 +11,11 @@
       "preLaunchTask": "TypeScript: Build",
       "cwd": "${workspaceFolder}",
       "program": "${workspaceFolder}/dist/app.js",
-      "env": {
-        "REALTIME_DATA_SAVE": "false"
-      }
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "envFile": "${workspaceFolder}/.env",
+      "outputCapture": "std"
     }
   ]
 }

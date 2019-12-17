@@ -1,28 +1,8 @@
-import { Distance, findNearest, getRhumbLineBearing } from 'geolib'
-import * as createHttpError from 'http-errors'
-import * as moment from 'moment'
+import { GTFS, Location, RouteStop, Stop } from '@come25136/gtfs'
+import { findNearest } from 'geolib'
+import * as _ from 'lodash'
 
-import {
-  BroadcastLocation,
-  BroadcastStop,
-  BroadcastVehicle,
-  BroadcastVehicleStop,
-  Location,
-  Stop
-} from '../../../interfaces'
-import { Vehicle } from '../../classes/create_vehicle'
-import { getShapes, GetShapes, RouteStop } from '../../route'
-import {
-  getCalendarDates,
-  getCalendars,
-  getStops,
-  getStopTimes,
-  getTranslations,
-  getTrips,
-  GtfsStop,
-  GtfsStopTime,
-  GtfsTrip
-} from '../static'
+import logger from '../../logger'
 
 // https://jsfiddle.net/soulwire/UA6H5/
 function closestPoint(
@@ -50,47 +30,27 @@ function closestPoint(
     },
     isLeft: dot < 1,
     dot: dot,
-    t: t
+    t
   }
 }
 
-function a(routeStop1: Stop, routeStop2: Stop, shape: GetShapes) {
-  const shapes = shape.coordinates.map(({ location }) => ({
-    latitude: location.lat,
-    longitude: location.lon
-  }))
+function detectShapeBetweenPassStopAndNextStop(
+  p1: Location,
+  p2: Location,
+  shapePoints: ReturnType<GTFS['getShape']>['points']
+) {
+  const shapes = shapePoints.map(({ location }) => location)
 
-  const pointsNearPassStop = (findNearest(
-    {
-      latitude: routeStop1.location.lat,
-      longitude: routeStop1.location.lon
-    },
-    shapes
-  ) as unknown) as Distance
-
-  const pointsNearNextStop = (findNearest(
-    {
-      latitude: routeStop2.location.lat,
-      longitude: routeStop2.location.lon
-    },
-    shapes
-  ) as unknown) as Distance
+  const pointsNearPassStop = findNearest(p1, shapes)
+  const pointsNearNextStop = findNearest(p2, shapes)
 
   let betweenPassStopAndNextStop: boolean = false
 
-  const shapesBetweenPassStopPointAndNextStopPoint = shape.coordinates.filter(({ location }) => {
-    if (
-      betweenPassStopAndNextStop === false &&
-      (location.lat === pointsNearPassStop.latitude &&
-        location.lon === pointsNearPassStop.longitude)
-    )
+  const shapesBetweenPassStopPointAndNextStopPoint = shapePoints.filter(({ location }) => {
+    if (betweenPassStopAndNextStop === false && _.isEqual(location, pointsNearPassStop))
       return (betweenPassStopAndNextStop = true)
 
-    if (
-      betweenPassStopAndNextStop &&
-      location.lat === pointsNearNextStop.latitude &&
-      location.lon === pointsNearNextStop.longitude
-    ) {
+    if (betweenPassStopAndNextStop && _.isEqual(location, pointsNearNextStop)) {
       betweenPassStopAndNextStop = false
 
       return true
@@ -102,34 +62,33 @@ function a(routeStop1: Stop, routeStop2: Stop, shape: GetShapes) {
   return shapesBetweenPassStopPointAndNextStopPoint
 }
 
-export async function correctionPosition(
-  companyName: string,
-  routeId: string,
+export function correctionPosition(
   route: RouteStop[],
-  passStop: Stop,
+  shapePoints: ReturnType<GTFS['getShape']>['points'],
+  passStop: RouteStop | RouteStop<true>,
   position: Location
-): Promise<{
+): {
   location: Location
   p0: Location
   p1: Location
-}> {
-  let passStopIndex: number = route.findIndex(routeStop => routeStop.id === passStop.id)
+} {
+  let passStopIndex: number = route.findIndex(routeStop => routeStop.sequence === passStop.sequence)
   passStopIndex = 0 < passStopIndex ? passStopIndex - 1 : 0 // 停留所通過する前に通過ボタンを押した時用のコード
 
   let nextStopIndex: number = passStopIndex + 1
 
   for (let i = 0; i < 5; i++) {
-    if (route[passStopIndex + i + 1] === undefined) break
-    passStopIndex = passStopIndex + i
+    if (route.length < nextStopIndex + i + 1) break
 
+    passStopIndex = passStopIndex + i
     nextStopIndex = passStopIndex + 1
 
-    const shape = await getShapes(companyName, routeId)
+    if (route[nextStopIndex] === undefined) logger.debug(route[nextStopIndex])
 
-    const shapesBetweenPassStopPointAndNextStopPoint = a(
-      route[passStopIndex],
-      route[nextStopIndex],
-      shape
+    const shapesBetweenPassStopPointAndNextStopPoint = detectShapeBetweenPassStopAndNextStop(
+      route[passStopIndex].location,
+      route[nextStopIndex].location,
+      shapePoints
     )
 
     for (let i = 0; i < shapesBetweenPassStopPointAndNextStopPoint.length - 1; i++) {
@@ -156,191 +115,9 @@ export async function correctionPosition(
   }
 }
 
-export async function direction(
-  companyName: string,
-  routeId: string,
-  route: RouteStop[],
-  passStop: BroadcastVehicleStop | BroadcastVehicleStop<true>,
-  position: Location
-): Promise<number> {
-  const { location, p1 } = await correctionPosition(companyName, routeId, route, passStop, position)
-
-  const bearing = getRhumbLineBearing(
-    { latitude: location.lat, longitude: location.lon },
-    { latitude: p1.lat, longitude: p1.lon }
-  )
-
-  return bearing
-}
-
-export function locationToBroadcastLocation({ lat, lon }: Location): BroadcastLocation {
+export function stopToBroadcastStop<S extends Stop>(gtfs: GTFS, stop: S): S {
   return {
-    latitude: lat,
-    lat: lat,
-    longitude: lon,
-    lon: lon,
-    lng: lon,
-    long: lon
+    ...stop,
+    name: gtfs.findTranslation(stop.name)
   }
-}
-
-export async function createBusToBroadcastVehicle(vehicle: Vehicle): Promise<BroadcastVehicle> {
-  if (vehicle.isRun === false)
-    return {
-      run: false,
-      route: {
-        id: vehicle.routeId
-      },
-      stations: vehicle.stations.map(station => station.id),
-      stops: {
-        first: {
-          ...(await stopToBroadcastStop(
-            vehicle.companyName,
-            (await getStops())[vehicle.companyName][vehicle.firstStop.id]
-          )),
-          date: vehicle.firstStop.date
-        },
-        last: {
-          ...(await stopToBroadcastStop(
-            vehicle.companyName,
-            (await getStops())[vehicle.companyName][vehicle.lastStop.id]
-          )),
-          date: vehicle.lastStop.date
-        }
-      }
-    }
-
-  const trip: GtfsTrip | undefined = await dateToServiceIds(
-    vehicle.companyName,
-    vehicle.startDate
-  ).then(async days =>
-    getTrips().then(trips =>
-      Object.values(trips[vehicle.companyName][vehicle.routeId]).find(trip =>
-        days.includes(trip.service_id)
-      )
-    )
-  )
-
-  if (trip === undefined)
-    throw createHttpError(404, `Not trip: ${vehicle.companyName} ${vehicle.routeId}`)
-
-  const passedHeadsign: GtfsStopTime | undefined = (await getStopTimes())[vehicle.companyName][
-    trip.trip_id
-  ].find(stop => vehicle.passedStop!.date.schedule === stop.arrival_time)
-
-  return {
-    run: true,
-    descriptors: {
-      id: vehicle.id,
-      label: vehicle.label,
-      license_plate: vehicle.licensePlate
-    },
-    headsign:
-      passedHeadsign && passedHeadsign.stop_headsign
-        ? passedHeadsign.stop_headsign
-        : trip.trip_headsign || null,
-    delay: vehicle.delay!,
-    route: {
-      id: vehicle.routeId
-    },
-    bearing: vehicle.bearing!,
-    stations: vehicle.stations.map(station => station.id),
-    location: locationToBroadcastLocation(vehicle.location!),
-    stops: {
-      first: {
-        ...(await stopToBroadcastStop(
-          vehicle.companyName,
-          (await getStops())[vehicle.companyName][vehicle.firstStop.id]
-        )),
-        date: vehicle.firstStop.date
-      },
-      passed: {
-        ...(await stopToBroadcastStop(
-          vehicle.companyName,
-          (await getStops())[vehicle.companyName][vehicle.passedStop!.id]
-        )),
-        date: vehicle.passedStop!.date
-      },
-      next: {
-        ...(await stopToBroadcastStop(
-          vehicle.companyName,
-          (await getStops())[vehicle.companyName][vehicle.nextStop!.id]
-        )),
-        date: vehicle.nextStop!.date
-      },
-      last: {
-        ...(await stopToBroadcastStop(
-          vehicle.companyName,
-          (await getStops())[vehicle.companyName][vehicle.lastStop.id]
-        )),
-        date: vehicle.lastStop.date
-      }
-    }
-  }
-}
-
-export async function stopToBroadcastStop(
-  companyName: string,
-  stop: GtfsStop
-): Promise<BroadcastStop> {
-  return {
-    id: stop.stop_id,
-    name: await getTranslations().then(data => data[companyName][stop.stop_name]),
-    location: locationToBroadcastLocation({
-      lat: stop.stop_lat,
-      lon: stop.stop_lon
-    })
-  }
-}
-
-const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-
-export async function dateToServiceIds(
-  companyName: string,
-  date: moment.Moment
-): Promise<string[]> {
-  const [calendar, calendar_dates] = await Promise.all([getCalendars(), getCalendarDates()])
-
-  if (companyName in calendar === undefined) {
-    console.log(calendar)
-  }
-
-  return Object.values(calendar[companyName])
-    .filter(calendar => {
-      if (date.isBetween(calendar.start_date, calendar.end_date) === false) return
-
-      // calendar_datesで上書き可能
-      const base: boolean =
-        calendar[
-          dayNames[date.day()] as
-            | 'sunday'
-            | 'monday'
-            | 'tuesday'
-            | 'wednesday'
-            | 'thursday'
-            | 'friday'
-            | 'saturday'
-        ]
-
-      // undefinedの可能性あり
-      const calendarDate = calendar_dates[companyName][calendar.service_id]
-
-      const add: boolean =
-        calendarDate &&
-        calendarDate.some(
-          service => date.isSame(service.date, 'day') && service.exception_type === 1
-        )
-
-      const remove: boolean =
-        calendarDate &&
-        calendarDate.some(
-          service => date.isSame(service.date, 'day') && service.exception_type === 2
-        )
-
-      if (add) return true
-      if (remove) return false
-
-      return base
-    })
-    .map(row => row.service_id)
 }

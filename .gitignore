@@ -7,7 +7,7 @@ sync.ffs_lock
 
 dist
 
-raw_data/
+static/api.html
 
 # Created by https://www.gitignore.io/api/node
 
@@ -71,3 +71,5 @@ jspm_packages/
 
 
 # End of https://www.gitignore.io/api/node
+
+.sync.ffs_db
