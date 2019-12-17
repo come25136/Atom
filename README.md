@@ -44,7 +44,7 @@ There should be what you want.
 ## Is there an Atom public server?
 > No :(  
 When CI is setting and merged with master, it will be deployed to the public server.  
-Please wait patiently. :)
+Please wait patiently :)
 
 ## Is the Docker image published?
 > No :(  
