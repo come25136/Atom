@@ -2,6 +2,8 @@ import { assert } from 'chai'
 import * as req from 'supertest'
 
 import app from '../../../../app'
+import error from './error'
+import geojson from './geojson'
 import routes from './response'
 import routesDetails from './response/details'
 import route from './route'
@@ -44,4 +46,7 @@ describe('routes', () => {
       ))
 
   route()
+  geojson()
+
+  error()
 })
