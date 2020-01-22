@@ -1,4 +1,5 @@
 import * as config from 'config'
+import * as env from 'env-var'
 import * as moment from 'moment-timezone'
 import * as superagent from 'superagent'
 
@@ -231,7 +232,7 @@ export class LoopGetRealtimeData {
           ? this.averageChangeTime
           : 7000
 
-      process.env.NODE_ENV !== 'production' &&
+      env.get('NODE_ENV', 'development').asString() !== 'production' &&
         logger.debug(
           `After ${awaitTime / 1000} seconds, get realtime data of remote ID '${this.remote.id}'. ${
           this.averageChangeTime

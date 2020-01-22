@@ -39,7 +39,7 @@ interface Config {
 }
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = env.get('PORT', '3000').asPortNumber()
 const server = new httpServer(app)
 const io = socketIo(server)
 
