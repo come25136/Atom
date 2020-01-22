@@ -1,6 +1,7 @@
 import { GTFS } from '@come25136/gtfs'
 import * as config from 'config'
 import { createHash } from 'crypto'
+import * as env from 'env-var'
 import { appendFileSync } from 'fs'
 import * as _ from 'lodash'
 import * as superagent from 'superagent'
@@ -42,7 +43,7 @@ export async function importGtfsToDb(id: string): Promise<void> {
       logger.debug(hash)
       logger.debug(configRemote)
 
-      appendFileSync(`save_data/${remote.id}_${hash}.zip`, zipBuffer)
+      if (env.get('SAVE_STATIC_DATA', 'false').asBoolStrict()) appendFileSync(`save_data/${remote.id}_${hash}.zip`, zipBuffer)
 
       await remoteRepo.delete({ uid: remote.uid })
     }
