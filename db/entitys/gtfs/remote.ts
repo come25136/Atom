@@ -181,9 +181,11 @@ export class Remote extends BaseEntity {
   ) {
     const take = 1000
 
+    const remoteRepo = trn.getRepository(Remote)
+
     debug(() => console.time('import'))
 
-    const remote = Remote.create({ id })
+    const remote = await remoteRepo.findOne({ id }) || Remote.create({ id })
 
     remote.hash = hash
 
@@ -243,13 +245,11 @@ export class Remote extends BaseEntity {
       })
     )
 
-    const remoteRepo = trn.getRepository(Remote)
-
     // NOTE: uidを取得するために一回DBに入れる
     const r = await remoteRepo.findOne(await remoteRepo.save(remote))
 
     const agencyRepo = trn.getRepository(Agency)
-    
+
     const fareAttributeRepo = trn.getRepository(FareAttribute)
 
     const fareAttributeEntities = await Promise.all(
