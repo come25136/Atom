@@ -3,26 +3,10 @@ import * as env from 'env-var'
 import * as moment from 'moment-timezone'
 import * as superagent from 'superagent'
 
+import { Config } from '../../app'
 import { Vehicle } from '../classes/create_vehicle'
 import { decode, FeedMessage, ScheduleRelationship, TripUpdate } from '../gtfs/realtime'
 import logger from '../logger'
-
-export interface Remote {
-  enable: boolean
-  static: {
-    url: string
-  }
-  realtime?: {
-    trip_update: { url: string }
-    vehicle_position: { url: string }
-    alert?: { url: string }
-  }
-  stations: string[]
-}
-
-export interface Remotes {
-  [id: string]: Remote
-}
 
 export type dataUpdatedCallback = (
   remote: {
@@ -116,7 +100,7 @@ export class LoopGetRealtimeData {
     }
 
     try {
-      const remote = config.get<Remotes>('remotes')[this.remote.id]
+      const remote = config.get<Config['remotes']>('remotes')[this.remote.id]
 
       if ('realtime' in remote === false) return
 

@@ -17,7 +17,7 @@ import { millisecondsUntilNextTime, toEmitData } from './libs/util'
 import wwwRoot from './routes'
 import { importGtfsToDb } from './stores'
 
-interface Config {
+export interface Config {
   remotes: {
     [id: string]: {
       static: {
@@ -101,7 +101,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction): any => {
 if (env.get('NODE_ENV', 'development').asString() !== 'test') {
   createConnection().then(async () => {
     if (env.get('GTFS_TO_DB', 'false').asBoolStrict()) {
-      const configRemoteIds: string[] = Object.keys(config.get<Remote>('remotes'))
+      const configRemoteIds: string[] = Object.keys(config.get<Config['remotes']>('remotes'))
 
       async function LoopimportGtfs() {
         for (const id of configRemoteIds) {

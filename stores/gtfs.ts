@@ -7,6 +7,7 @@ import * as _ from 'lodash'
 import * as superagent from 'superagent'
 import { getManager } from 'typeorm'
 
+import { Config } from '../app'
 import { Agency } from '../db/entitys/gtfs/agency'
 import { Calendar } from '../db/entitys/gtfs/calendar'
 import { CalendarDate } from '../db/entitys/gtfs/calendar_date'
@@ -24,12 +25,11 @@ import { StopTime } from '../db/entitys/gtfs/stop_time'
 import { Transfer } from '../db/entitys/gtfs/transfer'
 import { Translation } from '../db/entitys/gtfs/translation'
 import { Trip } from '../db/entitys/gtfs/trip'
-import { Remotes as ConfigRemotes } from '../libs/get_data/loop_get_data'
 import logger from '../libs/logger'
 import { debug } from '../libs/util'
 
 export async function importGtfsToDb(id: string): Promise<void> {
-  const configRemote = config.get<ConfigRemotes>('remotes')[id]
+  const configRemote = config.get<Config['remotes']>('remotes')[id]
 
   debug(() => console.time('download time'))
   const { body: zipBuffer } = await superagent(configRemote.static.url).responseType('blob')
