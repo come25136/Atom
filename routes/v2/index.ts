@@ -1,6 +1,7 @@
+import * as config from 'config'
 import { Router } from 'express'
 
-import { Agency } from '../../db/entitys/gtfs/agency'
+import { Config } from '../../app'
 import agency from './agency'
 import route from './routes'
 import stops from './stops'
@@ -19,45 +20,79 @@ router.use('/trips', trip)
  * @swagger
  * /{remoteID}:
  *   get:
- *     summary: Agency
- *     description: https://developers.google.com/transit/gtfs/reference#agencytxt
+ *     summary: Info
+ *     description: GTFSに関する情報を取得できます
  *     tags:
- *       - Agency
+ *       - Info
  *     parameters:
  *       - $ref: '#/parameters/remoteID'
  *     responses:
  *       200:
  *         schema:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               id:
- *                 type: string
- *                 nullable: true
- *               name:
- *                 type: string
- *               url:
- *                 type: string
- *               timezone:
- *                 type: string
- *               lang:
- *                 type: string
- *                 nullable: true
- *               phone:
- *                 type: string
- *                 nullable: true
- *               fare_url:
- *                 type: string
- *                 nullable: true
- *               email:
- *                 type: string
- *                 nullable: true
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *             updated_at:
+ *               type: string
+ *             license:
+ *               type: string
+ *               nullable: true
+ *             portal:
+ *               type: string
+ *             static:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                 hash:
+ *                   type: string
+ *             realtime:
+ *               type: object
+ *               properties:
+ *                 trip_update:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ *                       nullable: true
+ *                 vehicle_position:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ *                       nullable: true
+ *                 alert:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ *                       nullable: true
  */
-router.get('/', async (req, res, next) =>
-  Agency.find({ remote: res.middlelocals.remote })
-    .then(agencies => res.json(agencies.map(agency => objSnakeCase(agency.public))))
-    .catch(next)
-)
+router.get('/', async (req, res, next) => {
+  const remoteConfig = config.get<Config['remotes']>('remotes')[res.middlelocals.remote.id]
+
+  res.json({
+    id: res.middlelocals.remote.id,
+    updated_at: res.middlelocals.remote.updatedAt.clone().tz(res.middlelocals.timezone).format(),
+    license: remoteConfig.license,
+    portal: remoteConfig.portal,
+    static: {
+      url: remoteConfig.static.url,
+      hash: res.middlelocals.remote.hash
+    },
+    realtime: {
+      trip_update: {
+        url: remoteConfig.realtime.trip_update.url || null
+      },
+      vehicle_position: {
+        url: remoteConfig.realtime.vehicle_position.url || null
+      },
+      alert: {
+        url: remoteConfig.realtime.alert.url || null
+      }
+    }
+  })
+})
 
 export default router

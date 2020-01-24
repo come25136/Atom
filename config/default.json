@@ -1,6 +1,8 @@
 {
   "remotes": {
     "unobus.co.jp": {
+      "portal": "http://www3.unobus.co.jp/opendata",
+      "license": "CC0 1.0",
       "static": {
         "url": "http://www3.unobus.co.jp/opendata/GTFS-JP.zip"
       },
@@ -17,6 +19,8 @@
       }
     },
     "ryobi-holdings.jp": {
+      "portal": "https://loc.bus-vision.jp/ryobi/view/opendata.html",
+      "license": "CC BY 4.0",
       "static": {
         "url": "http://loc.bus-vision.jp/gtfs/ryobi/gtfsFeed"
       },
@@ -30,6 +34,8 @@
       }
     },
     "okayama-kido.co.jp": {
+      "portal": "https://loc.bus-vision.jp/ryobi/view/opendata.html",
+      "license": "CC BY 4.0",
       "static": {
         "url": "http://loc.bus-vision.jp/gtfs/okaden/gtfsFeed"
       },
@@ -43,6 +49,8 @@
       }
     },
     "wakayamabus.co.jp": {
+      "portal": "https://loc.bus-vision.jp/wakayama/view/opendataWaka.html",
+      "license": "CC BY 4.0",
       "static": {
         "url": "http://loc.bus-vision.jp/gtfs/wakayama/gtfsFeed"
       },
@@ -56,6 +64,8 @@
       }
     },
     "opendata.sagabus.info": {
+      "portal": "http://opendata.sagabus.info",
+      "license": "CC BY 4.0",
       "static": {
         "url": "http://opendata.sagabus.info/saga-current.zip"
       },

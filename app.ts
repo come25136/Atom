@@ -20,6 +20,8 @@ import { importGtfsToDb } from './stores'
 export interface Config {
   remotes: {
     [id: string]: {
+      portal: string
+      license?: string
       static: {
         url: string
       }

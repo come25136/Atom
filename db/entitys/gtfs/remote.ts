@@ -1,6 +1,7 @@
 import { GTFS } from '@come25136/gtfs'
 import * as env from 'env-var'
 import * as _ from 'lodash'
+import * as moment from 'moment-timezone'
 import {
   BaseEntity,
   Column,
@@ -8,7 +9,8 @@ import {
   EntityManager,
   OneToMany,
   PrimaryGeneratedColumn,
-  TransactionManager
+  TransactionManager,
+  UpdateDateColumn
 } from 'typeorm'
 
 import { debug } from '../../../libs/util'
@@ -37,6 +39,18 @@ export class Remote extends BaseEntity {
 
   @Column('varchar', { unique: true })
   id: string
+
+  @UpdateDateColumn({
+    nullable: true,
+    transformer: {
+      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
+      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
+    }
+  })
+  readonly updatedAt: moment.Moment
+
+  @Column('char', { length: 64 })
+  hash: string
 
   @OneToMany(
     () => Agency,
@@ -169,9 +183,6 @@ export class Remote extends BaseEntity {
     }
   )
   feedInfos: FeedInfo[]
-
-  @Column('char', { length: 64 })
-  hash: string
 
   static async import(
     id: string,
