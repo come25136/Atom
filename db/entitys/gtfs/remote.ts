@@ -384,7 +384,6 @@ export class Remote extends BaseEntity {
           trips.map(async trip => {
             const count = await calendarDateRepo.count({ remote: r, serviceId: trip.serviceId })
 
-            // tslint:disable-next-line: one-variable-per-declaration
             for (let skip = 0; skip < count; skip += take) {
               trip.calendarDates = await calendarDateRepo.find({
                 select: ['uid'],
