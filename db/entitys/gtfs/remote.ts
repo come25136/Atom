@@ -285,7 +285,7 @@ export class Remote extends BaseEntity {
       })
     )
 
-    await fareAttributeRepo.save(fareAttributeEntities)
+    await fareAttributeRepo.save(_.compact(fareAttributeEntities))
 
     const routeRepo = trn.getRepository(Route)
 
@@ -308,7 +308,7 @@ export class Remote extends BaseEntity {
       })
     )
 
-    await routeRepo.save(routeEntities)
+    await routeRepo.save(_.compact(routeEntities))
 
     const calendarRepo = trn.getRepository(Calendar)
 
