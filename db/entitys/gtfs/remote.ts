@@ -257,7 +257,7 @@ export class Remote extends BaseEntity {
     )
 
     // NOTE: uidを取得するために一回DBに入れる
-    const r = await remoteRepo.findOne(await remoteRepo.save(remote))
+    const r = await remoteRepo.save(remote)
 
     const agencyRepo = trn.getRepository(Agency)
 
