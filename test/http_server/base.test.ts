@@ -46,26 +46,6 @@ describe('remote ids', () => {
       .expect(200)
       .then(({ body }) => assert.sameMembers(body, ['unobus.co.jp'])))
 
-  describe('agency', () => {
-    it('unobus.co.jp', async () =>
-      req(app)
-        .get('/v2/unobus.co.jp')
-        .expect(200)
-        .then(({ body }) =>
-          assert.deepEqual(body, [
-            {
-              id: '1260001000674',
-              name: '宇野自動車株式会社',
-              url: 'http://www.unobus.co.jp/',
-              timezone: 'Asia/Tokyo',
-              lang: 'ja',
-              phone: '086-225-3311',
-              fare_url: null,
-              email: null
-            }
-          ])
-        ))
-
     describe('Not found', () => {
       it('/null', async () =>
         req(app)

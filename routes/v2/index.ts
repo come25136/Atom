@@ -1,7 +1,7 @@
 import { Router } from 'express'
 
 import { Agency } from '../../db/entitys/gtfs/agency'
-import { objSnakeCase } from '../../libs/util'
+import agency from './agency'
 import route from './routes'
 import stops from './stops'
 import translations from './translations'
@@ -9,6 +9,7 @@ import trip from './trips'
 
 const router = Router({ mergeParams: true })
 
+router.use('/agency', agency)
 router.use('/stops', stops)
 router.use('/routes', route)
 router.use('/translations', translations)
