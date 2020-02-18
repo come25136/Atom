@@ -342,7 +342,7 @@ export class Vehicle extends VehicleNotDriving {
         id: this.tripId
       },
       date: {
-        start: this.firstStop.date.departure.schedule.format()
+        start: this.firstStop.date.departure.schedule.toISOString()
       },
       descriptors: objSnakeCase(this._descriptors),
       delay: this._delay,
