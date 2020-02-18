@@ -200,7 +200,7 @@ export class LoopGetRealtimeData {
             )
           } catch (err) {
             if (err.message !== 'This car has already arrived at the final stop.')
-              logger.error(err, { remote: this.remote })
+              logger.error(err.message, { remote: this.remote })
           }
         }
 
