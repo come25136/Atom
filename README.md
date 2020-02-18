@@ -1,4 +1,12 @@
+# 💬 Message from the developer!!
+
+The current version **v2.1.1** of **Atom v2** will be the last version.  
+The reason for this is that v2 is the realization of the initial concept of Atom, and there will be several disruptive updates coming in the future to improve convenience.
+
+We will move to **Atom v3** development and implement more convenient APIs. :)
+
 # Atom Project <img src="icon.png" height="40px">
+
 I don't want to process GTFS as it is 😟,  
 Try using Atom at such times 🤗.
 
@@ -42,10 +50,12 @@ There should be what you want.
 # Q&A
 
 ## Is there an Atom public server?
+
 > No :(  
-When CI is setting and merged with master, it will be deployed to the public server.  
-Please wait patiently :)
+> When **Atom v3** is released, the public server will be available.  
+> Please wait patiently. :)
 
 ## Is the Docker image published?
+
 > No :(  
-Once CI is set, it will be published :)
+> When **Atom v3** is released, a Docker image will also be published. :)
