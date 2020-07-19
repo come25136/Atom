@@ -24,7 +24,7 @@
     "express": "^4.17.1",
     "geolib": "^3.2.0",
     "http-errors": "^1.7.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment-timezone": "^0.5.27",
     "mysql2": "^2.0.2",
     "neat-csv": "^5.1.0",
