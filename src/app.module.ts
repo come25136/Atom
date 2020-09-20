@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RemoteModule } from './remote/remote.module';
+import { AgencyService } from './agency/agency.service';
+import { AgencyModule } from './agency/agency.module';
+import { TranslationModule } from './translation/translation.module';
 
 @Module({
   imports: [
@@ -13,10 +16,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       password: 'remote',
       database: 'atom_dev_nest',
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
+    RemoteModule,
+    AgencyModule,
+    TranslationModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [AppService, AgencyService],
 })
 export class AppModule { }

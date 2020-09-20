@@ -1,12 +1,12 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Remote } from './remote.entity';
-import { REMOTE_REPOSITORY } from '../constants';
+import { Remote } from '../database/entities/remote.entity';
 
 @Injectable()
 export class RemoteService {
   constructor(
-    @Inject(REMOTE_REPOSITORY) private remoteRepository: Repository<Remote>,
+    @InjectRepository(Remote) private remoteRepository: Repository<Remote>,
   ) { }
 
   async registration(id: string, hash: string): Promise<Remote> {

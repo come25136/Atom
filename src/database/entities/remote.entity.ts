@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, OneToMany } from "typeorm"
-import moment from 'moment'
+import * as moment from 'moment'
+import { Translation } from "./translation.entity"
+import { Agency } from "./agency.entity"
 
 @Entity()
 export class Remote {
@@ -10,7 +12,7 @@ export class Remote {
   id: string
 
   @UpdateDateColumn({
-    nullable: true,
+    nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
       to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
@@ -20,7 +22,7 @@ export class Remote {
 
   @Column('char', { length: 64 })
   hash: string
-  /*
+
   @OneToMany(
     () => Agency,
     ({ remote }) => remote,
@@ -29,7 +31,7 @@ export class Remote {
     }
   )
   agencies: Agency[]
-
+  /*
   @OneToMany(
     () => Stop,
     ({ remote }) => remote
@@ -152,7 +154,7 @@ export class Remote {
     }
   )
   feedInfos: FeedInfo[]
-
+*/
   @OneToMany(
     () => Translation,
     ({ remote }) => remote,
@@ -161,5 +163,4 @@ export class Remote {
     }
   )
   translations: Translation[]
-  */
 }
