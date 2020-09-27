@@ -1,15 +1,42 @@
-import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, OneToMany, CreateDateColumn, OneToOne } from "typeorm"
 import * as moment from 'moment'
 import { Translation } from "./translation.entity"
 import { Agency } from "./agency.entity"
+import { Stop } from "./stop.entity"
+import { Route } from "./route.entity"
+import { Trip } from "./trip.entity"
+import { StopTime } from "./stop_time.entity"
+import { Calendar } from "./calendar.entity"
+import { CalendarDate } from "./calendar_date.entity"
+import { FareAttribute } from "./fare_attribute.entity"
+import { FareRule } from "./fare_rule.entity"
+import { Shape } from "./shape.entity"
+import { Frequency } from "./frequency.entity"
+import { Transfer } from "./transfer.entity"
+import { Pathway } from "./pathway.entity"
+import { Level } from "./level.entity"
+import { FeedInfo } from "./feed_info.entity"
+import { GtfsStatic } from "./gtfs_static.entity"
+import { GtfsRealtime } from "./gtfs_realtime.entity"
+import { ApiProperty } from "@nestjs/swagger"
 
 @Entity()
 export class Remote {
   @PrimaryGeneratedColumn()
+  @ApiProperty()
   readonly uid: number
 
   @Column('varchar', { unique: true })
   id: string
+
+  @CreateDateColumn({
+    nullable: false,
+    transformer: {
+      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
+      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
+    }
+  })
+  readonly createdAt: moment.Moment
 
   @UpdateDateColumn({
     nullable: false,
@@ -20,8 +47,35 @@ export class Remote {
   })
   readonly updatedAt: moment.Moment
 
-  @Column('char', { length: 64 })
-  hash: string
+  @Column('text')
+  displayName: string
+
+  @Column('text')
+  portalUrl: string
+
+  @Column('text')
+  license: string
+
+  @Column('text', { nullable: true })
+  licenseUrl: string | null = null
+
+  @OneToOne(
+    () => GtfsStatic,
+    ({ remote }) => remote,
+    {
+      cascade: true
+    }
+  )
+  gtfsStatic: GtfsStatic
+
+  @OneToMany(
+    () => GtfsRealtime,
+    ({ remote }) => remote,
+    {
+      cascade: true
+    }
+  )
+  gtfsRealtimes: GtfsRealtime[]
 
   @OneToMany(
     () => Agency,
@@ -31,7 +85,7 @@ export class Remote {
     }
   )
   agencies: Agency[]
-  /*
+
   @OneToMany(
     () => Stop,
     ({ remote }) => remote
@@ -154,7 +208,7 @@ export class Remote {
     }
   )
   feedInfos: FeedInfo[]
-*/
+
   @OneToMany(
     () => Translation,
     ({ remote }) => remote,

@@ -1,9 +1,9 @@
 import * as GTFS from '@come25136/gtfs'
-import { Column, Entity, EntityManager, getRepository, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
-// import { FareAttribute } from './fare_attribute'
+import { FareAttribute } from './fare_attribute.entity'
 import { Remote } from './remote.entity'
-// import { Route } from './route'
+import { Route } from './route.entity'
 
 @Entity()
 @Index(['remote', 'id'])
@@ -41,118 +41,16 @@ export class Agency {
 
   @Column('varchar', { nullable: true, default: null })
   email: GTFS.Agency['email'] = null
-  /*
-    @OneToMany(
-      () => Route,
-      ({ agency }) => agency
-    )
-    routes: Route[]
-  
-    @OneToMany(
-      () => FareAttribute,
-      ({ agency }) => agency
-    )
-    fareAttributes: FareAttribute[]
-  
-    async translate(language: string, trn: EntityManager) {
-      const translationRepo = trn.getRepository(Translation)
-  
-      const name = await translationRepo.findOne({
-        where: [{
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          recordId: this.id
-        },
-        {
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: this.name
-        }]
-      })
-  
-      const url = await translationRepo.findOne({
-        where: [{
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_url',
-          recordId: this.id
-        },
-        {
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: this.url
-        }]
-      })
-  
-      const phone = await translationRepo.findOne({
-        where: [{
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_phone',
-          recordId: this.id
-        },
-        {
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: this.phone
-        }]
-      })
-  
-      const fareUrl = await translationRepo.findOne({
-        where: [{
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_fare_url',
-          recordId: this.id
-        },
-        {
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: this.fareUrl
-        }]
-      })
-  
-      const email = await translationRepo.findOne({
-        where: [{
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_email',
-          recordId: this.id
-        },
-        {
-          remote: this.remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: this.email
-        }]
-      })
-  
-      return {
-        uid: this.uid,
-        id: this.id,
-        name: name?.translation ?? this.name,
-        url: url?.translation ?? this.url,
-        timezone: this.timezone,
-        lang: this.lang,
-        phone: phone?.translation ?? this.phone,
-        fareUrl: fareUrl?.translation ?? this.fareUrl,
-        email: email?.translation ?? this.email
-      }
-    }
-    */
+
+  @OneToMany(
+    () => Route,
+    ({ agency }) => agency
+  )
+  routes: Route[]
+
+  @OneToMany(
+    () => FareAttribute,
+    ({ agency }) => agency
+  )
+  fareAttributes: FareAttribute[]
 }

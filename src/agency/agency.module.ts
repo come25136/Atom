@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Agency } from 'src/database/entities/agency.entity';
+import { AgencyRepository } from 'src/database/entities/agency.repository';
 import { AgencyService } from './agency.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Agency])],
+  imports: [TypeOrmModule.forFeature([AgencyRepository])],
   providers: [AgencyService],
   exports: [TypeOrmModule]
 })

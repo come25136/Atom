@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
+宇野自動車株式会社,http://www.unobus.co.jp/,ja,20200801,20210801,20200801_2020年08月01日（一部改正　盆対応）

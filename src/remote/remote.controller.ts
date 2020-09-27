@@ -1,4 +1,6 @@
-import { Body, Controller, Put } from '@nestjs/common';
+import { Body, Controller, Param, Put } from '@nestjs/common';
+import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
+import { Remote } from 'src/database/entities/remote.entity';
 import { RemoteService } from 'src/remote/remote.service';
 import { RegistrationRemoteDto } from '../interfaces/remote.dto';
 
@@ -7,7 +9,8 @@ export class RemoteController {
   constructor(private readonly service: RemoteService) { }
 
   @Put(':id')
-  registration(@Body() registrationRemoteDto: RegistrationRemoteDto): any {
-    return this.service.registration(registrationRemoteDto.id, 'tekitouhash')
+  @ApiCreatedResponse({ type: Remote })
+  registration(@Param() params: any, @Body() body: RegistrationRemoteDto): Promise<Remote> {
+    return this.service.registration({ ...params, ...body })
   }
 }

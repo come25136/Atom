@@ -1,21 +1,38 @@
+import * as GTFS from '@come25136/gtfs';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Agency } from 'src/database/entities/agency.entity';
+import { AgencyRepository } from 'src/database/entities/agency.repository';
 import { Remote } from 'src/database/entities/remote.entity';
 import { Translation } from 'src/database/entities/translation.entity';
-import { Connection, Repository } from 'typeorm';
+import { Connection } from 'typeorm';
+import { Transactional } from 'typeorm-transactional-cls-hooked';
 
 @Injectable()
 export class AgencyService {
   constructor(
     private connection: Connection,
-    @InjectRepository(Agency) private agencyRepository: Repository<Agency>,
+    private agencyRepository: AgencyRepository,
   ) { }
 
-  async registration(id: string, hash: string): Promise<Agency> {
-    const agency = this.agencyRepository.create({})
+  @Transactional()
+  async createOrUpdate(remoteUid: Remote['uid'], data: GTFS.Agency): Promise<Agency> {
+    const agencyEntity =
+      await this.agencyRepository.findOneByRemoteUidAndId(remoteUid, data.id)
+      ?? this.agencyRepository.create({ id: data.id })
+    agencyEntity.name = data.name
+    agencyEntity.url = data.url
+    agencyEntity.timezone = data.timezone
+    agencyEntity.lang = data.lang
+    agencyEntity.phone = data.phone
+    agencyEntity.fareUrl = data.fareUrl
+    agencyEntity.email = data.email
 
-    return this.agencyRepository.save(agency)
+    return agencyEntity
+  }
+
+  @Transactional()
+  async save(entities: Agency[]) {
+    return this.agencyRepository.save(entities)
   }
 
   async translate(remoteUid: Remote["uid"], agency: Agency, language: string) {
