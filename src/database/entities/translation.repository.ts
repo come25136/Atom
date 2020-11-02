@@ -1,18 +1,31 @@
-import * as GTFS from '@come25136/gtfs'
-import { EntityRepository, FindOneOptions } from "typeorm";
-import { BaseRepository } from "./base.repository";
-import { Remote } from "./remote.entity";
-import { Translation } from "./translation.entity";
+import { EntityRepository, FindOneOptions } from 'typeorm'
+import { BaseRepository } from './base.repository'
+import { Remote } from './remote.entity'
+import { Translation } from './translation.entity'
 
-export type TranslationType = { tableName: Translation['tableName'], fieldName: Translation['fieldName'], language: Translation['language'], translation: Translation['translation'] } & ({ record: { id: string, sub?: { id: Translation['recordSubId'] } } } | { fieldValue: string })
+export type TranslationType = {
+  tableName: Translation['tableName']
+  fieldName: Translation['fieldName']
+  language: Translation['language']
+  translation: Translation['translation']
+} & (
+  | { record: { id: string; sub?: { id: Translation['recordSubId'] } } }
+  | { fieldValue: string }
+)
 
 @EntityRepository(Translation)
 export class TranslationRepository extends BaseRepository<Translation> {
   async findOneByRemoteUidAndId(): Promise<Translation> {
-    throw new Error('The function cannot be used because there is no ID in StopTime.')
+    throw new Error(
+      'The function cannot be used because there is no ID in StopTime.',
+    )
   }
 
-  async findOneByRemoteUidAndTableNameAndFieldNameAndLanguageAndRecordIdAndRecordSubIdOrFieldValue(remoteUid: Remote['uid'], data: TranslationType, other?: FindOneOptions<Translation>): Promise<Translation> {
+  async findOneByRemoteUidAndTableNameAndFieldNameAndLanguageAndRecordIdAndRecordSubIdOrFieldValue(
+    remoteUid: Remote['uid'],
+    data: TranslationType,
+    other?: FindOneOptions<Translation>,
+  ): Promise<Translation> {
     if ('record' in data)
       return this.findOne({
         ...other,

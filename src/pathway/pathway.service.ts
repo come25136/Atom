@@ -1,21 +1,16 @@
 import * as GTFS from '@come25136/gtfs'
-import { Injectable } from '@nestjs/common';
-import { Pathway } from 'src/database/entities/pathway.entity';
-import { PathwayRepository } from 'src/database/entities/pathway.repository';
-import { Remote } from 'src/database/entities/remote.entity';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { Injectable } from '@nestjs/common'
+import { Pathway } from 'src/database/entities/pathway.entity'
+import { PathwayRepository } from 'src/database/entities/pathway.repository'
+import { Remote } from 'src/database/entities/remote.entity'
+import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class PathwayService {
-  constructor(
-    private pathwayRepository: PathwayRepository,
-  ) { }
+  constructor(private pathwayRepository: PathwayRepository) {}
 
-  @Transactional()
-  async createOrUpdate(remoteUid: Remote['uid'], data: GTFS.Pathway): Promise<Pathway> {
-    const transferEntity =
-      await this.pathwayRepository.findOneByRemoteUidAndId(remoteUid, data.id)
-      ?? this.pathwayRepository.create({ id: data.id })
+  create(remoteUid: Remote['uid'], data: GTFS.Pathway): Pathway {
+    const transferEntity = this.pathwayRepository.create({ id: data.id })
     transferEntity.fromStopId = data.from.stop.id
     transferEntity.toStopId = data.from.stop.id
     transferEntity.pathwayMode = data.pathwayMode
@@ -32,7 +27,13 @@ export class PathwayService {
   }
 
   @Transactional()
-  async save(entities: Pathway[]) {
-    return this.pathwayRepository.save(entities)
+  async save(entities: Pathway[], updateEntity = false) {
+    return this.pathwayRepository
+      .createQueryBuilder()
+      .insert()
+      .orUpdate({ overwrite: this.pathwayRepository.getColumns })
+      .values(entities)
+      .updateEntity(updateEntity)
+      .execute()
   }
 }

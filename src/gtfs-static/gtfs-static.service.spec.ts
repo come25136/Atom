@@ -1,18 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { GtfsStaticService } from './gtfs-static.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { GtfsStaticService } from './gtfs-static.service'
 
 describe('GtfsStaticService', () => {
-  let service: GtfsStaticService;
+  let service: GtfsStaticService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [GtfsStaticService],
-    }).compile();
+    }).compile()
 
-    service = module.get<GtfsStaticService>(GtfsStaticService);
-  });
+    service = module.get<GtfsStaticService>(GtfsStaticService)
+  })
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+    expect(service).toBeDefined()
+  })
+})

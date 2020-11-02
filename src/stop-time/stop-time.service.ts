@@ -1,21 +1,20 @@
-import { Injectable } from '@nestjs/common';
 import * as GTFS from '@come25136/gtfs'
-import { Remote } from 'src/database/entities/remote.entity';
-import { StopTimeRepository } from 'src/database/entities/stop_time.repository';
-import { StopTime } from 'src/database/entities/stop_time.entity';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { Injectable } from '@nestjs/common'
+import { Transactional } from 'typeorm-transactional-cls-hooked'
+
+import { Remote } from 'src/database/entities/remote.entity'
+import { StopTime } from 'src/database/entities/stop_time.entity'
+import { StopTimeRepository } from 'src/database/entities/stop_time.repository'
 
 @Injectable()
 export class StopTimeService {
-  constructor(
-    private stopTimeRepository: StopTimeRepository,
-  ) { }
+  constructor(private stopTimeRepository: StopTimeRepository) {}
 
-  @Transactional()
-  async createOrUpdate(remoteUid: Remote['uid'], data: GTFS.StopTime): Promise<StopTime> {
-    const stopTimeEntity =
-      await this.stopTimeRepository.findOneByRemoteUidAndTripIdAndSequence(remoteUid, data.tripId, data.sequence)
-      ?? this.stopTimeRepository.create({ tripId: data.tripId, sequence: data.sequence })
+  create(remoteUid: Remote['uid'], data: GTFS.StopTime): StopTime {
+    const stopTimeEntity = this.stopTimeRepository.create({
+      tripId: data.tripId,
+      sequence: data.sequence,
+    })
     stopTimeEntity.tripId = data.tripId
     stopTimeEntity.arrivalTime = data.time.arrival
     stopTimeEntity.departureTime = data.time.departure
@@ -31,6 +30,12 @@ export class StopTimeService {
 
   @Transactional()
   async save(entities: StopTime[]) {
-    return this.stopTimeRepository.save(entities)
+    return this.stopTimeRepository
+      .createQueryBuilder()
+      .insert()
+      .orUpdate({ overwrite: this.stopTimeRepository.getColumns })
+      .values(entities)
+      .updateEntity(false)
+      .execute()
   }
 }

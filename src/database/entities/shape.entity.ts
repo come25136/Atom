@@ -1,6 +1,14 @@
 import * as GTFS from '@come25136/gtfs'
 import * as createHttpError from 'http-errors'
-import { BaseEntity, Column, Entity, Index, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Trip } from './trip.entity'
@@ -11,7 +19,7 @@ export class Shape extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ shapes }) => shapes,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -31,8 +39,8 @@ export class Shape extends BaseEntity {
 
         return { lat: Number(lat), lon: Number(lon) }
       },
-      to: (v: GTFS.Location): string => `POINT(${v.lat} ${v.lon})`
-    }
+      to: (v: GTFS.Location): string => `POINT(${v.lat} ${v.lon})`,
+    },
   })
   location: GTFS.Location
 
@@ -44,13 +52,13 @@ export class Shape extends BaseEntity {
 
   @ManyToMany(
     () => Trip,
-    ({ shapes }) => shapes
+    ({ shapes }) => shapes,
   )
   trips: Trip[]
 
   static async geoJson(
     remoteUid: Remote['uid'],
-    args: { tripId: string } | { routeId: string }
+    args: { tripId: string } | { routeId: string },
   ): Promise<{
     id: string
     type: 'LineString'
@@ -60,14 +68,17 @@ export class Shape extends BaseEntity {
       'tripId' in args
         ? { remote: { uid: remoteUid }, id: args.tripId }
         : { remote: { uid: remoteUid }, routeId: args.routeId },
-      { relations: ['shapes'] }
+      { relations: ['shapes'] },
     )
-    if (trip === undefined) throw createHttpError(404, 'There\'s no such route.')
+    if (trip === undefined) throw createHttpError(404, "There's no such route.")
 
     return {
       id: trip.routeId,
       type: 'LineString',
-      coordinates: trip.shapes.map(({ location }) => [location.lon, location.lat])
+      coordinates: trip.shapes.map(({ location }) => [
+        location.lon,
+        location.lat,
+      ]),
     }
   }
 }

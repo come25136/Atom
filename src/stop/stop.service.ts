@@ -1,21 +1,16 @@
-import * as GTFS from '@come25136/gtfs';
-import { Injectable } from '@nestjs/common';
-import { Remote } from 'src/database/entities/remote.entity';
-import { Stop } from 'src/database/entities/stop.entity';
-import { StopRepository } from 'src/database/entities/stop.repository';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import * as GTFS from '@come25136/gtfs'
+import { Injectable } from '@nestjs/common'
+import { Remote } from 'src/database/entities/remote.entity'
+import { Stop } from 'src/database/entities/stop.entity'
+import { StopRepository } from 'src/database/entities/stop.repository'
+import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class StopService {
-  constructor(
-    private stopRepository: StopRepository,
-  ) { }
+  constructor(private stopRepository: StopRepository) {}
 
-  @Transactional()
-  async createOrUpdate(remoteUid: Remote['uid'], data: GTFS.Stop): Promise<Stop> {
-    const agencyEntity =
-      await this.stopRepository.findOneByRemoteUidAndId(remoteUid, data.id)
-      ?? this.stopRepository.create({ id: data.id })
+  create(remoteUid: Remote['uid'], data: GTFS.Stop): Stop {
+    const agencyEntity = this.stopRepository.create({ id: data.id })
     agencyEntity.name = data.name
     agencyEntity.code = data.code
     agencyEntity.name = data.name
@@ -34,7 +29,13 @@ export class StopService {
   }
 
   @Transactional()
-  async save(entities: Stop[]) {
-    return this.stopRepository.save(entities)
+  async save(entities: Stop[], updateEntity = false) {
+    return this.stopRepository
+      .createQueryBuilder()
+      .insert()
+      .orUpdate({ overwrite: this.stopRepository.getColumns })
+      .values(entities)
+      .updateEntity(updateEntity)
+      .execute()
   }
 }

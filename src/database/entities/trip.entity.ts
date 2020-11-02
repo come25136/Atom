@@ -8,7 +8,8 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm'
 
 import { Calendar } from './calendar.entity'
@@ -19,15 +20,14 @@ import { Route } from './route.entity'
 import { Shape } from './shape.entity'
 import { StopTime } from './stop_time.entity'
 
-
 @Entity()
-@Index(['remote', 'id'])
+@Unique(['remote', 'id', 'routeId', 'serviceId'])
 @Index(['remote', 'serviceId'])
 export class Trip extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ trips }) => trips,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -40,7 +40,7 @@ export class Trip extends BaseEntity {
   @ManyToOne(
     () => Route,
     ({ trips }) => trips,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   route: Route
 
@@ -67,7 +67,7 @@ export class Trip extends BaseEntity {
 
   @ManyToMany(
     () => Shape,
-    ({ trips }) => trips
+    ({ trips }) => trips,
   )
   @JoinTable()
   shapes: Shape[]
@@ -80,25 +80,25 @@ export class Trip extends BaseEntity {
 
   @OneToMany(
     () => StopTime,
-    ({ trip }) => trip
+    ({ trip }) => trip,
   )
   stopTimes: StopTime[]
 
   @ManyToOne(
     () => Calendar,
-    ({ trips }) => trips
+    ({ trips }) => trips,
   )
   calendar: Calendar
 
   @ManyToOne(
     () => CalendarDate,
-    ({ trips }) => trips
+    ({ trips }) => trips,
   )
   calendarDates: CalendarDate
 
   @OneToMany(
     () => Frequency,
-    ({ trip }) => trip
+    ({ trip }) => trip,
   )
   frequencies: Frequency[]
 
@@ -113,7 +113,7 @@ export class Trip extends BaseEntity {
       blockId: this.blockId,
       shapeId: this.shapeId,
       wheelchairSccessible: this.wheelchairSccessible,
-      bikesSllowed: this.bikesSllowed
+      bikesSllowed: this.bikesSllowed,
     }
   }
   /*

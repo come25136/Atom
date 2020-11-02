@@ -1,16 +1,25 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Trip } from './trip.entity'
 
 @Entity()
+@Unique(['remote', 'serviceId', 'date', 'exceptionType'])
 export class CalendarDate extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ calendarDates }) => calendarDates,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -23,8 +32,16 @@ export class CalendarDate extends BaseEntity {
   @Column('date', {
     transformer: {
       from: v => (v === undefined ? undefined : moment.utc(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   date: GTFS.CalendarDate['date']
 
@@ -35,8 +52,8 @@ export class CalendarDate extends BaseEntity {
     () => Trip,
     ({ calendarDates: calendarDate }) => calendarDate,
     {
-      cascade: ['insert']
-    }
+      cascade: ['insert'],
+    },
   )
   trips: Trip[]
 }

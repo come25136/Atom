@@ -1,49 +1,111 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
-import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Stop } from './stop.entity'
 import { Trip } from './trip.entity'
 
 @Entity()
+@Unique(['remote', 'tripId', 'stopId', 'sequence'])
 @Index(['remote', 'tripId'])
 @Index(['remote', 'stopId'])
 export class StopTime extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ stopTimes }) => stopTimes,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
   @PrimaryGeneratedColumn()
   readonly uid: number
 
+  @CreateDateColumn({
+    nullable: false,
+    transformer: {
+      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
+  })
+  readonly createdAt: moment.Moment
+
+  @UpdateDateColumn({
+    nullable: false,
+    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: {
+      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
+  })
+  readonly updatedAt: moment.Moment
+
   @Column('varchar')
   tripId: GTFS.StopTime['tripId']
 
   @ManyToOne(
     () => Trip,
-    ({ stopTimes }) => stopTimes
+    ({ stopTimes }) => stopTimes,
   )
   trip: Trip
 
   @Column('time', {
     nullable: true,
     transformer: {
-      from: v => (v === null ? null : moment('1970-01-01').seconds(moment.duration(v).asSeconds())),
-      to: (v: moment.Moment) => moment.isMoment(v) ? v.year() === 1970 ? `${v.date() - 1} ${v.format('HH:mm:ss')}` : v.format('HH:mm:ss') : v
-    }
+      from: v =>
+        v === null
+          ? null
+          : moment('1970-01-01').seconds(moment.duration(v).asSeconds()),
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? v.year() === 1970
+            ? `${v.date() - 1} ${v.format('HH:mm:ss')}`
+            : v.format('HH:mm:ss')
+          : v,
+    },
   })
   arrivalTime: GTFS.StopTime['time']['arrival'] = null
 
   @Column('time', {
     nullable: true,
     transformer: {
-      from: v => (v === null ? null : moment('1970-01-01').seconds(moment.duration(v).asSeconds())),
-      to: (v: moment.Moment) => moment.isMoment(v) ? v.year() === 1970 ? `${v.date() - 1} ${v.format('HH:mm:ss')}` : v.format('HH:mm:ss') : v
-    }
+      from: v =>
+        v === null
+          ? null
+          : moment('1970-01-01').seconds(moment.duration(v).asSeconds()),
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? v.year() === 1970
+            ? `${v.date() - 1} ${v.format('HH:mm:ss')}`
+            : v.format('HH:mm:ss')
+          : v,
+    },
   })
   departureTime: GTFS.StopTime['time']['departure'] = null
 
@@ -52,7 +114,7 @@ export class StopTime extends BaseEntity {
 
   @ManyToOne(
     () => Stop,
-    ({ times }) => times
+    ({ times }) => times,
   )
   stop: Stop
 
@@ -79,7 +141,7 @@ export class StopTime extends BaseEntity {
       tripId: this.tripId,
       time: {
         arrival: this.arrivalTime,
-        departure: this.departureTime
+        departure: this.departureTime,
       },
       stopId: this.stopId,
       sequence: this.sequence,
@@ -87,7 +149,7 @@ export class StopTime extends BaseEntity {
       pickupType: this.pickupType,
       dropOffType: this.dropOffType,
       shapeDistTraveled: this.shapeDistTraveled,
-      timepoint: this.timepoint
+      timepoint: this.timepoint,
     }
   }
 }

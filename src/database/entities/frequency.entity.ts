@@ -1,16 +1,24 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Trip } from './trip.entity'
 
 @Entity()
+@Unique(['remote', 'tripId', 'startTime', 'endTime'])
 export class Frequency extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ frequencies }) => frequencies,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -22,7 +30,7 @@ export class Frequency extends BaseEntity {
 
   @ManyToOne(
     () => Trip,
-    ({ frequencies }) => frequencies
+    ({ frequencies }) => frequencies,
   )
   trip: Trip
 
@@ -30,8 +38,16 @@ export class Frequency extends BaseEntity {
     nullable: true,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   startTime: GTFS.Frequency['time']['start'] = null
 
@@ -39,8 +55,16 @@ export class Frequency extends BaseEntity {
     nullable: true,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   endTime: GTFS.Frequency['time']['end'] = null
 

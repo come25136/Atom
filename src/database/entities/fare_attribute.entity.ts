@@ -1,17 +1,26 @@
 import * as GTFS from '@come25136/gtfs'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 import { ISO4217 } from 'src/util'
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 import { Agency } from './agency.entity'
 import { FareRule } from './fare_rule.entity'
 import { Remote } from './remote.entity'
 
 @Entity()
+@Unique(['remote', 'id'])
 export class FareAttribute extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ fareAttributes }) => fareAttributes,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -23,7 +32,7 @@ export class FareAttribute extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: ISO4217
+    enum: ISO4217,
   })
   currencyType: ISO4217
 
@@ -41,8 +50,8 @@ export class FareAttribute extends BaseEntity {
     ({ fareAttributes }) => fareAttributes,
     {
       cascade: true,
-      onDelete: 'CASCADE'
-    }
+      onDelete: 'CASCADE',
+    },
   )
   agency: Agency
 
@@ -51,7 +60,7 @@ export class FareAttribute extends BaseEntity {
 
   @OneToMany(
     () => FareRule,
-    ({ fareAttribute }) => fareAttribute
+    ({ fareAttribute }) => fareAttribute,
   )
   fareRules: FareRule[]
 }

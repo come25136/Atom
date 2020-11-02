@@ -1,15 +1,23 @@
 import * as GTFS from '@come25136/gtfs'
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Stop } from './stop.entity'
 
 @Entity()
+@Unique(['remote', 'fromStopId', 'toStopId'])
 export class Transfer extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ transfers }) => transfers,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 

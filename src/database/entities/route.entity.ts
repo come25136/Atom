@@ -1,5 +1,13 @@
 import * as GTFS from '@come25136/gtfs'
-import { BaseEntity, Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { Agency } from './agency.entity'
 import { FareRule } from './fare_rule.entity'
@@ -7,12 +15,12 @@ import { Remote } from './remote.entity'
 import { Trip } from './trip.entity'
 
 @Entity()
-@Index(['remote', 'id'])
+@Unique(['remote', 'id'])
 export class Route extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ routes: route }) => route,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -25,11 +33,10 @@ export class Route extends BaseEntity {
   @Column('varchar', { nullable: true, default: null })
   agencyId: string | null = null
 
-
   @ManyToOne(
     () => Agency,
     ({ routes: route }) => route,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   agency: Agency
 
@@ -59,13 +66,13 @@ export class Route extends BaseEntity {
 
   @OneToMany(
     () => Trip,
-    ({ route }) => route
+    ({ route }) => route,
   )
   trips: Trip[]
 
   @OneToMany(
     () => FareRule,
-    ({ route }) => route
+    ({ route }) => route,
   )
   fareRules: FareRule[]
 
@@ -75,13 +82,13 @@ export class Route extends BaseEntity {
       id: this.id,
       name: {
         short: this.shortName,
-        long: this.longName
+        long: this.longName,
       },
       description: this.description,
       color: this.color,
       text: {
-        color: this.textColor
-      }
+        color: this.textColor,
+      },
     }
   }
 }

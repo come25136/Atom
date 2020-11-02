@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  ValidateNested,
+} from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class OptionalURL {
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
@@ -53,7 +59,7 @@ export class RegistrationRemoteDto {
 
   @ValidateNested()
   @ApiProperty()
-  license: License;
+  license: License
 
   @ValidateNested()
   @ApiProperty()

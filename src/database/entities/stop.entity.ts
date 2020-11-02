@@ -1,5 +1,15 @@
 import * as GTFS from '@come25136/gtfs'
-import { BaseEntity, Column, Entity, EntityManager, getRepository, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  EntityManager,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+  getRepository,
+} from 'typeorm'
 
 import { FareRule } from './fare_rule.entity'
 import { Level } from './level.entity'
@@ -10,12 +20,12 @@ import { Transfer } from './transfer.entity'
 import { Translation } from './translation.entity'
 
 @Entity()
-@Index(['remote', 'id'])
+@Unique(['remote', 'id'])
 export class Stop extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ stops }) => stops,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -47,8 +57,9 @@ export class Stop extends BaseEntity {
 
         return { lat: Number(lat), lon: Number(lon) }
       },
-      to: (v: GTFS.Location) => (v === null ? null : `POINT(${v.lon} ${v.lat})`)
-    }
+      to: (v: GTFS.Location) =>
+        v === null ? null : `POINT(${v.lon} ${v.lat})`,
+    },
   })
   location: null | GTFS.Location = null
 
@@ -78,79 +89,81 @@ export class Stop extends BaseEntity {
 
   @OneToMany(
     () => FareRule,
-    ({ origin }) => origin
+    ({ origin }) => origin,
   )
   origins: FareRule[]
 
   @OneToMany(
     () => FareRule,
-    ({ destination }) => destination
+    ({ destination }) => destination,
   )
   destinations: FareRule[]
 
   @OneToMany(
     () => FareRule,
-    ({ contain: contains }) => contains
+    ({ contain: contains }) => contains,
   )
   contains: FareRule[]
 
   @ManyToOne(
     () => Level,
     ({ stops }) => stops,
-    { cascade: true }
+    { cascade: true },
   )
   level: Level
 
   @OneToMany(
     () => Transfer,
-    ({ fromStop }) => fromStop
+    ({ fromStop }) => fromStop,
   )
   fromTransfers: Transfer[]
 
   @OneToMany(
     () => Transfer,
-    ({ toStop }) => toStop
+    ({ toStop }) => toStop,
   )
   toTransfers: Transfer[]
 
   @OneToMany(
     () => Pathway,
-    ({ fromStop }) => fromStop
+    ({ fromStop }) => fromStop,
   )
   fromPathways: Pathway[]
 
   @OneToMany(
     () => Pathway,
-    ({ toStop }) => toStop
+    ({ toStop }) => toStop,
   )
   toPathways: Pathway[]
 
   @OneToMany(
     () => StopTime,
     ({ stop }) => stop,
-    { cascade: true }
+    { cascade: true },
   )
   times: StopTime[]
 
-
   async translate(language: string, trn?: EntityManager) {
-    const translationRepo = trn?.getRepository(Translation) ?? getRepository(Translation)
+    const translationRepo =
+      trn?.getRepository(Translation) ?? getRepository(Translation)
 
     const name = await translationRepo.findOne({
-      where: [{
-        remote: this.remote,
-        language,
-        tableName: 'stops',
-        fieldName: 'stop_name',
-        recordId: this.id
-      },
-      {
-        remote: this.remote,
-        language,
-        tableName: 'stops',
-        fieldName: 'stop_name',
-        fieldValue: this.name
-      }]
+      where: [
+        {
+          remote: this.remote,
+          language,
+          tableName: 'stops',
+          fieldName: 'stop_name',
+          recordId: this.id,
+        },
+        {
+          remote: this.remote,
+          language,
+          tableName: 'stops',
+          fieldName: 'stop_name',
+          fieldValue: this.name,
+        },
+      ],
     })
 
     return {
@@ -161,7 +174,7 @@ export class Stop extends BaseEntity {
       locationType: this.locationType,
       location: {
         lat: this.location.lat,
-        lon: this.location.lon
+        lon: this.location.lon,
       },
       zoneId: this.zoneId,
       url: this.url,
@@ -169,16 +182,17 @@ export class Stop extends BaseEntity {
       timezone: this.timezone,
       wheelchairBoarding: this.wheelchairBoarding,
       levelId: this.levelId,
-      platformCode: this.platformCode
+      platformCode: this.platformCode,
     }
   }
-
 
   get public(): GTFS.Stop {
     return Stop.public(this)
   }
 
-  static public(stop: ReturnType<Stop['translate']> extends Promise<infer T> ? T : never): GTFS.Stop {
+  static public(
+    stop: ReturnType<Stop['translate']> extends Promise<infer T> ? T : never,
+  ): GTFS.Stop {
     return {
       id: stop.id,
       code: stop.code,
@@ -187,19 +201,19 @@ export class Stop extends BaseEntity {
       location: {
         type: stop.locationType,
         lat: stop.location.lat,
-        lon: stop.location.lon
+        lon: stop.location.lon,
       },
       zone: {
-        id: stop.zoneId
+        id: stop.zoneId,
       },
       url: stop.url,
       parentStation: stop.parentStation,
       timezone: stop.timezone,
       wheelchairBoarding: stop.wheelchairBoarding,
       level: {
-        id: stop.levelId
+        id: stop.levelId,
       },
-      platformCode: stop.platformCode
+      platformCode: stop.platformCode,
     }
   }
 }

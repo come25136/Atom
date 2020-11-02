@@ -1,15 +1,23 @@
 import * as GTFS from '@come25136/gtfs'
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Stop } from './stop.entity'
 
 @Entity()
+@Unique(['remote', 'id'])
 export class Pathway extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ pathways }) => pathways,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -54,13 +62,13 @@ export class Pathway extends BaseEntity {
 
   @ManyToOne(
     () => Stop,
-    ({ fromPathways: froms }) => froms
+    ({ fromPathways: froms }) => froms,
   )
   fromStop: Stop
 
   @ManyToOne(
     () => Stop,
-    ({ toPathways: to }) => to
+    ({ toPathways: to }) => to,
   )
   toStop: Stop
 }

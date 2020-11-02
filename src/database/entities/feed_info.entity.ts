@@ -1,6 +1,12 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 
@@ -9,7 +15,7 @@ export class FeedInfo extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ feedInfos }) => feedInfos,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -30,8 +36,9 @@ export class FeedInfo extends BaseEntity {
     default: null,
     transformer: {
       from: v => (v === null ? null : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment | string) => (moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment | string) =>
+        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
+    },
   })
   startDate: GTFS.FeedInfo['date']['start'] = null
 
@@ -40,8 +47,9 @@ export class FeedInfo extends BaseEntity {
     default: null,
     transformer: {
       from: v => (v === null ? null : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment | string) => (moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment | string) =>
+        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
+    },
   })
   endDate: GTFS.FeedInfo['date']['end'] = null
 

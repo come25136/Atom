@@ -1,18 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { FareAttributeService } from './fare-attribute.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { FareAttributeService } from './fare-attribute.service'
 
 describe('FareAttributeService', () => {
-  let service: FareAttributeService;
+  let service: FareAttributeService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [FareAttributeService],
-    }).compile();
+    }).compile()
 
-    service = module.get<FareAttributeService>(FareAttributeService);
-  });
+    service = module.get<FareAttributeService>(FareAttributeService)
+  })
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+    expect(service).toBeDefined()
+  })
+})

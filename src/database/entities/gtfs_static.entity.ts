@@ -1,5 +1,14 @@
 import * as moment from 'moment'
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 
@@ -8,7 +17,7 @@ export class GtfsStatic extends BaseEntity {
   @OneToOne(
     () => Remote,
     ({ gtfsStatic }) => gtfsStatic,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   @JoinColumn()
   remote: Remote
@@ -20,8 +29,16 @@ export class GtfsStatic extends BaseEntity {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   readonly createdAt: moment.Moment
 
@@ -29,8 +46,16 @@ export class GtfsStatic extends BaseEntity {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   readonly updatedAt: moment.Moment
 
@@ -44,8 +69,16 @@ export class GtfsStatic extends BaseEntity {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   lastAcquisitionDate: moment.Moment
 }

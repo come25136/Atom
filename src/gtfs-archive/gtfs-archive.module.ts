@@ -1,7 +1,10 @@
-import { Module } from '@nestjs/common';
-import { GtfsArchiveService } from './gtfs-archive.service';
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { Module } from '@nestjs/common'
+
+import { GtfsArchiveService } from './gtfs-archive.service'
 
 @Module({
-  providers: [GtfsArchiveService],
+  imports: [ConfigModule],
+  providers: [ConfigService, GtfsArchiveService],
 })
-export class GtfsArchiveModule { }
+export class GtfsArchiveModule {}

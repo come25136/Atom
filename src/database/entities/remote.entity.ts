@@ -1,24 +1,33 @@
-import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, OneToMany, CreateDateColumn, OneToOne } from "typeorm"
 import * as moment from 'moment'
-import { Translation } from "./translation.entity"
-import { Agency } from "./agency.entity"
-import { Stop } from "./stop.entity"
-import { Route } from "./route.entity"
-import { Trip } from "./trip.entity"
-import { StopTime } from "./stop_time.entity"
-import { Calendar } from "./calendar.entity"
-import { CalendarDate } from "./calendar_date.entity"
-import { FareAttribute } from "./fare_attribute.entity"
-import { FareRule } from "./fare_rule.entity"
-import { Shape } from "./shape.entity"
-import { Frequency } from "./frequency.entity"
-import { Transfer } from "./transfer.entity"
-import { Pathway } from "./pathway.entity"
-import { Level } from "./level.entity"
-import { FeedInfo } from "./feed_info.entity"
-import { GtfsStatic } from "./gtfs_static.entity"
-import { GtfsRealtime } from "./gtfs_realtime.entity"
-import { ApiProperty } from "@nestjs/swagger"
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
+import { ApiProperty } from '@nestjs/swagger'
+
+import { Agency } from './agency.entity'
+import { Calendar } from './calendar.entity'
+import { CalendarDate } from './calendar_date.entity'
+import { FareAttribute } from './fare_attribute.entity'
+import { FareRule } from './fare_rule.entity'
+import { FeedInfo } from './feed_info.entity'
+import { Frequency } from './frequency.entity'
+import { GtfsRealtime } from './gtfs_realtime.entity'
+import { GtfsStatic } from './gtfs_static.entity'
+import { Level } from './level.entity'
+import { Pathway } from './pathway.entity'
+import { Route } from './route.entity'
+import { Shape } from './shape.entity'
+import { Stop } from './stop.entity'
+import { StopTime } from './stop_time.entity'
+import { Transfer } from './transfer.entity'
+import { Translation } from './translation.entity'
+import { Trip } from './trip.entity'
 
 @Entity()
 export class Remote {
@@ -33,8 +42,16 @@ export class Remote {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   readonly createdAt: moment.Moment
 
@@ -42,8 +59,16 @@ export class Remote {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   readonly updatedAt: moment.Moment
 
@@ -63,8 +88,8 @@ export class Remote {
     () => GtfsStatic,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   gtfsStatic: GtfsStatic
 
@@ -72,8 +97,8 @@ export class Remote {
     () => GtfsRealtime,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   gtfsRealtimes: GtfsRealtime[]
 
@@ -81,14 +106,14 @@ export class Remote {
     () => Agency,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   agencies: Agency[]
 
   @OneToMany(
     () => Stop,
-    ({ remote }) => remote
+    ({ remote }) => remote,
   )
   stops: Stop[]
 
@@ -96,8 +121,8 @@ export class Remote {
     () => Route,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   routes: Route[]
 
@@ -105,8 +130,8 @@ export class Remote {
     () => Trip,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   trips: Trip[]
 
@@ -114,8 +139,8 @@ export class Remote {
     () => StopTime,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   stopTimes: StopTime[]
 
@@ -123,8 +148,8 @@ export class Remote {
     () => Calendar,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   calendar: Calendar[]
 
@@ -132,8 +157,8 @@ export class Remote {
     () => CalendarDate,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   calendarDates: CalendarDate[]
 
@@ -141,8 +166,8 @@ export class Remote {
     () => FareAttribute,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   fareAttributes: FareAttribute[]
 
@@ -150,8 +175,8 @@ export class Remote {
     () => FareRule,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   fareRules: FareRule[]
 
@@ -159,8 +184,8 @@ export class Remote {
     () => Shape,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   shapes: Shape[]
 
@@ -168,8 +193,8 @@ export class Remote {
     () => Frequency,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   frequencies: Frequency[]
 
@@ -177,8 +202,8 @@ export class Remote {
     () => Transfer,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   transfers: Transfer[]
 
@@ -186,8 +211,8 @@ export class Remote {
     () => Pathway,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   pathways: Pathway[]
 
@@ -195,8 +220,8 @@ export class Remote {
     () => Level,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   levels: Level[]
 
@@ -204,8 +229,8 @@ export class Remote {
     () => FeedInfo,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   feedInfos: FeedInfo[]
 
@@ -213,8 +238,8 @@ export class Remote {
     () => Translation,
     ({ remote }) => remote,
     {
-      cascade: true
-    }
+      cascade: true,
+    },
   )
   translations: Translation[]
 }

@@ -1,15 +1,24 @@
 import * as GTFS from '@come25136/gtfs'
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Stop } from './stop.entity'
 
 @Entity()
+@Unique(['remote', 'id'])
 export class Level extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ levels }) => levels,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -27,7 +36,7 @@ export class Level extends BaseEntity {
 
   @OneToMany(
     () => Stop,
-    ({ level }) => level
+    ({ level }) => level,
   )
   stops: Stop[]
 }

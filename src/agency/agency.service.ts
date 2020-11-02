@@ -1,24 +1,22 @@
-import * as GTFS from '@come25136/gtfs';
-import { Injectable } from '@nestjs/common';
-import { Agency } from 'src/database/entities/agency.entity';
-import { AgencyRepository } from 'src/database/entities/agency.repository';
-import { Remote } from 'src/database/entities/remote.entity';
-import { Translation } from 'src/database/entities/translation.entity';
-import { Connection } from 'typeorm';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import * as GTFS from '@come25136/gtfs'
+import { Connection } from 'typeorm'
+import { Injectable } from '@nestjs/common'
+import { Remote } from 'src/database/entities/remote.entity'
+import { Transactional } from 'typeorm-transactional-cls-hooked'
+
+import { Agency } from 'src/database/entities/agency.entity'
+import { AgencyRepository } from 'src/database/entities/agency.repository'
+import { Translation } from 'src/database/entities/translation.entity'
 
 @Injectable()
 export class AgencyService {
   constructor(
     private connection: Connection,
     private agencyRepository: AgencyRepository,
-  ) { }
+  ) {}
 
-  @Transactional()
-  async createOrUpdate(remoteUid: Remote['uid'], data: GTFS.Agency): Promise<Agency> {
-    const agencyEntity =
-      await this.agencyRepository.findOneByRemoteUidAndId(remoteUid, data.id)
-      ?? this.agencyRepository.create({ id: data.id })
+  create(remoteUid: Remote['uid'], data: GTFS.Agency): Agency {
+    const agencyEntity = this.agencyRepository.create({ id: data.id })
     agencyEntity.name = data.name
     agencyEntity.url = data.url
     agencyEntity.timezone = data.timezone
@@ -31,99 +29,115 @@ export class AgencyService {
   }
 
   @Transactional()
-  async save(entities: Agency[]) {
-    return this.agencyRepository.save(entities)
+  async save(entities: Agency[], updateEntity = false) {
+    return this.agencyRepository
+      .createQueryBuilder()
+      .insert()
+      .orUpdate({ overwrite: this.agencyRepository.getColumns })
+      .values(entities)
+      .updateEntity(updateEntity)
+      .execute()
   }
 
-  async translate(remoteUid: Remote["uid"], agency: Agency, language: string) {
+  async translate(remoteUid: Remote['uid'], agency: Agency, language: string) {
     return this.connection.transaction(async trn => {
       const remote = { uid: remoteUid }
 
       const translationRepo = trn.getRepository(Translation)
 
       const name = await translationRepo.findOne({
-        where: [{
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          recordId: agency.id
-        },
-        {
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: agency.name
-        }]
+        where: [
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_name',
+            recordId: agency.id,
+          },
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_name',
+            field_value: agency.name,
+          },
+        ],
       })
 
       const url = await translationRepo.findOne({
-        where: [{
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_url',
-          recordId: agency.id
-        },
-        {
-          remote: remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: agency.url
-        }]
+        where: [
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_url',
+            recordId: agency.id,
+          },
+          {
+            remote: remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_name',
+            field_value: agency.url,
+          },
+        ],
       })
 
       const phone = await translationRepo.findOne({
-        where: [{
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_phone',
-          recordId: agency.id
-        },
-        {
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: agency.phone
-        }]
+        where: [
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_phone',
+            recordId: agency.id,
+          },
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_name',
+            field_value: agency.phone,
+          },
+        ],
       })
 
       const fareUrl = await translationRepo.findOne({
-        where: [{
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_fare_url',
-          recordId: agency.id
-        },
-        {
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: agency.fareUrl
-        }]
+        where: [
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_fare_url',
+            recordId: agency.id,
+          },
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_name',
+            field_value: agency.fareUrl,
+          },
+        ],
       })
 
       const email = await translationRepo.findOne({
-        where: [{
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_email',
-          recordId: agency.id
-        },
-        {
-          remote,
-          language,
-          tableName: 'agency',
-          fieldName: 'agency_name',
-          field_value: agency.email
-        }]
+        where: [
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_email',
+            recordId: agency.id,
+          },
+          {
+            remote,
+            language,
+            tableName: 'agency',
+            fieldName: 'agency_name',
+            field_value: agency.email,
+          },
+        ],
       })
 
       return {
@@ -135,7 +149,7 @@ export class AgencyService {
         lang: agency.lang,
         phone: phone?.translation ?? agency.phone,
         fareUrl: fareUrl?.translation ?? agency.fareUrl,
-        email: email?.translation ?? agency.email
+        email: email?.translation ?? agency.email,
       }
     })
   }

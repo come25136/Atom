@@ -1,17 +1,24 @@
 import * as GTFS from '@come25136/gtfs'
-import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { FareAttribute } from './fare_attribute.entity'
 import { Remote } from './remote.entity'
 import { Route } from './route.entity'
 
 @Entity()
-@Index(['remote', 'id'])
+@Unique(['remote', 'id'])
 export class Agency {
   @ManyToOne(
     () => Remote,
     ({ agencies }) => agencies,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -44,13 +51,13 @@ export class Agency {
 
   @OneToMany(
     () => Route,
-    ({ agency }) => agency
+    ({ agency }) => agency,
   )
   routes: Route[]
 
   @OneToMany(
     () => FareAttribute,
-    ({ agency }) => agency
+    ({ agency }) => agency,
   )
   fareAttributes: FareAttribute[]
 }

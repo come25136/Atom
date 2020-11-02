@@ -1,16 +1,25 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 import { Trip } from './trip.entity'
 
 @Entity()
+@Unique(['remote', 'serviceId'])
 export class Calendar extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ calendar }) => calendar,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -44,22 +53,24 @@ export class Calendar extends BaseEntity {
   @Column('date', {
     transformer: {
       from: v => (v === undefined ? undefined : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
+    },
   })
   startDate: GTFS.Calendar['date']['start']
 
   @Column('date', {
     transformer: {
       from: v => (v === undefined ? undefined : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
+    },
   })
   endDate: GTFS.Calendar['date']['end']
 
   @OneToMany(
     () => Trip,
-    ({ calendar }) => calendar
+    ({ calendar }) => calendar,
   )
   trips: Trip[]
 

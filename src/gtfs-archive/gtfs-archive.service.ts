@@ -1,20 +1,53 @@
-import { Injectable } from '@nestjs/common';
-import axios from 'axios'
-import * as  yauzl from 'yauzl'
 import * as _ from 'lodash'
-import * as stripBomStream from 'strip-bom-stream'
 import * as fs from 'fs'
-import * as path from 'path'
 import * as mkdir from 'mkdirp'
-import { createHash } from 'crypto';
+import * as path from 'path'
+import * as stripBomStream from 'strip-bom-stream'
+import * as yauzl from 'yauzl'
+import { ConfigService } from '@nestjs/config/dist/config.service'
+import { Injectable } from '@nestjs/common'
 import { PythonShell } from 'python-shell'
+import axios from 'axios'
+import { createHash } from 'crypto'
 
-const gtfsFileNames = ['agency.txt', 'stops.txt', 'routes.txt', 'trips.txt', 'stop_times.txt', 'calendar.txt', 'calendar_dates.txt', 'fare_attributes.txt', 'fare_rules.txt', 'shapes.txt', 'frequencies.txt', 'transfers.txt', 'pathways.txt', 'levels.txt', 'feed_info.txt', 'translations.txt']
+enum GtfsFileNames {
+  Agency = 'agency.txt',
+  Stops = 'stops.txt',
+  Routes = 'routes.txt',
+  Trips = 'trips.txt',
+  StopTimes = 'stop_times.txt',
+  Calendar = 'calendar.txt',
+  CalendarDates = 'calendar_dates.txt',
+  FareAttributes = 'fare_attributes.txt',
+  FareRules = 'fare_rules.txt',
+  Shapes = 'shapes.txt',
+  Frequencies = 'frequencies.txt',
+  Transders = 'transfers.txt',
+  Pathways = 'pathways.txt',
+  Levels = 'levels.txt',
+  FeedInfo = 'feed_info.txt',
+  Translations = 'translations.txt',
+}
+
+const GTFS = {
+  FileNames: Object.values(GtfsFileNames),
+  RequiredFileNames: [
+    GtfsFileNames.Agency,
+    GtfsFileNames.Stops,
+    GtfsFileNames.Routes,
+    GtfsFileNames.Trips,
+    GtfsFileNames.StopTimes,
+  ],
+}
 
 @Injectable()
 export class GtfsArchiveService {
+  constructor(private configService: ConfigService) {}
+
   async download(url: string, unZipDirPath: string) {
-    const { data: zipBuffer } = await axios.get(url, { responseType: 'arraybuffer' })
+    const { data: zipBuffer } = await axios.get(url, {
+      responseType: 'arraybuffer',
+    })
 
     const zipHash = createHash('sha256')
       .update(zipBuffer)
@@ -29,17 +62,21 @@ export class GtfsArchiveService {
 
           const fileNames: string[] = []
 
-          zipfile.on('entry', (entry) => {
+          zipfile.on('entry', async entry => {
             const [fileName] = entry.fileName.split('/').reverse()
 
-            if (gtfsFileNames.includes(fileName) === false) return zipfile.readEntry()
+            if (GTFS.FileNames.includes(fileName) === false)
+              return zipfile.readEntry()
 
-            zipfile.openReadStream(entry, async (err, readStream) => {
+            await mkdir(unZipDirPath) // TODO: onの外に出す
+
+            zipfile.openReadStream(entry, (err, readStream) => {
               if (err) return rej(err)
 
-              await mkdir(unZipDirPath)
-
-              const file = fs.createWriteStream(path.join(unZipDirPath, fileName), { highWaterMark: 1024 })
+              const file = fs.createWriteStream(
+                path.join(unZipDirPath, fileName),
+                { highWaterMark: 1024 },
+              )
 
               readStream.on('end', () => {
                 fileNames.push(fileName)
@@ -52,20 +89,18 @@ export class GtfsArchiveService {
           zipfile.once('end', () => {
             zipfile.close()
 
-            const requiredFiles: string[] = [
-              'agency.txt',
-              'stops.txt',
-              'routes.txt',
-              'trips.txt',
-              'stop_times.txt'
-            ]
-
-            const conditionallyRequiredFiles: ((fileNames: string[]) => boolean)[] = [
-              (fileNames: string[]) => _.intersection(['calendar.txt', 'calendar_dates.txt'], fileNames).length === 0
+            const conditionallyRequiredFiles: ((
+              fileNames: string[],
+            ) => boolean)[] = [
+              (fileNames: string[]) =>
+                _.intersection(
+                  ['calendar.txt', 'calendar_dates.txt'],
+                  fileNames,
+                ).length === 0,
             ]
 
             if (
-              _.difference(requiredFiles, fileNames).length !== 0 ||
+              _.difference(GTFS.RequiredFileNames, fileNames).length !== 0 ||
               conditionallyRequiredFiles.some(f => f(fileNames))
             )
               rej(new Error('It is not normal GTFS.'))
@@ -73,37 +108,50 @@ export class GtfsArchiveService {
             res(fileNames)
           })
 
+          // NOTE: readEntryを呼ぶとentryイベントが発火する
           zipfile.readEntry()
-        })
+        },
+      ),
     )
 
     return {
       archive: {
-        hash: zipHash
+        hash: zipHash,
       },
       entry: {
-        fileNames
-      }
+        fileNames,
+      },
     }
   }
 
-  async upgrade(targetDirPath: string, upgradedDirPath: string): Promise<boolean> {
+  // NOTE: upgradedDirPathはPython側で生成されるので、事前生成不必要
+  async upgrade(
+    sourceDirPath: string,
+    upgradedDirPath: string,
+  ): Promise<boolean> {
     return new Promise((res, rej) => {
-      PythonShell.run('upgrade_translations.py', {
-        pythonPath: '/usr/bin/python2.7',
-        mode: 'text',
-        args: [targetDirPath, upgradedDirPath]
-      }, err => {
-        if (err === null) return res(true)
+      PythonShell.run(
+        'upgrade_translations.py',
+        {
+          pythonPath: this.configService.get<string>(
+            'python.path',
+            process.platform === 'win32' ? undefined : '/usr/bin/python2.7',
+          ),
+          mode: 'text',
+          args: [sourceDirPath, upgradedDirPath],
+        },
+        err => {
+          if (err === null) return res(true) // NOTE: アップグレードに成功した場合はtrueを返す
 
-        if (
-          err.message === 'KeyError: \'trans_id\'' ||  // NOTE: 新translations.txtの場合
-          /^(FileNotFoundError|IOError): \[Errno 2\] No such file or directory: '.+'$/.test(err.message) // NOTE: translations.txtが無い場合
-        ) {
-          return res(false)
-        } else
-          return rej(err)
-      })
+          // NOTE: 既に新形式の場合やファイルが存在しない場合など、アップグレードできない場合はfalseを返す。それ以外はリジェクト
+          return err.message === "KeyError: 'trans_id'" || // NOTE: 新translations.txtの場合
+            /^(FileNotFoundError|IOError): \[Errno 2\] No such file or directory: '.+'$/.test(
+              err.message,
+            ) // NOTE: translations.txtが無い場合
+            ? res(false)
+            : rej(err)
+        },
+      )
     })
   }
 }

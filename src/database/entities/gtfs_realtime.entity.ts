@@ -1,12 +1,21 @@
 import * as moment from 'moment'
-import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm'
 
 import { Remote } from './remote.entity'
 
 export enum FeedType {
-  TRIP_UPDATE,
-  VEHICLE_POSITION,
-  ALERT
+  TRIP_UPDATE = 1,
+  VEHICLE_POSITION = 2,
+  ALERT = 3,
 }
 
 // export interface FeedType {
@@ -22,11 +31,12 @@ export enum FeedType {
 // }
 
 @Entity()
+@Unique(['remote', 'feedType'])
 export class GtfsRealtime extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ gtfsRealtimes }) => gtfsRealtimes,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -37,8 +47,16 @@ export class GtfsRealtime extends BaseEntity {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   readonly createdAt: moment.Moment
 
@@ -46,8 +64,16 @@ export class GtfsRealtime extends BaseEntity {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   readonly updatedAt: moment.Moment
 
@@ -67,8 +93,16 @@ export class GtfsRealtime extends BaseEntity {
     nullable: false,
     transformer: {
       from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) => (moment.isMoment(v) ? new Date(v.clone().utc().format('YYYY-MM-DD HH:mm:ss')) : v)
-    }
+      to: (v: moment.Moment) =>
+        moment.isMoment(v)
+          ? new Date(
+              v
+                .clone()
+                .utc()
+                .format('YYYY-MM-DD HH:mm:ss'),
+            )
+          : v,
+    },
   })
   lastAcquisitionDate: moment.Moment
 }

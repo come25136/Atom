@@ -1,5 +1,12 @@
 import * as GTFS from '@come25136/gtfs'
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm'
 
 import { FareAttribute } from './fare_attribute.entity'
 import { Remote } from './remote.entity'
@@ -7,11 +14,12 @@ import { Route } from './route.entity'
 import { Stop } from './stop.entity'
 
 @Entity()
+@Unique(['remote', 'id', 'routeId', 'originId', 'destinationId', 'containId'])
 export class FareRule extends BaseEntity {
   @ManyToOne(
     () => Remote,
     ({ fareRules }) => fareRules,
-    { onDelete: 'CASCADE' }
+    { onDelete: 'CASCADE' },
   )
   remote: Remote
 
@@ -23,43 +31,43 @@ export class FareRule extends BaseEntity {
 
   @ManyToOne(
     () => FareAttribute,
-    ({ fareRules }) => fareRules
+    ({ fareRules }) => fareRules,
   )
   fareAttribute: FareAttribute
 
-  @Column('varchar', { nullable: true, default: null })
+  @Column('varchar', { length: 126, nullable: true, default: null })
   routeId: string | null = null
 
   @ManyToOne(
     () => Route,
-    ({ fareRules }) => fareRules
+    ({ fareRules }) => fareRules,
   )
   route: Route
 
-  @Column('varchar', { nullable: true, default: null })
+  @Column('varchar', { length: 126, nullable: true, default: null })
   originId: string | null = null
 
   @ManyToOne(
     () => Stop,
-    ({ origins }) => origins
+    ({ origins }) => origins,
   )
   origin: Stop
 
-  @Column('varchar', { nullable: true, default: null })
+  @Column('varchar', { length: 126, nullable: true, default: null })
   destinationId: string | null = null
 
   @ManyToOne(
     () => Stop,
-    ({ destinations }) => destinations
+    ({ destinations }) => destinations,
   )
   destination: Stop
 
-  @Column('varchar', { nullable: true, default: null })
+  @Column('varchar', { length: 126, nullable: true, default: null })
   containId: string | null = null
 
   @ManyToOne(
     () => Stop,
-    ({ contains }) => contains
+    ({ contains }) => contains,
   )
   contain: Stop
 }
