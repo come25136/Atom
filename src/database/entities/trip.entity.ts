@@ -1,4 +1,5 @@
 import * as GTFS from '@come25136/gtfs'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -10,7 +11,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
+import { Attribution } from './attribution.entity'
 
 import { Calendar } from './calendar.entity'
 import { CalendarDate } from './calendar_date.entity'
@@ -33,6 +36,13 @@ export class Trip extends BaseEntity {
 
   @PrimaryGeneratedColumn()
   readonly uid: number
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('varchar')
   routeId: GTFS.Trip['routeId']
@@ -90,17 +100,23 @@ export class Trip extends BaseEntity {
   )
   calendar: Calendar
 
-  @ManyToOne(
+  @ManyToMany(
     () => CalendarDate,
     ({ trips }) => trips,
   )
-  calendarDates: CalendarDate
+  calendarDates: CalendarDate[]
 
   @OneToMany(
     () => Frequency,
     ({ trip }) => trip,
   )
   frequencies: Frequency[]
+
+  @ManyToMany(
+    () => Attribution,
+    ({ trip }) => trip,
+  )
+  attributions: Attribution[]
 
   get public(): GTFS.Trip {
     return {

@@ -7,8 +7,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
-import { ISO4217 } from 'src/util'
+import { ISO4217, momentToDB } from 'src/util'
 
 import { Agency } from './agency.entity'
 import { FareRule } from './fare_rule.entity'
@@ -29,6 +30,13 @@ export class FareAttribute extends BaseEntity {
 
   @Column('varchar')
   id: GTFS.FareAttribute['fareId']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column({
     type: 'enum',

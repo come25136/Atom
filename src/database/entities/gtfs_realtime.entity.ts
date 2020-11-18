@@ -1,4 +1,5 @@
 import * as moment from 'moment'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -18,18 +19,6 @@ export enum FeedType {
   ALERT = 3,
 }
 
-// export interface FeedType {
-//   TRIP_UPDATE: 'TripUpdate',
-//   VEHICLE_POSITION: "VehiclePosition",
-//   ALERT: "Alert"
-// }
-
-// export const FeedType: FeedType = {
-//   TRIP_UPDATE: 'TripUpdate',
-//   VEHICLE_POSITION: "VehiclePosition",
-//   ALERT: "Alert"
-// }
-
 @Entity()
 @Unique(['remote', 'feedType'])
 export class GtfsRealtime extends BaseEntity {
@@ -45,37 +34,16 @@ export class GtfsRealtime extends BaseEntity {
 
   @CreateDateColumn({
     nullable: false,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
   })
   readonly createdAt: moment.Moment
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
-  readonly updatedAt: moment.Moment
+  updatedAt: moment.Moment
 
   @Column({
     type: 'enum',
@@ -91,18 +59,7 @@ export class GtfsRealtime extends BaseEntity {
 
   @Column('datetime', {
     nullable: false,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
   })
   lastAcquisitionDate: moment.Moment
 }

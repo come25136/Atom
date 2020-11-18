@@ -27,6 +27,7 @@ import { TransferModule } from './transfer/transfer.module'
 import { TranslationModule } from './translation/translation.module'
 import { TripModule } from './trip/trip.module'
 import { TripService } from './trip/trip.service'
+import { AttributionModule } from './attribution/attribution.module'
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { TripService } from './trip/trip.service'
     GtfsStaticModule,
     GtfsRealtimeModule,
     GtfsArchiveModule,
+    AttributionModule,
   ],
   controllers: [],
   providers: [
@@ -73,4 +75,4 @@ import { TripService } from './trip/trip.service'
     StopTimeService,
   ],
 })
-export class AppModule {}
+export class AppModule { }

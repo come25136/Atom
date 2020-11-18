@@ -8,7 +8,7 @@ import { TripRepository } from 'src/database/entities/trip.repository'
 
 @Injectable()
 export class TripService {
-  constructor(private tripRepository: TripRepository) {}
+  constructor(private tripRepository: TripRepository) { }
 
   create(remoteUid: Remote['uid'], data: GTFS.Trip): Trip {
     const tripEntity = this.tripRepository.create({ id: data.id })
@@ -26,11 +26,23 @@ export class TripService {
   }
 
   @Transactional()
+  async getUidOnly(remoteUid: Remote['uid'], id: Trip['id']) {
+    const shapes = await this.tripRepository.findOneByRemoteUidAndId(remoteUid, id, {
+      select: ['uid']
+    })
+
+    return shapes
+  }
+
+  @Transactional()
   async save(entities: Trip[], updateEntity = false) {
     return this.tripRepository
       .createQueryBuilder()
       .insert()
-      .orUpdate({ overwrite: this.tripRepository.getColumns })
+      .orUpdate({
+        conflict_target: this.tripRepository.getColumns,
+        overwrite: [...this.tripRepository.getColumns, 'updatedAt'],
+      })
       .values(entities)
       .updateEntity(updateEntity)
       .execute()

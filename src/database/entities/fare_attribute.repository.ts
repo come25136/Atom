@@ -5,6 +5,22 @@ import { Remote } from './remote.entity'
 
 @EntityRepository(FareAttribute)
 export class FareAttributeRepository extends BaseRepository<FareAttribute> {
+  async findByAgencyId(
+    remoteUid: Remote['uid'],
+    agencyId: FareAttribute['agencyId'],
+    other?: FindOneOptions<FareAttribute>,
+  ): Promise<FareAttribute[]> {
+    return this.find({
+      ...other,
+      where: {
+        agencyId: agencyId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
   async findOneByRemoteUidAndIdAndCurrencyType(
     remoteUid: Remote['uid'],
     id: FareAttribute['id'],

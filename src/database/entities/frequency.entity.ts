@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -7,6 +8,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { Remote } from './remote.entity'
@@ -25,6 +27,13 @@ export class Frequency extends BaseEntity {
   @PrimaryGeneratedColumn()
   readonly uid: number
 
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
+
   @Column('varchar', { nullable: true, default: null })
   tripId: string | null = null
 
@@ -36,35 +45,13 @@ export class Frequency extends BaseEntity {
 
   @Column('date', {
     nullable: true,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
   })
   startTime: GTFS.Frequency['time']['start'] = null
 
   @Column('date', {
     nullable: true,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
   })
   endTime: GTFS.Frequency['time']['end'] = null
 

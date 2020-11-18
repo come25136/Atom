@@ -21,22 +21,6 @@ export class CalendarRepository extends BaseRepository<Calendar> {
     )
   }
 
-  async findOneByRemoteUidAndServiceId(
-    remoteUid: Remote['uid'],
-    serviceId: Calendar['serviceId'],
-    other?: FindOneOptions<Calendar>,
-  ): Promise<Calendar> {
-    return this.findOne({
-      ...other,
-      where: {
-        serviceId,
-        remote: {
-          uid: remoteUid,
-        },
-      },
-    })
-  }
-
   async findByRemoteUidAndDate(
     remoteUid: Remote['uid'],
     date: moment.Moment,
@@ -50,6 +34,22 @@ export class CalendarRepository extends BaseRepository<Calendar> {
         startDate: LessThanOrEqual(dateStr),
         endDate: LessThanOrEqual(dateStr),
         [dayNames[date.day()]]: 1,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  async findOneByRemoteUidAndServiceId(
+    remoteUid: Remote['uid'],
+    serviceId: Calendar['serviceId'],
+    other?: FindOneOptions<Calendar>,
+  ): Promise<Calendar> {
+    return this.findOne({
+      ...other,
+      where: {
+        serviceId,
         remote: {
           uid: remoteUid,
         },

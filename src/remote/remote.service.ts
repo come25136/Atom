@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config'
 import * as GTFS from '@come25136/gtfs'
 import * as _ from 'lodash'
 import * as del from 'del'
@@ -37,10 +38,12 @@ import { TableName } from 'src/database/entities/translation.entity'
 import { TransferService } from 'src/transfer/transfer.service'
 import { TranslationService } from 'src/translation/translation.service'
 import { TripService } from 'src/trip/trip.service'
+import { AttributionService } from 'src/attribution/attribution.service'
 
 @Injectable()
 export class RemoteService {
   constructor(
+    private configService: ConfigService,
     private remoteRepository: RemoteRepository,
     private gtfsArchiveService: GtfsArchiveService,
     private gtfsStaticService: GtfsStaticService,
@@ -61,13 +64,36 @@ export class RemoteService {
     private levelService: LevelService,
     private feedInfoService: FeedInfoService,
     private translationService: TranslationService,
-  ) {}
+    private attributionService: AttributionService,
+  ) { }
+
+  // NOTE: 依存すればするほど数字を大きくする
+  static readonly importProcessingOrder = {
+    'agency.txt': 0,
+    'stops.txt': 1, // NOTE: levelsに依存
+    'routes.txt': 1, // NOTE: agencyに依存
+    'trips.txt': 2, // NOTE: route, calendar(_dates), shapesに依存
+    'stop_times.txt': 3, // NOTE: trips, stopsに依存
+    'calendar.txt': 0,
+    'calendar_dates.txt': 0,
+    'fare_attributes.txt': 1, // NOTE: agencyに依存
+    'fare_rules.txt': 2, // NOTE: fare_attributes, routes, stopsに依存
+    'shapes.txt': 0,
+    'frequencies.txt': 3, // NOTE: tripsに依存
+    'transfers.txt': 1, // NOTE: stopsに依存
+    'pathways.txt': 1, // NOTE: stopsに依存
+    'levels.txt': 0,
+    'feed_info.txt': 0,
+    'translations.txt': 0, // NOTE: 変に紐付けるより後で全検索する方が綺麗
+    'attributions.txt': 3, // NOTE: agency, routes, tripsに依存
+  } as const
 
   // bulk insert用
   private bulkBuffer: { [k: string]: string }[] = []
 
+  // NOTE: 呼び出し元である程度インポート順を制御する
   @Transactional()
-  async bulkInsert(
+  async bulkImport(
     remoteEntity: Remote,
     fileName: string,
     rowData?: { [k: string]: string },
@@ -75,7 +101,9 @@ export class RemoteService {
     if (typeof rowData === 'object') this.bulkBuffer.push(rowData)
 
     if (
-      (typeof rowData === 'object' && this.bulkBuffer.length < 2000) || // NOTE: bulk insert上限
+      (typeof rowData === 'object' &&
+        this.bulkBuffer.length <
+        this.configService.get<number>('database.insert.buffer', 2000)) || // NOTE: bulk insert上限
       (typeof rowData === undefined && this.bulkBuffer.length === 0) // NOTE: 要らないかもしれない
     )
       return
@@ -83,7 +111,7 @@ export class RemoteService {
     switch (fileName) {
       case 'agency.txt':
         await this.agencyService.save(
-          this.bulkBuffer.map(row => {
+          await Promise.all(this.bulkBuffer.map(async row => {
             const e = this.agencyService.create(remoteEntity.uid, {
               id: row.agency_id || null,
               name: row.agency_name,
@@ -95,14 +123,19 @@ export class RemoteService {
               email: row.agency_email || null,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
+            e.routes = await this.routeService.getUidsOnly(remoteEntity.uid, row.agency_id)
+            e.fareAttributes = await this.fareAttributeService.getUidsOnly(remoteEntity.uid, row.agency_id)
+            e.attributions = await this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(remoteEntity.uid, row.agency_id)
+
             return e
-          }),
+          })),
         )
         break
 
       case 'stops.txt':
         await this.stopService.save(
-          this.bulkBuffer.map(row => {
+          await Promise.all(this.bulkBuffer.map(async row => {
             const locationType = Number(row.location_type || 0)
             const wheelchairBoarding = Number(row.wheelchair_boarding || 0)
 
@@ -138,14 +171,24 @@ export class RemoteService {
               platformCode: row.platformCode,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
+            e.times = await this.stopTimeService.findByRmoteUidAndStopId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+            e.origins = await this.fareRuleService.findByRmoteUidAndOriginId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+            e.destinations = await this.fareRuleService.findByRmoteUidAndDestinationId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+            e.contains = await this.fareRuleService.findByRmoteUidAndContainId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+            e.fromTransfers = await this.transferService.findByRmoteUidAndFromStopId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+            e.toTransfers = await this.transferService.findByRmoteUidAndToStopId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+            e.fromPathways = await this.pathwayService.findByRmoteUidAndFromStopId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+            e.toPathways = await this.pathwayService.findByRmoteUidAndToStopId_GetUidsOnly(remoteEntity.uid, row.stop_id)
+
             return e
-          }),
+          })),
         )
         break
 
       case 'routes.txt':
         await this.routeService.save(
-          this.bulkBuffer.map(row => {
+          await Promise.all(this.bulkBuffer.map(async row => {
             const shortName = row.route_short_name || null
             const longName = row.route_long_name || null
             const type = Number(row.route_type)
@@ -176,14 +219,18 @@ export class RemoteService {
               sortOrder: Number(row.route_sort_order || 0),
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
+            e.fareRules = await this.fareRuleService.findByRmoteUidAndRouteId_GetUidsOnly(remoteEntity.uid, row.route_id)
+            e.attributions = await this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(remoteEntity.uid, row.route_id)
+
             return e
-          }),
+          })),
         )
         break
 
       case 'trips.txt':
         await this.tripService.save(
-          this.bulkBuffer.map(row => {
+          await Promise.all(this.bulkBuffer.map(async row => {
             const directionId = Number(row.direction_id)
             const wheelchairSccessible = Number(row.wheelchair_accessible)
             const bikesSllowed = Number(row.bikes_allowed)
@@ -233,14 +280,19 @@ export class RemoteService {
                 : (bikesSllowed as GTFS.Trip['bikesSllowed']),
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
+            e.stopTimes = await this.stopTimeService.findByRmoteUidAndStopId_GetUidsOnly(remoteEntity.uid, row.trip_id)
+            e.frequencies = await this.frequencyService.getUidsOnly(remoteEntity.uid, row.trip_id)
+            e.attributions = await this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(remoteEntity.uid, row.trip_id)
+
             return e
-          }),
+          })),
         )
         break
 
       case 'stop_times.txt':
         await this.stopTimeService.save(
-          this.bulkBuffer.map(row => {
+          await Promise.all(this.bulkBuffer.map(async row => {
             const pickupType = Number(row.pickup_type || 0)
             const dropOffType = Number(row.drop_off_type || 0)
             const timepoint = Number(row.timepoint || 1)
@@ -273,8 +325,10 @@ export class RemoteService {
               timepoint: timepoint as GTFS.StopTime['timepoint'],
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
+
             return e
-          }),
+          })),
         )
         break
 
@@ -335,6 +389,7 @@ export class RemoteService {
               },
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -356,6 +411,7 @@ export class RemoteService {
               exceptionType: exceptionType as GTFS.CalendarDate['exceptionType'],
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -399,6 +455,7 @@ export class RemoteService {
               transferDuration: transferDuration || null,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -415,6 +472,8 @@ export class RemoteService {
               containsId: row.contains_id || null,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
+
             return e
           }),
         )
@@ -456,6 +515,7 @@ export class RemoteService {
               distTraveled: Number.isNaN(distTraveled) ? null : distTraveled,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
 
             return e
           }),
@@ -487,6 +547,7 @@ export class RemoteService {
               exactTimes: exactTimes as GTFS.Frequency['exactTimes'],
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -517,24 +578,25 @@ export class RemoteService {
               remoteEntity.uid,
               transferType === 2
                 ? {
-                    stop: {
-                      from: { id: row.from_stop_id },
-                      to: { id: row.to_stop_id },
-                    },
-                    type: transferType,
-                    time: {
-                      min: minTransferTime,
-                    },
-                  }
-                : {
-                    stop: {
-                      from: { id: row.from_stop_id },
-                      to: { id: row.to_stop_id },
-                    },
-                    type: transferType as 0 | 1 | 3,
+                  stop: {
+                    from: { id: row.from_stop_id },
+                    to: { id: row.to_stop_id },
                   },
+                  type: transferType,
+                  time: {
+                    min: minTransferTime,
+                  },
+                }
+                : {
+                  stop: {
+                    from: { id: row.from_stop_id },
+                    to: { id: row.to_stop_id },
+                  },
+                  type: transferType as 0 | 1 | 3,
+                },
             )
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -592,6 +654,7 @@ export class RemoteService {
               reversedSignpostedAs: row.reversed_signposted_as || null,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -606,6 +669,7 @@ export class RemoteService {
               name: row.level_name || null,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -640,6 +704,7 @@ export class RemoteService {
                 name: row.feed_publisher_name,
                 url: row.feed_publisher_url,
               },
+              defaultLang: row.default_lang || null,
               lang: row.feed_lang,
               date: {
                 start: startDate,
@@ -652,6 +717,7 @@ export class RemoteService {
               },
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -691,6 +757,55 @@ export class RemoteService {
               fieldValue: row.field_value || null,
             })
             e.remote = remoteEntity
+            e.updatedAt = moment()
+            return e
+          }),
+        )
+        break
+
+      case 'attributions.txt':
+        await this.attributionService.save(
+          this.bulkBuffer.map(row => {
+            const isProducer = Number(row.is_producer)
+            const isOperator = Number(row.is_operator)
+            const isAuthority = Number(row.is_authority)
+
+            if ([0, 1].includes(isProducer) === false)
+              throw new BadRequestException(
+                'The format of is_producer is incorrect.',
+              )
+            if ([0, 1].includes(isOperator) === false)
+              throw new BadRequestException(
+                'The format of is_operator is incorrect.',
+              )
+            if ([0, 1].includes(isAuthority) === false)
+              throw new BadRequestException(
+                'The format of is_authority is incorrect.',
+              )
+
+            const e = this.attributionService.create(remoteEntity.uid, {
+              id: row.attribution_id || null,
+              url: row.attribution_url || null,
+              email: row.attribution_email || null,
+              phone: row.attribution_phone || null,
+              agency: {
+                id: row.agency_id || null,
+              },
+              route: {
+                id: row.route_id || null,
+              },
+              trip: {
+                id: row.trip_id || null,
+              },
+              organization: {
+                name: row.organization_name,
+              },
+              isProducer: isProducer as GTFS.Attribution['isProducer'],
+              isOperator: isOperator as GTFS.Attribution['isOperator'],
+              isAuthority: isAuthority as GTFS.Attribution['isAuthority'],
+            })
+            e.remote = remoteEntity
+            e.updatedAt = moment()
             return e
           }),
         )
@@ -747,13 +862,13 @@ export class RemoteService {
         (prev, [feedType, url]) =>
           url
             ? [
-                ...prev,
-                this.gtfsRTService.createOrUpdate(
-                  remoteEntity.uid,
-                  feedType,
-                  url,
-                ),
-              ]
+              ...prev,
+              this.gtfsRTService.createOrUpdate(
+                remoteEntity.uid,
+                feedType,
+                url,
+              ),
+            ]
             : prev,
         [],
       ),
@@ -762,7 +877,12 @@ export class RemoteService {
     // NOTE: Remoteのuidが欲しいので一旦save
     remoteEntity = await this.remoteRepository.save(remoteEntity)
 
-    for (const fN of archiveData.entry.fileNames as string[]) {
+    // 親に依存しているものを先にinsertする(一々findOneやってたらめちゃ遅い)
+    for (const fN of [...(archiveData.entry.fileNames as string[])].sort(
+      (a, b) =>
+        RemoteService.importProcessingOrder[b] -
+        RemoteService.importProcessingOrder[a]        ,
+    )) {
       console.log({ fN })
       await new Promise(async (res, rej) => {
         try {
@@ -772,8 +892,8 @@ export class RemoteService {
           )
           console.time(`${data.id} ${fN}`)
           for await (const row of rows)
-            await this.bulkInsert(remoteEntity, fN, row)
-          await this.bulkInsert(remoteEntity, fN)
+            await this.bulkImport(remoteEntity, fN, row)
+          await this.bulkImport(remoteEntity, fN)
           console.timeEnd(`${data.id} ${fN}`)
           res()
         } catch (e) {

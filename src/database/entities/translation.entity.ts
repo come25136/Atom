@@ -4,10 +4,12 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
 import { StopTime } from '@come25136/gtfs'
 
 import { Remote } from './remote.entity'
+import { momentToDB } from 'src/util'
 
 export enum TableName {
   Agency = 1,
@@ -38,6 +40,13 @@ export class Translation {
 
   @PrimaryGeneratedColumn()
   readonly uid: number
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column({
     type: 'enum',

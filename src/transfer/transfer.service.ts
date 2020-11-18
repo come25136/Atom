@@ -8,7 +8,7 @@ import { TransferRepository } from 'src/database/entities/transfer.repository'
 
 @Injectable()
 export class TransferService {
-  constructor(private transferRepository: TransferRepository) {}
+  constructor(private transferRepository: TransferRepository) { }
 
   create(remoteUid: Remote['uid'], data: GTFS.Transfer): Transfer {
     const transferEntity = this.transferRepository.create({
@@ -26,9 +26,39 @@ export class TransferService {
     return this.transferRepository
       .createQueryBuilder()
       .insert()
-      .orUpdate({ overwrite: this.transferRepository.getColumns })
+      .orUpdate({
+        conflict_target: this.transferRepository.getColumns,
+        overwrite: [...this.transferRepository.getColumns, 'updatedAt'],
+      })
       .values(entities)
       .updateEntity(updateEntity)
       .execute()
+  }
+
+  @Transactional()
+  async findByRmoteUidAndFromStopId_GetUidsOnly(remoteUid: Remote['uid'], fromStopId: Transfer['fromStopId']) {
+    return this.transferRepository.find({
+      select: ['uid'],
+      where: {
+        fromStopId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  @Transactional()
+  async findByRmoteUidAndToStopId_GetUidsOnly(remoteUid: Remote['uid'], toStopId: Transfer['toStopId']) {
+    return this.transferRepository
+      .find({
+        select: ['uid'],
+        where: {
+          toStopId,
+          remote: {
+            uid: remoteUid,
+          },
+        },
+      })
   }
 }

@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -33,38 +34,16 @@ export class StopTime extends BaseEntity {
 
   @CreateDateColumn({
     nullable: false,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
   })
   readonly createdAt: moment.Moment
 
   @UpdateDateColumn({
     nullable: false,
+    transformer: momentToDB,
     onUpdate: 'CURRENT_TIMESTAMP',
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
   })
-  readonly updatedAt: moment.Moment
+  updatedAt: moment.Moment
 
   @Column('varchar')
   tripId: GTFS.StopTime['tripId']

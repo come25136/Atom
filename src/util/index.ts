@@ -1,3 +1,5 @@
+import * as moment from 'moment'
+
 // NOTE: MySQL側のenumがone indexなので...
 export enum ISO4217 {
   'AED' = 1,
@@ -179,4 +181,18 @@ export function convertStringFullWidthToHalfWidth<Char extends string | null>(
         .replace(/(\S)(?!\s)(\()/, '$1 $2')
         .replace(/(\))(?!\s)(\S)/, '$1 $2')
     : char
+}
+
+export const momentToDB = {
+  from: (v: moment.Moment | null) =>
+    v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss'),
+  to: (v: moment.Moment | Date) =>
+    moment.isMoment(v)
+      ? new Date(
+          v
+            .clone()
+            .utc()
+            .format('YYYY-MM-DD HH:mm:ss'),
+        )
+      : v,
 }

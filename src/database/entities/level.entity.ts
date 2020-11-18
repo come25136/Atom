@@ -1,4 +1,5 @@
 import * as GTFS from '@come25136/gtfs'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -7,6 +8,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { Remote } from './remote.entity'
@@ -27,6 +29,13 @@ export class Level extends BaseEntity {
 
   @Column('varchar')
   id: GTFS.Level['id']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('int')
   index: GTFS.Level['index']

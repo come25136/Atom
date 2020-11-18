@@ -5,6 +5,22 @@ import { Shape } from './shape.entity'
 
 @EntityRepository(Shape)
 export class ShapeRepository extends BaseRepository<Shape> {
+  async findByRemoteUidAndId(
+    remoteUid: Remote['uid'],
+    id: Shape['id'],
+    other?: FindOneOptions<Shape>,
+  ): Promise<Shape[]> {
+    return this.find({
+      ...other,
+      where: {
+        id,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
   async findOneByRemoteUidAndIdAndSequence(
     remoteUid: Remote['uid'],
     id: Shape['id'],

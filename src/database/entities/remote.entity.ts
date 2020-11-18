@@ -28,6 +28,7 @@ import { StopTime } from './stop_time.entity'
 import { Transfer } from './transfer.entity'
 import { Translation } from './translation.entity'
 import { Trip } from './trip.entity'
+import { momentToDB } from 'src/util'
 
 @Entity()
 export class Remote {
@@ -40,37 +41,16 @@ export class Remote {
 
   @CreateDateColumn({
     nullable: false,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
   })
   readonly createdAt: moment.Moment
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: {
-      from: v => (v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
-          ? new Date(
-              v
-                .clone()
-                .utc()
-                .format('YYYY-MM-DD HH:mm:ss'),
-            )
-          : v,
-    },
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
-  readonly updatedAt: moment.Moment
+  updatedAt: moment.Moment
 
   @Column('text')
   displayName: string

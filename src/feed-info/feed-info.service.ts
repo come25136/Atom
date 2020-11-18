@@ -30,7 +30,10 @@ export class FeedInfoService {
     return this.feedInfoRepository
       .createQueryBuilder()
       .insert()
-      .orUpdate({ overwrite: this.feedInfoRepository.getColumns })
+      .orUpdate({
+        conflict_target: this.feedInfoRepository.getColumns,
+        overwrite: [...this.feedInfoRepository.getColumns, 'updatedAt'],
+      })
       .values(entities)
       .updateEntity(updateEntity)
       .execute()

@@ -1,4 +1,5 @@
 import * as GTFS from '@come25136/gtfs'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -8,6 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
   getRepository,
 } from 'typeorm'
 
@@ -34,6 +36,13 @@ export class Stop extends BaseEntity {
 
   @Column('varchar')
   id: GTFS.Stop['id']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('varchar', { nullable: true, default: null })
   code: GTFS.Stop['code'] = null

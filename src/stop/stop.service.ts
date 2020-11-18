@@ -33,7 +33,10 @@ export class StopService {
     return this.stopRepository
       .createQueryBuilder()
       .insert()
-      .orUpdate({ overwrite: this.stopRepository.getColumns })
+      .orUpdate({
+        conflict_target: this.stopRepository.getColumns,
+        overwrite: [...this.stopRepository.getColumns, 'updatedAt'],
+      })
       .values(entities)
       .updateEntity(updateEntity)
       .execute()

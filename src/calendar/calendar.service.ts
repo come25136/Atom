@@ -1,20 +1,20 @@
 import * as GTFS from '@come25136/gtfs'
 import * as _ from 'lodash'
 import { Injectable } from '@nestjs/common'
+import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 import { Calendar } from 'src/database/entities/calendar.entity'
 import { CalendarDate } from 'src/database/entities/calendar_date.entity'
 import { CalendarDateRepository } from 'src/database/entities/calendar_date.repository'
 import { CalendarRepository } from 'src/database/entities/calendar.repository'
 import { Remote } from 'src/database/entities/remote.entity'
-import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class CalendarService {
   constructor(
     private calendarRepository: CalendarRepository,
     private calendarDateRepository: CalendarDateRepository,
-  ) {}
+  ) { }
 
   create(remoteUid: Remote['uid'], data: GTFS.Calendar): Calendar {
     const calendarEntity = this.calendarRepository.create({
@@ -34,11 +34,23 @@ export class CalendarService {
   }
 
   @Transactional()
+  async getUidOnly(remoteUid: Remote['uid'], serviceId: Calendar['serviceId']) {
+    const calendar = await this.calendarRepository.findOneByRemoteUidAndServiceId(remoteUid, serviceId, {
+      select: ['uid']
+    })
+
+    return calendar
+  }
+
+  @Transactional()
   async save(entities: Calendar[], updateEntity = false) {
     return this.calendarRepository
       .createQueryBuilder()
       .insert()
-      .orUpdate({ overwrite: this.calendarRepository.getColumns })
+      .orUpdate({
+        conflict_target: this.calendarRepository.getColumns,
+        overwrite: [...this.calendarRepository.getColumns, 'updatedAt'],
+      })
       .values(entities)
       .updateEntity(updateEntity)
       .execute()

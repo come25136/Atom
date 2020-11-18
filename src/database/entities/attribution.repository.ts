@@ -1,16 +1,16 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
 
+import { Attribution } from './attribution.entity'
 import { BaseRepository } from './base.repository'
 import { Remote } from './remote.entity'
-import { Route } from './route.entity'
 
-@EntityRepository(Route)
-export class RouteRepository extends BaseRepository<Route> {
+@EntityRepository(Attribution)
+export class AttributionRepository extends BaseRepository<Attribution> {
   async findByAgencyId(
     remoteUid: Remote['uid'],
-    agencyId: Route['agencyId'],
-    other?: FindOneOptions<Route>,
-  ): Promise<Route[]> {
+    agencyId: Attribution['agencyId'],
+    other?: FindOneOptions<Attribution>,
+  ): Promise<Attribution[]> {
     return this.find({
       ...other,
       where: {

@@ -42,6 +42,8 @@ import { TranslationModule } from 'src/translation/translation.module'
 import { TranslationService } from 'src/translation/translation.service'
 import { TripModule } from 'src/trip/trip.module'
 import { TripService } from 'src/trip/trip.service'
+import { AttributionModule } from 'src/attribution/attribution.module'
+import { AttributionService } from 'src/attribution/attribution.service'
 
 @Module({
   imports: [
@@ -64,6 +66,7 @@ import { TripService } from 'src/trip/trip.service'
     LevelModule,
     FeedInfoModule,
     TranslationModule,
+    AttributionModule,
   ],
   providers: [
     ConfigService,
@@ -87,6 +90,7 @@ import { TripService } from 'src/trip/trip.service'
     LevelService,
     FeedInfoService,
     TranslationService,
+    AttributionService,
   ],
   controllers: [RemoteController],
   exports: [TypeOrmModule],

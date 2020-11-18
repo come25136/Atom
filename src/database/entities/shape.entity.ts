@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
 import * as createHttpError from 'http-errors'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -8,6 +9,7 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { Remote } from './remote.entity'
@@ -28,6 +30,13 @@ export class Shape extends BaseEntity {
 
   @Column('varchar')
   id: GTFS.Shape['id']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('geometry', {
     transformer: {

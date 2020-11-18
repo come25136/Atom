@@ -1,12 +1,16 @@
 import * as GTFS from '@come25136/gtfs'
+import { momentToDB } from 'src/util'
 import {
   Column,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
+import { Attribution } from './attribution.entity'
 
 import { FareAttribute } from './fare_attribute.entity'
 import { Remote } from './remote.entity'
@@ -27,6 +31,13 @@ export class Agency {
 
   @Column('varchar', { nullable: true, default: null })
   id: GTFS.Agency['id']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('varchar')
   name: GTFS.Agency['name']
@@ -60,4 +71,10 @@ export class Agency {
     ({ agency }) => agency,
   )
   fareAttributes: FareAttribute[]
+
+  @ManyToMany(
+    () => Attribution,
+    ({ agency }) => agency,
+  )
+  attributions: Attribution[]
 }

@@ -1,11 +1,13 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { Remote } from './remote.entity'
@@ -22,6 +24,13 @@ export class FeedInfo extends BaseEntity {
   @PrimaryGeneratedColumn()
   readonly uid: number
 
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
+
   @Column('varchar')
   publisherName: GTFS.FeedInfo['publisher']['name']
 
@@ -34,22 +43,14 @@ export class FeedInfo extends BaseEntity {
   @Column('date', {
     nullable: true,
     default: null,
-    transformer: {
-      from: v => (v === null ? null : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment | string) =>
-        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
-    },
+    transformer: momentToDB,
   })
   startDate: GTFS.FeedInfo['date']['start'] = null
 
   @Column('date', {
     nullable: true,
     default: null,
-    transformer: {
-      from: v => (v === null ? null : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment | string) =>
-        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
-    },
+    transformer: momentToDB,
   })
   endDate: GTFS.FeedInfo['date']['end'] = null
 

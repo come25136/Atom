@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
 import * as moment from 'moment-timezone'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -8,6 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { Remote } from './remote.entity'
@@ -25,6 +27,13 @@ export class Calendar extends BaseEntity {
 
   @PrimaryGeneratedColumn()
   readonly uid: number
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('varchar')
   serviceId: GTFS.Trip['serviceId']
@@ -51,20 +60,12 @@ export class Calendar extends BaseEntity {
   sunday: GTFS.Calendar['days']['sun']
 
   @Column('date', {
-    transformer: {
-      from: v => (v === undefined ? undefined : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
-    },
+    transformer: momentToDB,
   })
   startDate: GTFS.Calendar['date']['start']
 
   @Column('date', {
-    transformer: {
-      from: v => (v === undefined ? undefined : moment(v, 'YYYY-MM-DD')),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v) ? new Date(v.format('YYYY-MM-DD HH:mm:ss')) : v,
-    },
+    transformer: momentToDB,
   })
   endDate: GTFS.Calendar['date']['end']
 

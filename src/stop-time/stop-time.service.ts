@@ -5,10 +5,11 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 import { Remote } from 'src/database/entities/remote.entity'
 import { StopTime } from 'src/database/entities/stop_time.entity'
 import { StopTimeRepository } from 'src/database/entities/stop_time.repository'
+import { Trip } from 'src/database/entities/trip.entity'
 
 @Injectable()
 export class StopTimeService {
-  constructor(private stopTimeRepository: StopTimeRepository) {}
+  constructor(private stopTimeRepository: StopTimeRepository) { }
 
   create(remoteUid: Remote['uid'], data: GTFS.StopTime): StopTime {
     const stopTimeEntity = this.stopTimeRepository.create({
@@ -33,9 +34,24 @@ export class StopTimeService {
     return this.stopTimeRepository
       .createQueryBuilder()
       .insert()
-      .orUpdate({ overwrite: this.stopTimeRepository.getColumns })
+      .orUpdate({
+        conflict_target: this.stopTimeRepository.getColumns,
+        overwrite: [...this.stopTimeRepository.getColumns, 'updatedAt'],
+      })
       .values(entities)
       .updateEntity(false)
       .execute()
+  }
+
+  @Transactional()
+  async findByRmoteUidAndStopId_GetUidsOnly(remoteUid: Remote['uid'], stopId: StopTime['stopId']) {
+    return this.stopTimeRepository.find({
+      where: {
+        stopId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
   }
 }

@@ -8,7 +8,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class FareRuleService {
-  constructor(private fareRuleRepository: FareRuleRepository) {}
+  constructor(private fareRuleRepository: FareRuleRepository) { }
 
   create(
     remoteUid: Remote['uid'],
@@ -28,9 +28,77 @@ export class FareRuleService {
     return this.fareRuleRepository
       .createQueryBuilder()
       .insert()
-      .orUpdate({ overwrite: this.fareRuleRepository.getColumns })
+      .orUpdate({
+        conflict_target: this.fareRuleRepository.getColumns,
+        overwrite: [...this.fareRuleRepository.getColumns, 'updatedAt'],
+      })
       .values(entities)
       .updateEntity(updateEntity)
       .execute()
+  }
+
+  @Transactional()
+  async findByRmoteUidAndRouteId_GetUidsOnly(remoteUid: Remote['uid'], routeId: FareRule['originId']) {
+    return this.fareRuleRepository.find({
+      select: ['uid'],
+      where: {
+        routeId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  @Transactional()
+  async findByRmoteUidAndTripId_GetUidsOnly(remoteUid: Remote['uid'], tripId: FareRule['originId']) {
+    return this.fareRuleRepository.find({
+      select: ['uid'],
+      where: {
+        tripId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  @Transactional()
+  async findByRmoteUidAndOriginId_GetUidsOnly(remoteUid: Remote['uid'], originId: FareRule['originId']) {
+    return this.fareRuleRepository.find({
+      select: ['uid'],
+      where: {
+        originId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  @Transactional()
+  async findByRmoteUidAndDestinationId_GetUidsOnly(remoteUid: Remote['uid'], destinationId: FareRule['destinationId']) {
+    return this.fareRuleRepository.find({
+      select: ['uid'],
+      where: {
+        destinationId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  @Transactional()
+  async findByRmoteUidAndContainId_GetUidsOnly(remoteUid: Remote['uid'], containId: FareRule['containId']) {
+    return this.fareRuleRepository.find({
+      select: ['uid'],
+      where: {
+        containId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
   }
 }

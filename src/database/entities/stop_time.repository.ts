@@ -11,10 +11,26 @@ export class StopTimeRepository extends BaseRepository<StopTime> {
     )
   }
 
-  async findOneByRemoteUidAndTripIdAndSequence(
+  async findByTripId(
     remoteUid: Remote['uid'],
     tripId: StopTime['tripId'],
-    sequence: StopTime['sequence'],
+    other?: FindOneOptions<StopTime>,
+  ): Promise<StopTime[]> {
+    return this.find({
+      ...other,
+      where: {
+        tripId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  async findOneByRemoteUidAndTripId(
+    remoteUid: Remote['uid'],
+    tripId: StopTime['tripId'],
+    sequence?: StopTime['sequence'],
     other?: FindOneOptions<StopTime>,
   ): Promise<StopTime> {
     return this.findOne({

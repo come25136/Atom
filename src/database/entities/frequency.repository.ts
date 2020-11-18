@@ -11,6 +11,22 @@ export class FrequencyRepository extends BaseRepository<Frequency> {
     )
   }
 
+  async findByTripId(
+    remoteUid: Remote['uid'],
+    tripId: Frequency['tripId'],
+    other?: FindOneOptions<Frequency>,
+  ): Promise<Frequency[]> {
+    return this.find({
+      ...other,
+      where: {
+        tripId,
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
   async findOneByRemoteUidAndTripIdAndStartTimeAndEndTime(
     remoteUid: Remote['uid'],
     tripId: Frequency['tripId'],

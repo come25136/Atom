@@ -1,4 +1,5 @@
 import * as GTFS from '@come25136/gtfs'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -6,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { FareAttribute } from './fare_attribute.entity'
@@ -28,6 +30,13 @@ export class FareRule extends BaseEntity {
 
   @Column('varchar')
   id: GTFS.FareRule['fareId']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @ManyToOne(
     () => FareAttribute,

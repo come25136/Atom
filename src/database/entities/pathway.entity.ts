@@ -1,4 +1,5 @@
 import * as GTFS from '@come25136/gtfs'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -6,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { Remote } from './remote.entity'
@@ -26,6 +28,13 @@ export class Pathway extends BaseEntity {
 
   @Column('varchar')
   id: GTFS.Pathway['id']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('varchar')
   fromStopId: GTFS.Pathway['from']['stop']['id']

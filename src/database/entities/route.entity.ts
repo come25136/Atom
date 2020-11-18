@@ -1,15 +1,19 @@
 import * as GTFS from '@come25136/gtfs'
+import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { Agency } from './agency.entity'
+import { Attribution } from './attribution.entity'
 import { FareRule } from './fare_rule.entity'
 import { Remote } from './remote.entity'
 import { Trip } from './trip.entity'
@@ -29,6 +33,13 @@ export class Route extends BaseEntity {
 
   @Column('varchar')
   id: GTFS.Route['id']
+
+  @UpdateDateColumn({
+    nullable: false,
+    transformer: momentToDB,
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: moment.Moment
 
   @Column('varchar', { nullable: true, default: null })
   agencyId: string | null = null
@@ -75,6 +86,12 @@ export class Route extends BaseEntity {
     ({ route }) => route,
   )
   fareRules: FareRule[]
+
+  @ManyToMany(
+    () => Attribution,
+    ({ route }) => route,
+  )
+  attributions: Attribution[]
 
   get public() {
     return {
