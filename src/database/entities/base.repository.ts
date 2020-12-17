@@ -5,7 +5,7 @@ import { Remote } from './remote.entity'
 export class BaseRepository<
   Entity extends ObjectLiteral
 > extends ClsBaseRepository<Entity> {
-  get getColumns(): string[] {
+  get getUniqueColumns(): string[] {
     const uniques = this.metadata.ownIndices
       .filter(u => u.isUnique)
       .map(c => c.columns.map(c2 => c2.databaseName))

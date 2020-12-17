@@ -99,49 +99,57 @@ export class Stop extends BaseEntity {
   @OneToMany(
     () => FareRule,
     ({ origin }) => origin,
+    {
+      cascade: true,
+    },
   )
   origins: FareRule[]
 
   @OneToMany(
     () => FareRule,
     ({ destination }) => destination,
+    { cascade: true },
   )
   destinations: FareRule[]
 
   @OneToMany(
     () => FareRule,
-    ({ contain: contains }) => contains,
+    ({ contain }) => contain,
+    { cascade: true },
   )
   contains: FareRule[]
 
   @ManyToOne(
     () => Level,
     ({ stops }) => stops,
-    { cascade: true },
   )
   level: Level
 
   @OneToMany(
     () => Transfer,
     ({ fromStop }) => fromStop,
+    { cascade: true },
   )
   fromTransfers: Transfer[]
 
   @OneToMany(
     () => Transfer,
     ({ toStop }) => toStop,
+    { cascade: true },
   )
   toTransfers: Transfer[]
 
   @OneToMany(
     () => Pathway,
     ({ fromStop }) => fromStop,
+    { cascade: true },
   )
   fromPathways: Pathway[]
 
   @OneToMany(
     () => Pathway,
     ({ toStop }) => toStop,
+    { cascade: true },
   )
   toPathways: Pathway[]
 

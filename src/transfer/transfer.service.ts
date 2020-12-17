@@ -8,7 +8,7 @@ import { TransferRepository } from 'src/database/entities/transfer.repository'
 
 @Injectable()
 export class TransferService {
-  constructor(private transferRepository: TransferRepository) { }
+  constructor(private transferRepository: TransferRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Transfer): Transfer {
     const transferEntity = this.transferRepository.create({
@@ -27,8 +27,8 @@ export class TransferService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.transferRepository.getColumns,
-        overwrite: [...this.transferRepository.getColumns, 'updatedAt'],
+        conflict_target: this.transferRepository.getUniqueColumns,
+        overwrite: [...this.transferRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)
@@ -36,7 +36,10 @@ export class TransferService {
   }
 
   @Transactional()
-  async findByRmoteUidAndFromStopId_GetUidsOnly(remoteUid: Remote['uid'], fromStopId: Transfer['fromStopId']) {
+  async findByRmoteUidAndFromStopId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    fromStopId: Transfer['fromStopId'],
+  ) {
     return this.transferRepository.find({
       select: ['uid'],
       where: {
@@ -49,16 +52,18 @@ export class TransferService {
   }
 
   @Transactional()
-  async findByRmoteUidAndToStopId_GetUidsOnly(remoteUid: Remote['uid'], toStopId: Transfer['toStopId']) {
-    return this.transferRepository
-      .find({
-        select: ['uid'],
-        where: {
-          toStopId,
-          remote: {
-            uid: remoteUid,
-          },
+  async findByRmoteUidAndToStopId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    toStopId: Transfer['toStopId'],
+  ) {
+    return this.transferRepository.find({
+      select: ['uid'],
+      where: {
+        toStopId,
+        remote: {
+          uid: remoteUid,
         },
-      })
+      },
+    })
   }
 }

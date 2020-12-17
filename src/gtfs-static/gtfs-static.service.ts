@@ -1,6 +1,5 @@
 import * as moment from 'moment'
-import { Injectable } from '@nestjs/common'
-import axios from 'axios'
+import { HttpService, Injectable } from '@nestjs/common'
 import { createHash } from 'crypto'
 
 import { GtfsStatic } from 'src/database/entities/gtfs_static.entity'
@@ -10,16 +9,21 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class GtfsStaticService {
-  constructor(private gtfsStaticRepository: GtfsStaticRepository) {}
+  constructor(
+    private gtfsStaticRepository: GtfsStaticRepository,
+    private httpService: HttpService,
+  ) {}
 
   @Transactional()
   async createOrUpdate(
     remoteUid: Remote['uid'],
     url: string,
   ): Promise<GtfsStatic> {
-    const { data: gtfsStaticBuffer } = await axios.get(url, {
-      responseType: 'arraybuffer',
-    })
+    const { data: gtfsStaticBuffer } = await this.httpService
+      .get(url, {
+        responseType: 'arraybuffer',
+      })
+      .toPromise()
     const gtfsStaticHash = createHash('sha256')
       .update(gtfsStaticBuffer)
       .digest('hex')

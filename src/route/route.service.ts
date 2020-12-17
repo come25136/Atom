@@ -7,7 +7,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class RouteService {
-  constructor(private routeRepository: RouteRepository) { }
+  constructor(private routeRepository: RouteRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Route): Route {
     const agencyEntity = this.routeRepository.create({ id: data.id })
@@ -26,9 +26,13 @@ export class RouteService {
 
   @Transactional()
   async getUidsOnly(remoteUid: Remote['uid'], agencyId: Route['agencyId']) {
-    const route = await this.routeRepository.findByAgencyId(remoteUid, agencyId, {
-      select: ['uid']
-    })
+    const route = await this.routeRepository.findByAgencyId(
+      remoteUid,
+      agencyId,
+      {
+        select: ['uid'],
+      },
+    )
 
     return route
   }
@@ -39,8 +43,8 @@ export class RouteService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.routeRepository.getColumns,
-        overwrite: [...this.routeRepository.getColumns, 'updatedAt'],
+        conflict_target: this.routeRepository.getUniqueColumns,
+        overwrite: [...this.routeRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)

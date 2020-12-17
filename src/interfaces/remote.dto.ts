@@ -1,4 +1,5 @@
 import {
+  IsDefined,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -6,6 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 
 export class OptionalURL {
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
@@ -22,14 +24,17 @@ export class URL extends OptionalURL {
 
 export class GTFSRTs {
   @ValidateNested()
+  @Type(() => URL)
   @ApiProperty()
   trip_update: URL
 
   @ValidateNested()
+  @Type(() => URL)
   @ApiProperty()
   vehicle_position: URL
 
   @ValidateNested()
+  @Type(() => OptionalURL)
   @ApiProperty()
   alert: OptionalURL
 }
@@ -50,22 +55,32 @@ export class License extends OptionalURL {
 
 export class RegistrationRemoteDto {
   @ValidateNested()
+  @Type(() => Display)
+  @IsDefined()
   @ApiProperty()
   display: Display
 
   @ValidateNested()
+  @Type(() => URL)
+  @IsDefined()
   @ApiProperty()
   portal: URL
 
   @ValidateNested()
+  @Type(() => License)
+  @IsDefined()
   @ApiProperty()
   license: License
 
   @ValidateNested()
+  @Type(() => URL)
+  @IsDefined()
   @ApiProperty()
   static: URL
 
   @ValidateNested()
+  @Type(() => GTFSRTs)
+  @IsDefined()
   @ApiProperty()
   realtime: GTFSRTs
 }

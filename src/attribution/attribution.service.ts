@@ -8,7 +8,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class AttributionService {
-  constructor(private attributionRepository: AttributionRepository) { }
+  constructor(private attributionRepository: AttributionRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Attribution): Attribution {
     const atributionEntity = this.attributionRepository.create({
@@ -34,8 +34,11 @@ export class AttributionService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.attributionRepository.getColumns,
-        overwrite: [...this.attributionRepository.getColumns, 'updatedAt'],
+        conflict_target: this.attributionRepository.getUniqueColumns,
+        overwrite: [
+          ...this.attributionRepository.getUniqueColumns,
+          'updatedAt',
+        ],
       })
       .values(entities)
       .updateEntity(updateEntity)
@@ -43,7 +46,10 @@ export class AttributionService {
   }
 
   @Transactional()
-  async findByRmoteUidAndRouteId_GetUidsOnly(remoteUid: Remote['uid'], routeId: Attribution['routeId']) {
+  async findByRmoteUidAndRouteId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    routeId: Attribution['routeId'],
+  ) {
     return this.attributionRepository.find({
       where: {
         routeId,

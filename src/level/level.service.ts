@@ -7,7 +7,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class LevelService {
-  constructor(private levelRepository: LevelRepository) { }
+  constructor(private levelRepository: LevelRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Level): Level {
     const transferEntity = this.levelRepository.create({ id: data.id })
@@ -20,7 +20,7 @@ export class LevelService {
   @Transactional()
   async getUidOnly(id: Level['id']) {
     const level = await this.levelRepository.findOneById(id, {
-      select: ['uid']
+      select: ['uid'],
     })
 
     return level
@@ -32,8 +32,8 @@ export class LevelService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.levelRepository.getColumns,
-        overwrite: [...this.levelRepository.getColumns, 'updatedAt'],
+        conflict_target: this.levelRepository.getUniqueColumns,
+        overwrite: [...this.levelRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)

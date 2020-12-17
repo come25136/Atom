@@ -7,7 +7,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class ShapeService {
-  constructor(private shapeRepository: ShapeRepository) { }
+  constructor(private shapeRepository: ShapeRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Shape): Shape {
     const shapeEntity = this.shapeRepository.create({
@@ -22,9 +22,13 @@ export class ShapeService {
 
   @Transactional()
   async getUidsOnly(remoteUid: Remote['uid'], id: Shape['id']) {
-    const shapes = await this.shapeRepository.findByRemoteUidAndId(remoteUid, id, {
-      select: ['uid']
-    })
+    const shapes = await this.shapeRepository.findByRemoteUidAndId(
+      remoteUid,
+      id,
+      {
+        select: ['uid'],
+      },
+    )
 
     return shapes
   }
@@ -35,8 +39,8 @@ export class ShapeService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.shapeRepository.getColumns,
-        overwrite: [...this.shapeRepository.getColumns, 'updatedAt'],
+        conflict_target: this.shapeRepository.getUniqueColumns,
+        overwrite: [...this.shapeRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)

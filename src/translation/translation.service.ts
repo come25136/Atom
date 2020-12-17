@@ -33,8 +33,11 @@ export class TranslationService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.translationRepository.getColumns,
-        overwrite: [...this.translationRepository.getColumns, 'updatedAt'],
+        conflict_target: this.translationRepository.getUniqueColumns,
+        overwrite: [
+          ...this.translationRepository.getUniqueColumns,
+          'updatedAt',
+        ],
       })
       .values(entities)
       .updateEntity(updateEntity)

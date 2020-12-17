@@ -34,8 +34,8 @@ export class StopService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.stopRepository.getColumns,
-        overwrite: [...this.stopRepository.getColumns, 'updatedAt'],
+        conflict_target: this.stopRepository.getUniqueColumns,
+        overwrite: [...this.stopRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)

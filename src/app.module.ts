@@ -1,5 +1,5 @@
 import { ConfigModule } from '@nestjs/config'
-import { Module } from '@nestjs/common'
+import { HttpModule, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AgencyModule } from './agency/agency.module'
@@ -42,8 +42,9 @@ import { AttributionModule } from './attribution/attribution.module'
       charset: 'utf8', // NOTE: Specified key was too long; max key length is 3072 bytes. に引っかかるので仕方なく...
       autoLoadEntities: true,
       synchronize: false,
-      logging: false,
+      logging: true,
     }),
+    HttpModule,
     RemoteModule,
     AgencyModule,
     TranslationModule,

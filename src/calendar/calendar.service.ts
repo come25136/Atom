@@ -14,7 +14,7 @@ export class CalendarService {
   constructor(
     private calendarRepository: CalendarRepository,
     private calendarDateRepository: CalendarDateRepository,
-  ) { }
+  ) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Calendar): Calendar {
     const calendarEntity = this.calendarRepository.create({
@@ -35,9 +35,13 @@ export class CalendarService {
 
   @Transactional()
   async getUidOnly(remoteUid: Remote['uid'], serviceId: Calendar['serviceId']) {
-    const calendar = await this.calendarRepository.findOneByRemoteUidAndServiceId(remoteUid, serviceId, {
-      select: ['uid']
-    })
+    const calendar = await this.calendarRepository.findOneByRemoteUidAndServiceId(
+      remoteUid,
+      serviceId,
+      {
+        select: ['uid'],
+      },
+    )
 
     return calendar
   }
@@ -48,8 +52,8 @@ export class CalendarService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.calendarRepository.getColumns,
-        overwrite: [...this.calendarRepository.getColumns, 'updatedAt'],
+        conflict_target: this.calendarRepository.getUniqueColumns,
+        overwrite: [...this.calendarRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)

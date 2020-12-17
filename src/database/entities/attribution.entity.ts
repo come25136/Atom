@@ -40,7 +40,7 @@ export class Attribution {
   })
   updatedAt: moment.Moment
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true, default: null })
   agencyId: GTFS.Attribution['agency']['id']
 
   @ManyToMany(
@@ -49,7 +49,7 @@ export class Attribution {
   )
   agency: Agency[]
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true, default: null })
   routeId: GTFS.Attribution['route']['id']
 
   @ManyToMany(
@@ -58,7 +58,7 @@ export class Attribution {
   )
   route: Route[]
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true, default: null })
   tripId: GTFS.Attribution['trip']['id']
 
   @ManyToMany(
@@ -79,12 +79,12 @@ export class Attribution {
   @Column('int')
   isAuthority: GTFS.Attribution['isAuthority']
 
-  @Column('text')
+  @Column('text', { nullable: true, default: null })
   url: GTFS.Attribution['url']
 
-  @Column('text')
+  @Column('text', { nullable: true, default: null })
   email: GTFS.Attribution['email']
 
-  @Column('text')
+  @Column('text', { nullable: true, default: null })
   phone: GTFS.Attribution['phone']
 }

@@ -8,7 +8,7 @@ import { Remote } from 'src/database/entities/remote.entity'
 
 @Injectable()
 export class CalendarDateService {
-  constructor(private calendarDateRepository: CalendarDateRepository) { }
+  constructor(private calendarDateRepository: CalendarDateRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.CalendarDate): CalendarDate {
     const calendarDateEntity = this.calendarDateRepository.create({
@@ -21,10 +21,17 @@ export class CalendarDateService {
   }
 
   @Transactional()
-  async getUidsOnly(remoteUid: Remote['uid'], serviceId: CalendarDate['serviceId']) {
-    const calendarDates = await this.calendarDateRepository.findByRemoteUidAndServiceId(remoteUid, serviceId, {
-      select: ['uid']
-    })
+  async getUidsOnly(
+    remoteUid: Remote['uid'],
+    serviceId: CalendarDate['serviceId'],
+  ) {
+    const calendarDates = await this.calendarDateRepository.findByRemoteUidAndServiceId(
+      remoteUid,
+      serviceId,
+      {
+        select: ['uid'],
+      },
+    )
 
     return calendarDates
   }
@@ -35,8 +42,11 @@ export class CalendarDateService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.calendarDateRepository.getColumns,
-        overwrite: [...this.calendarDateRepository.getColumns, 'updatedAt'],
+        conflict_target: this.calendarDateRepository.getUniqueColumns,
+        overwrite: [
+          ...this.calendarDateRepository.getUniqueColumns,
+          'updatedAt',
+        ],
       })
       .values(entities)
       .updateEntity(updateEntity)

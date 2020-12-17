@@ -5,49 +5,25 @@ import * as path from 'path'
 import * as stripBomStream from 'strip-bom-stream'
 import * as yauzl from 'yauzl'
 import { ConfigService } from '@nestjs/config/dist/config.service'
-import { Injectable } from '@nestjs/common'
+import { HttpService, Injectable } from '@nestjs/common'
 import { PythonShell } from 'python-shell'
-import axios from 'axios'
 import { createHash } from 'crypto'
 
-enum GtfsFileNames {
-  Agency = 'agency.txt',
-  Stops = 'stops.txt',
-  Routes = 'routes.txt',
-  Trips = 'trips.txt',
-  StopTimes = 'stop_times.txt',
-  Calendar = 'calendar.txt',
-  CalendarDates = 'calendar_dates.txt',
-  FareAttributes = 'fare_attributes.txt',
-  FareRules = 'fare_rules.txt',
-  Shapes = 'shapes.txt',
-  Frequencies = 'frequencies.txt',
-  Transders = 'transfers.txt',
-  Pathways = 'pathways.txt',
-  Levels = 'levels.txt',
-  FeedInfo = 'feed_info.txt',
-  Translations = 'translations.txt',
-}
-
-const GTFS = {
-  FileNames: Object.values(GtfsFileNames),
-  RequiredFileNames: [
-    GtfsFileNames.Agency,
-    GtfsFileNames.Stops,
-    GtfsFileNames.Routes,
-    GtfsFileNames.Trips,
-    GtfsFileNames.StopTimes,
-  ],
-}
+import GTFS from '../interfaces/gtfs'
 
 @Injectable()
 export class GtfsArchiveService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private httpService: HttpService,
+  ) {}
 
   async download(url: string, unZipDirPath: string) {
-    const { data: zipBuffer } = await axios.get(url, {
-      responseType: 'arraybuffer',
-    })
+    const { data: zipBuffer } = await this.httpService
+      .get<Buffer>(url, {
+        responseType: 'arraybuffer',
+      })
+      .toPromise()
 
     const zipHash = createHash('sha256')
       .update(zipBuffer)

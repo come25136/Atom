@@ -8,7 +8,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class FrequencyService {
-  constructor(private frequencyRepository: FrequencyRepository) { }
+  constructor(private frequencyRepository: FrequencyRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Frequency): Frequency {
     const frequencyEntity = this.frequencyRepository.create({
@@ -28,8 +28,8 @@ export class FrequencyService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.frequencyRepository.getColumns,
-        overwrite: [...this.frequencyRepository.getColumns, 'updatedAt'],
+        conflict_target: this.frequencyRepository.getUniqueColumns,
+        overwrite: [...this.frequencyRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)
@@ -38,9 +38,13 @@ export class FrequencyService {
 
   @Transactional()
   async getUidsOnly(remoteUId: Remote['uid'], tripId: Frequency['tripId']) {
-    const frequency = await this.frequencyRepository.findByTripId(remoteUId, tripId, {
-      select: ['uid']
-    })
+    const frequency = await this.frequencyRepository.findByTripId(
+      remoteUId,
+      tripId,
+      {
+        select: ['uid'],
+      },
+    )
 
     return frequency
   }

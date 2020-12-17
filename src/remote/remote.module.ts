@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config'
-import { Module } from '@nestjs/common'
+import { HttpModule, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { AgencyModule } from 'src/agency/agency.module'
@@ -48,6 +48,7 @@ import { AttributionService } from 'src/attribution/attribution.service'
 @Module({
   imports: [
     TypeOrmModule.forFeature([RemoteRepository]),
+    HttpModule,
     GtfsStaticModule,
     GtfsRealtimeModule,
     AgencyModule,

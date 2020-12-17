@@ -13,7 +13,7 @@ export class AgencyService {
   constructor(
     private connection: Connection,
     private agencyRepository: AgencyRepository,
-  ) { }
+  ) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Agency): Agency {
     const agencyEntity = this.agencyRepository.create({ id: data.id })
@@ -34,8 +34,8 @@ export class AgencyService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.agencyRepository.getColumns,
-        overwrite: [...this.agencyRepository.getColumns, 'updatedAt'],
+        conflict_target: this.agencyRepository.getUniqueColumns,
+        overwrite: [...this.agencyRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)
@@ -44,9 +44,13 @@ export class AgencyService {
 
   @Transactional()
   async getUidOnly(remoteUId: Remote['uid'], id: Agency['id']) {
-    const agency = await this.agencyRepository.findOneByRemoteUidAndId(remoteUId, id, {
-      select: ['uid']
-    })
+    const agency = await this.agencyRepository.findOneByRemoteUidAndId(
+      remoteUId,
+      id,
+      {
+        select: ['uid'],
+      },
+    )
 
     return agency
   }

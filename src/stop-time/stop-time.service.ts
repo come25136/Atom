@@ -9,7 +9,7 @@ import { Trip } from 'src/database/entities/trip.entity'
 
 @Injectable()
 export class StopTimeService {
-  constructor(private stopTimeRepository: StopTimeRepository) { }
+  constructor(private stopTimeRepository: StopTimeRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.StopTime): StopTime {
     const stopTimeEntity = this.stopTimeRepository.create({
@@ -35,8 +35,8 @@ export class StopTimeService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.stopTimeRepository.getColumns,
-        overwrite: [...this.stopTimeRepository.getColumns, 'updatedAt'],
+        conflict_target: this.stopTimeRepository.getUniqueColumns,
+        overwrite: [...this.stopTimeRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(false)
@@ -44,7 +44,10 @@ export class StopTimeService {
   }
 
   @Transactional()
-  async findByRmoteUidAndStopId_GetUidsOnly(remoteUid: Remote['uid'], stopId: StopTime['stopId']) {
+  async findByRmoteUidAndStopId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    stopId: StopTime['stopId'],
+  ) {
     return this.stopTimeRepository.find({
       where: {
         stopId,
@@ -52,6 +55,12 @@ export class StopTimeService {
           uid: remoteUid,
         },
       },
+      take: 0,
     })
+  }
+
+  @Transactional()
+  async linkTrip(...args: Parameters<StopTimeRepository['linkTrip']>) {
+    return this.stopTimeRepository.linkTrip(...args)
   }
 }

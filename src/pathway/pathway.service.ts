@@ -7,7 +7,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class PathwayService {
-  constructor(private pathwayRepository: PathwayRepository) { }
+  constructor(private pathwayRepository: PathwayRepository) {}
 
   create(remoteUid: Remote['uid'], data: GTFS.Pathway): Pathway {
     const transferEntity = this.pathwayRepository.create({ id: data.id })
@@ -32,8 +32,8 @@ export class PathwayService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.pathwayRepository.getColumns,
-        overwrite: [...this.pathwayRepository.getColumns, 'updatedAt'],
+        conflict_target: this.pathwayRepository.getUniqueColumns,
+        overwrite: [...this.pathwayRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)
@@ -41,7 +41,10 @@ export class PathwayService {
   }
 
   @Transactional()
-  async findByRmoteUidAndFromStopId_GetUidsOnly(remoteUid: Remote['uid'], fromStopId: Pathway['fromStopId']) {
+  async findByRmoteUidAndFromStopId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    fromStopId: Pathway['fromStopId'],
+  ) {
     return this.pathwayRepository.find({
       select: ['uid'],
       where: {
@@ -54,16 +57,18 @@ export class PathwayService {
   }
 
   @Transactional()
-  async findByRmoteUidAndToStopId_GetUidsOnly(remoteUid: Remote['uid'], toStopId: Pathway['toStopId']) {
-    return this.pathwayRepository
-      .find({
-        select: ['uid'],
-        where: {
-          toStopId,
-          remote: {
-            uid: remoteUid,
-          },
+  async findByRmoteUidAndToStopId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    toStopId: Pathway['toStopId'],
+  ) {
+    return this.pathwayRepository.find({
+      select: ['uid'],
+      where: {
+        toStopId,
+        remote: {
+          uid: remoteUid,
         },
-      })
+      },
+    })
   }
 }

@@ -9,7 +9,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class FareAttributeService {
-  constructor(private fareAttributeRepository: FareAttributeRepository) { }
+  constructor(private fareAttributeRepository: FareAttributeRepository) {}
 
   create(
     remoteUid: Remote['uid'],
@@ -36,8 +36,11 @@ export class FareAttributeService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.fareAttributeRepository.getColumns,
-        overwrite: [...this.fareAttributeRepository.getColumns, 'updatedAt'],
+        conflict_target: this.fareAttributeRepository.getUniqueColumns,
+        overwrite: [
+          ...this.fareAttributeRepository.getUniqueColumns,
+          'updatedAt',
+        ],
       })
       .values(entities)
       .updateEntity(updateEntity)
@@ -45,10 +48,17 @@ export class FareAttributeService {
   }
 
   @Transactional()
-  async getUidsOnly(remoteUId: Remote['uid'], agencyId: FareAttribute['agencyId']) {
-    const agency = await this.fareAttributeRepository.findByAgencyId(remoteUId, agencyId, {
-      select: ['uid']
-    })
+  async getUidsOnly(
+    remoteUId: Remote['uid'],
+    agencyId: FareAttribute['agencyId'],
+  ) {
+    const agency = await this.fareAttributeRepository.findByAgencyId(
+      remoteUId,
+      agencyId,
+      {
+        select: ['uid'],
+      },
+    )
 
     return agency
   }

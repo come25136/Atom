@@ -4,11 +4,13 @@ import { Injectable } from '@nestjs/common'
 import { FareRule } from 'src/database/entities/fare_rule.entity'
 import { FareRuleRepository } from 'src/database/entities/fare_rule.repository'
 import { Remote } from 'src/database/entities/remote.entity'
+import { Stop } from 'src/database/entities/stop.entity'
+import { FindManyOptions } from 'typeorm'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
 export class FareRuleService {
-  constructor(private fareRuleRepository: FareRuleRepository) { }
+  constructor(private fareRuleRepository: FareRuleRepository) {}
 
   create(
     remoteUid: Remote['uid'],
@@ -29,8 +31,8 @@ export class FareRuleService {
       .createQueryBuilder()
       .insert()
       .orUpdate({
-        conflict_target: this.fareRuleRepository.getColumns,
-        overwrite: [...this.fareRuleRepository.getColumns, 'updatedAt'],
+        conflict_target: this.fareRuleRepository.getUniqueColumns,
+        overwrite: [...this.fareRuleRepository.getUniqueColumns, 'updatedAt'],
       })
       .values(entities)
       .updateEntity(updateEntity)
@@ -38,7 +40,10 @@ export class FareRuleService {
   }
 
   @Transactional()
-  async findByRmoteUidAndRouteId_GetUidsOnly(remoteUid: Remote['uid'], routeId: FareRule['originId']) {
+  async findByRmoteUidAndRouteId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    routeId: FareRule['routeId'],
+  ) {
     return this.fareRuleRepository.find({
       select: ['uid'],
       where: {
@@ -51,34 +56,73 @@ export class FareRuleService {
   }
 
   @Transactional()
-  async findByRmoteUidAndTripId_GetUidsOnly(remoteUid: Remote['uid'], tripId: FareRule['originId']) {
-    return this.fareRuleRepository.find({
-      select: ['uid'],
+  originCount(
+    remoteUid: Remote['uid'],
+    originId: FareRule['originId'],
+  ): Promise<number> {
+    return this.fareRuleRepository.count({
       where: {
-        tripId,
         remote: {
           uid: remoteUid,
         },
-      },
-    })
-  }
-
-  @Transactional()
-  async findByRmoteUidAndOriginId_GetUidsOnly(remoteUid: Remote['uid'], originId: FareRule['originId']) {
-    return this.fareRuleRepository.find({
-      select: ['uid'],
-      where: {
         originId,
-        remote: {
-          uid: remoteUid,
-        },
       },
     })
   }
 
   @Transactional()
-  async findByRmoteUidAndDestinationId_GetUidsOnly(remoteUid: Remote['uid'], destinationId: FareRule['destinationId']) {
+  async findByRmoteUidAndOriginId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    originId: FareRule['originId'],
+    other?: Pick<FindManyOptions<this>, 'skip' | 'take'>,
+  ) {
+    return this.fareRuleRepository.findByRmoteUidAndOriginId(
+      remoteUid,
+      originId,
+      { ...other, select: ['uid'] },
+    )
+  }
+
+  @Transactional()
+  async linkOrigin(...args: Parameters<FareRuleRepository['linkOrigin']>) {
+    return this.fareRuleRepository.linkOrigin(...args)
+  }
+
+  @Transactional()
+  async linkDestination(
+    ...args: Parameters<FareRuleRepository['linkDestination']>
+  ) {
+    return this.fareRuleRepository.linkDestination(...args)
+  }
+
+  @Transactional()
+  async linkContain(...args: Parameters<FareRuleRepository['linkContain']>) {
+    return this.fareRuleRepository.linkContain(...args)
+  }
+
+  @Transactional()
+  destinationCount(
+    remoteUid: Remote['uid'],
+    destinationId: FareRule['destinationId'],
+  ): Promise<number> {
+    return this.fareRuleRepository.count({
+      where: {
+        remote: {
+          uid: remoteUid,
+        },
+        destinationId,
+      },
+    })
+  }
+
+  @Transactional()
+  async findByRmoteUidAndDestinationId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    destinationId: FareRule['destinationId'],
+    other?: FindManyOptions<this>,
+  ) {
     return this.fareRuleRepository.find({
+      ...other,
       select: ['uid'],
       where: {
         destinationId,
@@ -90,7 +134,10 @@ export class FareRuleService {
   }
 
   @Transactional()
-  async findByRmoteUidAndContainId_GetUidsOnly(remoteUid: Remote['uid'], containId: FareRule['containId']) {
+  async findByRmoteUidAndContainId_GetUidsOnly(
+    remoteUid: Remote['uid'],
+    containId: FareRule['containId'],
+  ) {
     return this.fareRuleRepository.find({
       select: ['uid'],
       where: {

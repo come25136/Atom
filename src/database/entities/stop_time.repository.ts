@@ -1,7 +1,9 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
+import { Transactional } from 'typeorm-transactional-cls-hooked'
 import { BaseRepository } from './base.repository'
 import { Remote } from './remote.entity'
 import { StopTime } from './stop_time.entity'
+import { Trip } from './trip.entity'
 
 @EntityRepository(StopTime)
 export class StopTimeRepository extends BaseRepository<StopTime> {
@@ -43,5 +45,18 @@ export class StopTimeRepository extends BaseRepository<StopTime> {
         },
       },
     })
+  }
+
+  @Transactional()
+  async linkTrip(
+    remoteUid: Remote['uid'],
+    tripUid: Trip['uid'],
+    tripId: Trip['id'],
+  ) {
+    return this.createQueryBuilder()
+      .update()
+      .set({ trip: { uid: tripUid } })
+      .where({ remote: { uid: remoteUid }, tripId })
+      .execute()
   }
 }
