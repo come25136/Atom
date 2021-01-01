@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common'
 import { Attribution } from 'src/database/attribution/attribution.entity'
 import { AttributionRepository } from 'src/database/attribution/attribution.repository'
 import { Remote } from 'src/database/remote/remote.entity'
-import { Trip } from 'src/database/trip/trip.entity'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()

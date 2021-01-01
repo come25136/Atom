@@ -1,12 +1,12 @@
 import * as GTFS from '@come25136/gtfs'
 import { Connection } from 'typeorm'
 import { Injectable } from '@nestjs/common'
-import { Remote } from 'src/database/remote/remote.entity'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 import { Agency } from 'src/database/agency/agency.entity'
 import { AgencyRepository } from 'src/database/agency/agency.repository'
 import { Translation } from 'src/database/translation/translation.entity'
+import { Remote } from 'src/database/remote/remote.entity'
 
 @Injectable()
 export class AgencyService {
