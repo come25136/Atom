@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { LevelRepository } from 'src/database/level/level.repository'
+import { LevelRepository } from 'src/database/tables/level/level.repository'
 import { LevelService } from './level.service'
 
 @Module({

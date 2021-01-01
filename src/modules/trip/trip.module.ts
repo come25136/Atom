@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { TripRepository } from 'src/database/trip/trip.repository'
+import { TripRepository } from 'src/database/tables/trip/trip.repository'
 import { TripService } from './trip.service'
 
 @Module({

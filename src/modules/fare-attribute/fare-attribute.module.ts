@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { FareAttributeRepository } from 'src/database/fare-attribute/fare_attribute.repository'
+import { FareAttributeRepository } from 'src/database/tables/fare-attribute/fare_attribute.repository'
 
 import { FareAttributeService } from './fare-attribute.service'
 

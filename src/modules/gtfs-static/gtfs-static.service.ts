@@ -3,9 +3,9 @@ import { HttpService, Injectable } from '@nestjs/common'
 import { createHash } from 'crypto'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { Remote } from 'src/database/remote/remote.entity'
-import { GtfsStatic } from 'src/database/gtfs-static/gtfs_static.entity'
-import { GtfsStaticRepository } from 'src/database/gtfs-static/gtfs_static.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
+import { GtfsStatic } from 'src/database/tables/gtfs-static/gtfs_static.entity'
+import { GtfsStaticRepository } from 'src/database/tables/gtfs-static/gtfs_static.repository'
 
 @Injectable()
 export class GtfsStaticService {

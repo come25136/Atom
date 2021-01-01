@@ -3,10 +3,10 @@ import { Connection } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { Agency } from 'src/database/agency/agency.entity'
-import { AgencyRepository } from 'src/database/agency/agency.repository'
-import { Translation } from 'src/database/translation/translation.entity'
-import { Remote } from 'src/database/remote/remote.entity'
+import { Agency } from 'src/database/tables/agency/agency.entity'
+import { AgencyRepository } from 'src/database/tables/agency/agency.repository'
+import { Translation } from 'src/database/tables/translation/translation.entity'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 @Injectable()
 export class AgencyService {

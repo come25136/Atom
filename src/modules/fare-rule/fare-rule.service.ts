@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common'
 import { FindManyOptions } from 'typeorm'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { FareRule } from 'src/database/fare-rule/fare_rule.entity'
-import { FareRuleRepository } from 'src/database/fare-rule/fare_rule.repository'
-import { Remote } from 'src/database/remote/remote.entity'
+import { FareRule } from 'src/database/tables/fare-rule/fare_rule.entity'
+import { FareRuleRepository } from 'src/database/tables/fare-rule/fare_rule.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 @Injectable()
 export class FareRuleService {

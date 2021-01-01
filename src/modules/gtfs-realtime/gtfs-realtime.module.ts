@@ -1,7 +1,7 @@
 import { HttpModule, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { GtfsRealtimeRepository } from 'src/database/gtfs-realtime/gtfs_realtime.repository'
+import { GtfsRealtimeRepository } from 'src/database/tables/gtfs-realtime/gtfs_realtime.repository'
 import { GtfsRealtimeService } from './gtfs-realtime.service'
 
 @Module({

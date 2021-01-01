@@ -1,8 +1,8 @@
 import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
-import { Attribution } from 'src/database/attribution/attribution.entity'
-import { AttributionRepository } from 'src/database/attribution/attribution.repository'
-import { Remote } from 'src/database/remote/remote.entity'
+import { Attribution } from 'src/database/tables/attribution/attribution.entity'
+import { AttributionRepository } from 'src/database/tables/attribution/attribution.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()

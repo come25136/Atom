@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { AttributionRepository } from 'src/database/attribution/attribution.repository'
+import { AttributionRepository } from 'src/database/tables/attribution/attribution.repository'
 import { AttributionService } from './attribution.service'
 
 @Module({

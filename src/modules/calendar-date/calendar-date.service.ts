@@ -2,9 +2,9 @@ import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { CalendarDate } from 'src/database/calendar-date/calendar_date.entity'
-import { CalendarDateRepository } from 'src/database/calendar-date/calendar_date.repository'
-import { Remote } from 'src/database/remote/remote.entity'
+import { CalendarDate } from 'src/database/tables/calendar-date/calendar_date.entity'
+import { CalendarDateRepository } from 'src/database/tables/calendar-date/calendar_date.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 @Injectable()
 export class CalendarDateService {

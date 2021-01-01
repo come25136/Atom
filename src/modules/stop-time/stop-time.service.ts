@@ -2,9 +2,9 @@ import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { Remote } from 'src/database/remote/remote.entity'
-import { StopTime } from 'src/database/stop-time/stop_time.entity'
-import { StopTimeRepository } from 'src/database/stop-time/stop_time.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
+import { StopTime } from 'src/database/tables/stop-time/stop_time.entity'
+import { StopTimeRepository } from 'src/database/tables/stop-time/stop_time.repository'
 
 @Injectable()
 export class StopTimeService {

@@ -14,7 +14,7 @@ import { ISO4217, convertStringFullWidthToHalfWidth } from 'src/util'
 import {
   FeedType,
   GtfsRealtime,
-} from 'src/database/gtfs-realtime/gtfs_realtime.entity'
+} from 'src/database/tables/gtfs-realtime/gtfs_realtime.entity'
 import { AgencyService } from 'src/modules/agency/agency.service'
 import { CalendarDateService } from 'src/modules/calendar-date/calendar-date.service'
 import { CalendarService } from 'src/modules/calendar/calendar.service'
@@ -28,18 +28,18 @@ import { GtfsStaticService } from 'src/modules/gtfs-static/gtfs-static.service'
 import { LevelService } from 'src/modules/level/level.service'
 import { PathwayService } from 'src/modules/pathway/pathway.service'
 import { RegistrationRemoteDto } from 'src/modules/interfaces/remote.dto'
-import { RemoteRepository } from 'src/database/remote/remote.repository'
+import { RemoteRepository } from 'src/database/tables/remote/remote.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 import { RouteService } from 'src/modules/route/route.service'
 import { ShapeService } from 'src/modules/shape/shape.service'
 import { StopService } from 'src/modules/stop/stop.service'
 import { StopTimeService } from 'src/modules/stop-time/stop-time.service'
-import { TableName } from 'src/database/translation/translation.entity'
+import { TableName } from 'src/database/tables/translation/translation.entity'
 import { TransferService } from 'src/modules/transfer/transfer.service'
 import { TranslationService } from 'src/modules/translation/translation.service'
 import { TripService } from 'src/modules/trip/trip.service'
 import { AttributionService } from 'src/modules/attribution/attribution.service'
 
-import { Remote } from '../../database/remote/remote.entity'
 import GTFSInterface from '../interfaces/gtfs'
 
 @Injectable()

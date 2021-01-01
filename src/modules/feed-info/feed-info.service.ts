@@ -2,9 +2,9 @@ import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { FeedInfo } from 'src/database/feed-info/feed_info.entity'
-import { FeedInfoRepository } from 'src/database/feed-info/feed_info.repository'
-import { Remote } from 'src/database/remote/remote.entity'
+import { FeedInfo } from 'src/database/tables/feed-info/feed_info.entity'
+import { FeedInfoRepository } from 'src/database/tables/feed-info/feed_info.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 @Injectable()
 export class FeedInfoService {

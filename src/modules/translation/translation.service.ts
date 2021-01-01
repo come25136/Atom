@@ -4,9 +4,9 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 import {
   TranslationRepository,
   TranslationType,
-} from 'src/database/translation/translation.repository'
-import { Remote } from 'src/database/remote/remote.entity'
-import { Translation } from 'src/database/translation/translation.entity'
+} from 'src/database/tables/translation/translation.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
+import { Translation } from 'src/database/tables/translation/translation.entity'
 
 @Injectable()
 export class TranslationService {

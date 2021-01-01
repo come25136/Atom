@@ -2,7 +2,7 @@ import { Body, Controller, Param, Put } from '@nestjs/common'
 import { ApiCreatedResponse } from '@nestjs/swagger'
 
 import { RemoteService } from 'src/modules/remote/remote.service'
-import { Remote } from 'src/database/remote/remote.entity'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 import { RegistrationRemoteDto } from '../interfaces/remote.dto'
 

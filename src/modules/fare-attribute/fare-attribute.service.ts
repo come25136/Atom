@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 import { ISO4217 } from 'src/util'
-import { Remote } from 'src/database/remote/remote.entity'
-import { FareAttributeRepository } from 'src/database/fare-attribute/fare_attribute.repository'
-import { FareAttribute } from 'src/database/fare-attribute/fare_attribute.entity'
+import { Remote } from 'src/database/tables/remote/remote.entity'
+import { FareAttributeRepository } from 'src/database/tables/fare-attribute/fare_attribute.repository'
+import { FareAttribute } from 'src/database/tables/fare-attribute/fare_attribute.entity'
 
 @Injectable()
 export class FareAttributeService {

@@ -2,9 +2,9 @@ import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { Level } from 'src/database/level/level.entity'
-import { LevelRepository } from 'src/database/level/level.repository'
-import { Remote } from 'src/database/remote/remote.entity'
+import { Level } from 'src/database/tables/level/level.entity'
+import { LevelRepository } from 'src/database/tables/level/level.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 @Injectable()
 export class LevelService {

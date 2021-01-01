@@ -3,12 +3,12 @@ import { HttpService, Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 import { createHash } from 'crypto'
 
-import { Remote } from 'src/database/remote/remote.entity'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 import {
   FeedType,
   GtfsRealtime,
-} from 'src/database/gtfs-realtime/gtfs_realtime.entity'
-import { GtfsRealtimeRepository } from 'src/database/gtfs-realtime/gtfs_realtime.repository'
+} from 'src/database/tables/gtfs-realtime/gtfs_realtime.entity'
+import { GtfsRealtimeRepository } from 'src/database/tables/gtfs-realtime/gtfs_realtime.repository'
 
 @Injectable()
 export class GtfsRealtimeService {

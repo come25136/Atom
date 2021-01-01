@@ -1,9 +1,9 @@
 import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
 
-import { Frequency } from 'src/database/frequency/frequency.entity'
-import { FrequencyRepository } from 'src/database/frequency/frequency.repository'
-import { Remote } from 'src/database/remote/remote.entity'
+import { Frequency } from 'src/database/tables/frequency/frequency.entity'
+import { FrequencyRepository } from 'src/database/tables/frequency/frequency.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
 @Injectable()
