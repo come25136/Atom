@@ -14,6 +14,18 @@ export class StopTimeRepository extends BaseRepository<StopTime> {
     )
   }
 
+  async linkStop(
+    remoteUid: Remote['uid'],
+    stopUid: Stop['uid'],
+    stopId: Stop['id'],
+  ) {
+    return this.createQueryBuilder()
+      .update()
+      .set({ stop: { uid: stopUid } })
+      .where({ remote: { uid: remoteUid }, stopId })
+      .execute()
+  }
+
   async findByTripId(
     remoteUid: Remote['uid'],
     tripId: StopTime['tripId'],
@@ -48,7 +60,6 @@ export class StopTimeRepository extends BaseRepository<StopTime> {
     })
   }
 
-  @Transactional()
   async linkTrip(
     remoteUid: Remote['uid'],
     tripUid: Trip['uid'],

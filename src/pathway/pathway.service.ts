@@ -42,6 +42,16 @@ export class PathwayService {
   }
 
   @Transactional()
+  async linkFromStop(...args: Parameters<PathwayRepository['linkFromStop']>) {
+    return this.pathwayRepository.linkFromStop(...args)
+  }
+
+  @Transactional()
+  async linkToStop(...args: Parameters<PathwayRepository['linkToStop']>) {
+    return this.pathwayRepository.linkToStop(...args)
+  }
+
+  @Transactional()
   async findByRmoteUidAndFromStopId_GetUidsOnly(
     remoteUid: Remote['uid'],
     fromStopId: Pathway['fromStopId'],

@@ -51,4 +51,9 @@ export class RouteService {
       .updateEntity(updateEntity)
       .execute()
   }
+
+  @Transactional()
+  async linkAgency(...args: Parameters<RouteRepository['linkAgency']>) {
+    return this.routeRepository.linkAgency(...args)
+  }
 }

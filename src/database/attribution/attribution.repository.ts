@@ -7,6 +7,18 @@ import { Agency } from '../agency/agency.entity'
 
 @EntityRepository(Attribution)
 export class AttributionRepository extends BaseRepository<Attribution> {
+  async linkAgency(
+    remoteUid: Remote['uid'],
+    agencyUid: Agency['uid'],
+    agencyId: Agency['id'],
+  ) {
+    return this.createQueryBuilder()
+      .update()
+      .set({ agency: { uid: agencyUid } })
+      .where({ remote: { uid: remoteUid }, agencyId })
+      .execute()
+  }
+
   async findByAgencyId(
     remoteUid: Remote['uid'],
     agencyId: Attribution['agencyId'],

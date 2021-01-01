@@ -46,6 +46,11 @@ export class AttributionService {
   }
 
   @Transactional()
+  async linkAgency(...args: Parameters<AttributionRepository['linkAgency']>) {
+    return this.attributionRepository.linkAgency(...args)
+  }
+
+  @Transactional()
   async findByRmoteUidAndRouteId_GetUidsOnly(
     remoteUid: Remote['uid'],
     routeId: Attribution['routeId'],

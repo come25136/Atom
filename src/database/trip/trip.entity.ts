@@ -25,7 +25,6 @@ import { Shape } from '../shape/shape.entity'
 import { StopTime } from '../stop-time/stop_time.entity'
 
 @Entity()
-@Unique(['remote', 'id'])
 @Unique(['remote', 'id', 'routeId', 'serviceId'])
 @Index(['remote', 'serviceId'])
 export class Trip extends BaseEntity {

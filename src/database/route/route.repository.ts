@@ -7,6 +7,18 @@ import { Route } from './route.entity'
 
 @EntityRepository(Route)
 export class RouteRepository extends BaseRepository<Route> {
+  async linkAgency(
+    remoteUid: Remote['uid'],
+    agencyUid: Agency['uid'],
+    agencyId: Agency['id'],
+  ) {
+    return this.createQueryBuilder()
+      .update()
+      .set({ agency: { uid: agencyUid } })
+      .where({ remote: { uid: remoteUid }, agencyId })
+      .execute()
+  }
+
   async findByAgencyId(
     remoteUid: Remote['uid'],
     agencyId: Route['agencyId'],

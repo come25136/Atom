@@ -36,6 +36,16 @@ export class TransferService {
   }
 
   @Transactional()
+  async linkFromStop(...args: Parameters<TransferRepository['linkFromStop']>) {
+    return this.transferRepository.linkFromStop(...args)
+  }
+
+  @Transactional()
+  async linkToStop(...args: Parameters<TransferRepository['linkToStop']>) {
+    return this.transferRepository.linkToStop(...args)
+  }
+
+  @Transactional()
   async findByRmoteUidAndFromStopId_GetUidsOnly(
     remoteUid: Remote['uid'],
     fromStopId: Transfer['fromStopId'],

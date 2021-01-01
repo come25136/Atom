@@ -67,8 +67,7 @@ export class RemoteService {
     private feedInfoService: FeedInfoService,
     private translationService: TranslationService,
     private attributionService: AttributionService,
-    private tripRepository: TripRepository,
-  ) { }
+  ) {}
 
   // NOTE: 依存すればするほど数字を大きくする
   static readonly importProcessingOrder = {
@@ -97,42 +96,35 @@ export class RemoteService {
 
     switch (fileName) {
       case GTFSInterface.StaticFileNames.Agency:
-        await this.agencyService.save(
-          await Promise.all(
-            this.bulkBuffer.map(async row => {
-              const e = this.agencyService.create(remoteEntity.uid, {
-                id: row.agency_id || null,
-                name: row.agency_name,
-                url: row.agency_url,
-                timezone: row.agency_timezone,
-                lang: row.agency_lang || null,
-                phone: row.agency_phone || null,
-                fareUrl: row.agency_fare_url || null,
-                email: row.agency_email || null,
-              })
-              e.remote = remoteEntity
-              e.updatedAt = date
-              e.routes = await this.routeService.getUidsOnly(
-                remoteEntity.uid,
-                row.agency_id,
-              )
-              e.fareAttributes = await this.fareAttributeService.getUidsOnly(
-                remoteEntity.uid,
-                row.agency_id,
-              )
-              e.attributions = await this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(
-                remoteEntity.uid,
-                row.agency_id,
-              )
+        const agencyEntities = this.bulkBuffer.map(row => {
+          const e = this.agencyService.create(remoteEntity.uid, {
+            id: row.agency_id || null,
+            name: row.agency_name,
+            url: row.agency_url,
+            timezone: row.agency_timezone,
+            lang: row.agency_lang || null,
+            phone: row.agency_phone || null,
+            fareUrl: row.agency_fare_url || null,
+            email: row.agency_email || null,
+          })
+          e.remote = remoteEntity
+          e.updatedAt = date
 
-              return e
-            }),
-          ),
-        )
+          return e
+        })
+
+        await this.agencyService.save(agencyEntities, true)
+
+        for (const e of agencyEntities) {
+          this.routeService.linkAgency(remoteEntity.uid, e.uid, e.id)
+          this.fareAttributeService.linkAgency(remoteEntity.uid, e.uid, e.id)
+          this.attributionService.linkAgency(remoteEntity.uid, e.uid, e.id)
+        }
+
         break
 
       case GTFSInterface.StaticFileNames.Stops:
-        for (const row of this.bulkBuffer) {
+        const stopTimeEntities = this.bulkBuffer.map(row => {
           const locationType = Number(row.location_type || 0)
           const wheelchairBoarding = Number(row.wheelchair_boarding || 0)
 
@@ -169,49 +161,26 @@ export class RemoteService {
           })
           e.remote = remoteEntity
           e.updatedAt = date
-          e.times = await this.stopTimeService.findByRmoteUidAndStopId_GetUidsOnly(
-            remoteEntity.uid,
-            row.stop_id,
-          )
 
-          e.fromTransfers = await this.transferService.findByRmoteUidAndFromStopId_GetUidsOnly(
-            remoteEntity.uid,
-            row.stop_id,
-          )
-          e.toTransfers = await this.transferService.findByRmoteUidAndToStopId_GetUidsOnly(
-            remoteEntity.uid,
-            row.stop_id,
-          )
-          e.fromPathways = await this.pathwayService.findByRmoteUidAndFromStopId_GetUidsOnly(
-            remoteEntity.uid,
-            row.stop_id,
-          )
-          e.toPathways = await this.pathwayService.findByRmoteUidAndToStopId_GetUidsOnly(
-            remoteEntity.uid,
-            row.stop_id,
-          )
+          return e
+        })
 
-          // NOTE: uidが欲しい
-          await this.stopService.save([e], true)
+        // NOTE: uidが欲しい
+        await this.stopService.save(stopTimeEntities, true)
 
-          await this.fareRuleService.linkOrigin(
-            remoteEntity.uid,
-            e.uid,
-            e.zoneId,
-          )
-          await this.fareRuleService.linkOrigin(
-            remoteEntity.uid,
-            e.uid,
-            e.zoneId,
-          )
-          await this.fareRuleService.linkOrigin(
-            remoteEntity.uid,
-            e.uid,
-            e.zoneId,
-          )
+        for (const e of stopTimeEntities) {
+          await this.stopTimeService.linkStop(remoteEntity.uid, e.uid, e.id)
 
-          // return e
+          // NOTE: UPDATEが重いので使わない間はコメントアウト
+          // await this.fareRuleService.linkOrigin(remoteEntity.uid, e.uid, e.zoneId,)
+          // await this.fareRuleService.linkDestination(remoteEntity.uid, e.uid, e.zoneId,)
+          // await this.fareRuleService.linkContain(remoteEntity.uid, e.uid, e.zoneId,)
+          // await this.transferService.linkFromStop(remoteEntity.uid, e.uid, e.id)
+          // await this.transferService.linkToStop(remoteEntity.uid, e.uid, e.id)
+          // await this.pathwayService.linkFromStop(remoteEntity.uid, e.uid, e.id)
+          // await this.pathwayService.linkToStop(remoteEntity.uid, e.uid, e.id)
         }
+
         break
 
       case GTFSInterface.StaticFileNames.Routes:
@@ -317,25 +286,24 @@ export class RemoteService {
             })
             e.remote = remoteEntity
             e.updatedAt = date
-            /*
-            const [frequencies, attributions] = await Promise.all([
-              this.frequencyService.getUidsOnly(remoteEntity.uid, row.trip_id),
-              this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(
-                remoteEntity.uid,
-                row.trip_id,
-              ),
-            ])
 
-            e.frequencies = frequencies
-            e.attributions = attributions
-            */
+            // NOTE: Atom v2から持ってきたコードなので今後使う時は要検討
+            // const [frequencies, attributions] = await Promise.all([
+            //   this.frequencyService.getUidsOnly(remoteEntity.uid, row.trip_id),
+            //   this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(
+            //     remoteEntity.uid,
+            //     row.trip_id,
+            //   ),
+            // ])
+
+            // e.frequencies = frequencies
+            // e.attributions = attributions
 
             return e
           }),
         )
         await this.tripService.save(tripEntities, true)
         for (const tripEntity of tripEntities) {
-          console.log(tripEntity, await this.tripRepository.findOne({ uid: tripEntity.uid }))
           await this.stopTimeService.linkTrip(
             remoteEntity.uid,
             tripEntity.uid,
@@ -634,22 +602,22 @@ export class RemoteService {
               remoteEntity.uid,
               transferType === 2
                 ? {
-                  stop: {
-                    from: { id: row.from_stop_id },
-                    to: { id: row.to_stop_id },
-                  },
-                  type: transferType,
-                  time: {
-                    min: minTransferTime,
-                  },
-                }
+                    stop: {
+                      from: { id: row.from_stop_id },
+                      to: { id: row.to_stop_id },
+                    },
+                    type: transferType,
+                    time: {
+                      min: minTransferTime,
+                    },
+                  }
                 : {
-                  stop: {
-                    from: { id: row.from_stop_id },
-                    to: { id: row.to_stop_id },
+                    stop: {
+                      from: { id: row.from_stop_id },
+                      to: { id: row.to_stop_id },
+                    },
+                    type: transferType as 0 | 1 | 3,
                   },
-                  type: transferType as 0 | 1 | 3,
-                },
             )
             e.remote = remoteEntity
             e.updatedAt = date
@@ -883,7 +851,7 @@ export class RemoteService {
     if (
       (typeof rowData === 'object' &&
         this.bulkBuffer.length <
-        this.configService.get<number>('database.insert.buffer', 2000)) || // NOTE: bulk insert上限
+          this.configService.get<number>('database.insert.buffer', 2000)) || // NOTE: bulk insert上限
       (typeof rowData === undefined && this.bulkBuffer.length === 0) // NOTE: 要らないかもしれない
     )
       return
@@ -939,13 +907,13 @@ export class RemoteService {
         (prev, [feedType, url]) =>
           url
             ? [
-              ...prev,
-              this.gtfsRTService.createOrUpdate(
-                remoteEntity.uid,
-                feedType,
-                url,
-              ),
-            ]
+                ...prev,
+                this.gtfsRTService.createOrUpdate(
+                  remoteEntity.uid,
+                  feedType,
+                  url,
+                ),
+              ]
             : prev,
         [],
       ),

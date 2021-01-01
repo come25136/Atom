@@ -7,6 +7,18 @@ import { FareAttribute } from './fare_attribute.entity'
 
 @EntityRepository(FareAttribute)
 export class FareAttributeRepository extends BaseRepository<FareAttribute> {
+  async linkAgency(
+    remoteUid: Remote['uid'],
+    agencyUid: Agency['uid'],
+    agencyId: Agency['id'],
+  ) {
+    return this.createQueryBuilder()
+      .update()
+      .set({ agency: { uid: agencyUid } })
+      .where({ remote: { uid: remoteUid }, agencyId })
+      .execute()
+  }
+
   async findByAgencyId(
     remoteUid: Remote['uid'],
     agencyId: FareAttribute['agencyId'],

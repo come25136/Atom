@@ -43,6 +43,11 @@ export class StopTimeService {
   }
 
   @Transactional()
+  async linkStop(...args: Parameters<StopTimeRepository['linkStop']>) {
+    return this.stopTimeRepository.linkStop(...args)
+  }
+
+  @Transactional()
   async findByRmoteUidAndStopId_GetUidsOnly(
     remoteUid: Remote['uid'],
     stopId: StopTime['stopId'],

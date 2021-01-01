@@ -47,6 +47,10 @@ export class FareAttributeService {
       .execute()
   }
 
+  async linkAgency(...args: Parameters<FareAttributeRepository['linkAgency']>) {
+    return this.fareAttributeRepository.linkAgency(...args)
+  }
+
   @Transactional()
   async getUidsOnly(
     remoteUId: Remote['uid'],
