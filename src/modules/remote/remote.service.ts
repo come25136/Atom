@@ -234,82 +234,90 @@ export class RemoteService {
         break
 
       case GTFSInterface.StaticFileNames.Trips:
-        const tripEntities = await Promise.all(
-          this.bulkBuffer.map(async row => {
-            const directionId = Number(row.direction_id)
-            const wheelchairSccessible = Number(row.wheelchair_accessible)
-            const bikesSllowed = Number(row.bikes_allowed)
+        const tripEntities = this.bulkBuffer.map(row => {
+          const directionId = Number(row.direction_id)
+          const wheelchairSccessible = Number(row.wheelchair_accessible)
+          const bikesSllowed = Number(row.bikes_allowed)
 
-            if (
-              Number.isNaN(directionId) === false &&
-              [0, 1].includes(directionId) === false
+          if (
+            Number.isNaN(directionId) === false &&
+            [0, 1].includes(directionId) === false
+          )
+            throw new BadRequestException(
+              `Can not use '${directionId}' for direction_id.`,
             )
-              throw new BadRequestException(
-                `Can not use '${directionId}' for direction_id.`,
-              )
-            if (
-              Number.isNaN(wheelchairSccessible) === false &&
-              [0, 1, 2].includes(wheelchairSccessible) === false
+          if (
+            Number.isNaN(wheelchairSccessible) === false &&
+            [0, 1, 2].includes(wheelchairSccessible) === false
+          )
+            throw new BadRequestException(
+              `Can not use '${wheelchairSccessible}' for wheelchair_accessible.`,
             )
-              throw new BadRequestException(
-                `Can not use '${wheelchairSccessible}' for wheelchair_accessible.`,
-              )
-            if (
-              Number.isNaN(bikesSllowed) === false &&
-              [0, 1, 2].includes(bikesSllowed) === false
+          if (
+            Number.isNaN(bikesSllowed) === false &&
+            [0, 1, 2].includes(bikesSllowed) === false
+          )
+            throw new BadRequestException(
+              `Can not use '${bikesSllowed}' for bikes_allowed.`,
             )
-              throw new BadRequestException(
-                `Can not use '${bikesSllowed}' for bikes_allowed.`,
-              )
 
-            const e = this.tripService.create(remoteEntity.uid, {
-              routeId: row.route_id,
-              serviceId: row.service_id,
-              id: row.trip_id,
-              headsign: convertStringFullWidthToHalfWidth(
-                row.trip_headsign || null,
-              ),
-              shortName: convertStringFullWidthToHalfWidth(
-                row.trip_short_name || null,
-              ),
-              directionId: Number.isNaN(directionId)
-                ? null
-                : (directionId as GTFS.Trip['directionId']),
-              blockId: row.block_id || null,
-              shapeId: row.shape_id || null,
-              wheelchairSccessible: Number.isNaN(wheelchairSccessible)
-                ? 0
-                : (wheelchairSccessible as GTFS.Trip['wheelchairSccessible']),
-              bikesSllowed: Number.isNaN(bikesSllowed)
-                ? 0
-                : (bikesSllowed as GTFS.Trip['bikesSllowed']),
-            })
-            e.remote = remoteEntity
-            e.updatedAt = date
+          const e = this.tripService.create(remoteEntity.uid, {
+            routeId: row.route_id,
+            serviceId: row.service_id,
+            id: row.trip_id,
+            headsign: convertStringFullWidthToHalfWidth(
+              row.trip_headsign || null,
+            ),
+            shortName: convertStringFullWidthToHalfWidth(
+              row.trip_short_name || null,
+            ),
+            directionId: Number.isNaN(directionId)
+              ? null
+              : (directionId as GTFS.Trip['directionId']),
+            blockId: row.block_id || null,
+            shapeId: row.shape_id || null,
+            wheelchairSccessible: Number.isNaN(wheelchairSccessible)
+              ? 0
+              : (wheelchairSccessible as GTFS.Trip['wheelchairSccessible']),
+            bikesSllowed: Number.isNaN(bikesSllowed)
+              ? 0
+              : (bikesSllowed as GTFS.Trip['bikesSllowed']),
+          })
+          e.remote = remoteEntity
+          e.updatedAt = date
 
-            // NOTE: Atom v2から持ってきたコードなので今後使う時は要検討
-            // const [frequencies, attributions] = await Promise.all([
-            //   this.frequencyService.getUidsOnly(remoteEntity.uid, row.trip_id),
-            //   this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(
-            //     remoteEntity.uid,
-            //     row.trip_id,
-            //   ),
-            // ])
+          // NOTE: Atom v2から持ってきたコードなので今後使う時は要検討
+          // const [frequencies, attributions] = await Promise.all([
+          //   this.frequencyService.getUidsOnly(remoteEntity.uid, row.trip_id),
+          //   this.attributionService.findByRmoteUidAndRouteId_GetUidsOnly(
+          //     remoteEntity.uid,
+          //     row.trip_id,
+          //   ),
+          // ])
 
-            // e.frequencies = frequencies
-            // e.attributions = attributions
+          // e.frequencies = frequencies
+          // e.attributions = attributions
 
-            return e
-          }),
-        )
-        await this.tripService.save(tripEntities, true)
+          return e
+        })
+
+        await this.tripService.bulkInsert(tripEntities, true)
+
         for (const tripEntity of tripEntities) {
           await this.stopTimeService.linkTrip(
             remoteEntity.uid,
             tripEntity.uid,
             tripEntity.id,
           )
+
+          tripEntity.shapes = await this.shapeService.getUidsOnly(
+            remoteEntity.uid,
+            tripEntity.shapeId,
+          )
+
+          await this.tripService.save(tripEntity)
         }
+
         break
 
       case GTFSInterface.StaticFileNames.StopTimes:

@@ -38,8 +38,14 @@ export class TripService {
     return shapes
   }
 
+  // NOTE: ManyToMany用、本来はcreateQueryBuilderでDB側だけで済ませたい
   @Transactional()
-  async save(entities: Trip[], updateEntity = false) {
+  async save(entity: Parameters<TripRepository['save']>[0]) {
+    return this.tripRepository.save(entity)
+  }
+
+  @Transactional()
+  async bulkInsert(entities: Trip[], updateEntity = false) {
     return this.tripRepository
       .createQueryBuilder()
       .insert()
