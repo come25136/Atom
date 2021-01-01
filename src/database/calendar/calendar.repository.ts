@@ -1,7 +1,8 @@
 import { EntityRepository, FindOneOptions, LessThanOrEqual } from 'typeorm'
-import { BaseRepository } from './base.repository'
+
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
 import { Calendar } from './calendar.entity'
-import { Remote } from './remote.entity'
 
 const dayNames = [
   'sunday',

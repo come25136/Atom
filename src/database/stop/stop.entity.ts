@@ -13,13 +13,13 @@ import {
   getRepository,
 } from 'typeorm'
 
-import { FareRule } from './fare_rule.entity'
-import { Level } from './level.entity'
-import { Pathway } from './pathway.entity'
-import { Remote } from './remote.entity'
-import { StopTime } from './stop_time.entity'
-import { Transfer } from './transfer.entity'
-import { Translation } from './translation.entity'
+import { FareRule } from '../fare-rule/fare_rule.entity'
+import { Level } from '../level/level.entity'
+import { Pathway } from '../pathway/pathway.entity'
+import { Remote } from '../remote/remote.entity'
+import { StopTime } from '../stop-time/stop_time.entity'
+import { Transfer } from '../transfer/transfer.entity'
+import { Translation } from '../translation/translation.entity'
 
 @Entity()
 @Unique(['remote', 'id'])

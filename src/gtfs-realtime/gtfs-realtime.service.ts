@@ -1,14 +1,14 @@
 import * as moment from 'moment'
 import { HttpService, Injectable } from '@nestjs/common'
-import { Remote } from 'src/database/entities/remote.entity'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 import { createHash } from 'crypto'
 
+import { Remote } from 'src/database/remote/remote.entity'
 import {
   FeedType,
   GtfsRealtime,
-} from 'src/database/entities/gtfs_realtime.entity'
-import { GtfsRealtimeRepository } from 'src/database/entities/gtfs_realtime.repository'
+} from 'src/database/gtfs-realtime/gtfs_realtime.entity'
+import { GtfsRealtimeRepository } from 'src/database/gtfs-realtime/gtfs_realtime.repository'
 
 @Injectable()
 export class GtfsRealtimeService {

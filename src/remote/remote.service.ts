@@ -7,14 +7,14 @@ import * as moment from 'moment'
 import * as path from 'path'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { FindManyOptions } from 'typeorm'
-import { Transactional } from 'typeorm-transactional-cls-hooked'
+import { Propagation, Transactional } from 'typeorm-transactional-cls-hooked'
 import { promises as fs } from 'fs'
 
+import { ISO4217, convertStringFullWidthToHalfWidth } from 'src/util'
 import {
   FeedType,
   GtfsRealtime,
-} from 'src/database/entities/gtfs_realtime.entity'
-import { ISO4217, convertStringFullWidthToHalfWidth } from 'src/util'
+} from 'src/database/gtfs-realtime/gtfs_realtime.entity'
 import { AgencyService } from 'src/agency/agency.service'
 import { CalendarDateService } from 'src/calendar-date/calendar-date.service'
 import { CalendarService } from 'src/calendar/calendar.service'
@@ -28,22 +28,19 @@ import { GtfsStaticService } from 'src/gtfs-static/gtfs-static.service'
 import { LevelService } from 'src/level/level.service'
 import { PathwayService } from 'src/pathway/pathway.service'
 import { RegistrationRemoteDto } from 'src/interfaces/remote.dto'
-import { Remote } from '../database/entities/remote.entity'
-import { RemoteRepository } from 'src/database/entities/remote.repository'
+import { RemoteRepository } from 'src/database/remote/remote.repository'
 import { RouteService } from 'src/route/route.service'
 import { ShapeService } from 'src/shape/shape.service'
 import { StopService } from 'src/stop/stop.service'
 import { StopTimeService } from 'src/stop-time/stop-time.service'
-import { TableName } from 'src/database/entities/translation.entity'
+import { TableName } from 'src/database/translation/translation.entity'
 import { TransferService } from 'src/transfer/transfer.service'
 import { TranslationService } from 'src/translation/translation.service'
 import { TripService } from 'src/trip/trip.service'
 import { AttributionService } from 'src/attribution/attribution.service'
 
+import { Remote } from '../database/remote/remote.entity'
 import GTFSInterface from '../interfaces/gtfs'
-import { StopRepository } from 'src/database/entities/stop.repository'
-import { FareRuleRepository } from 'src/database/entities/fare_rule.repository'
-import { TripRepository } from 'src/database/entities/trip.repository'
 
 @Injectable()
 export class RemoteService {

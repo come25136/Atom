@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-import { Remote } from './remote.entity'
+import { Remote } from '../remote/remote.entity'
 
 @Entity()
 export class FeedInfo extends BaseEntity {

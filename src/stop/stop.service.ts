@@ -1,9 +1,10 @@
 import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
-import { Remote } from 'src/database/entities/remote.entity'
-import { Stop } from 'src/database/entities/stop.entity'
-import { StopRepository } from 'src/database/entities/stop.repository'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
+
+import { Remote } from 'src/database/remote/remote.entity'
+import { Stop } from 'src/database/stop/stop.entity'
+import { StopRepository } from 'src/database/stop/stop.repository'
 
 @Injectable()
 export class StopService {

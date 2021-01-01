@@ -1,6 +1,6 @@
 import { EntityRepository } from 'typeorm'
 
-import { BaseRepository } from './base.repository'
+import { BaseRepository } from '../base/base.repository'
 import { Stop } from './stop.entity'
 
 @EntityRepository(Stop)

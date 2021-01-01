@@ -3,11 +3,11 @@ import * as _ from 'lodash'
 import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { Calendar } from 'src/database/entities/calendar.entity'
-import { CalendarDate } from 'src/database/entities/calendar_date.entity'
-import { CalendarDateRepository } from 'src/database/entities/calendar_date.repository'
-import { CalendarRepository } from 'src/database/entities/calendar.repository'
-import { Remote } from 'src/database/entities/remote.entity'
+import { Calendar } from 'src/database/calendar/calendar.entity'
+import { CalendarDate } from 'src/database/calendar-date/calendar_date.entity'
+import { CalendarDateRepository } from 'src/database/calendar-date/calendar_date.repository'
+import { CalendarRepository } from 'src/database/calendar/calendar.repository'
+import { Remote } from 'src/database/remote/remote.entity'
 
 @Injectable()
 export class CalendarService {

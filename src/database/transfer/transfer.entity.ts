@@ -10,8 +10,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-import { Remote } from './remote.entity'
-import { Stop } from './stop.entity'
+import { Remote } from '../remote/remote.entity'
+import { Stop } from '../stop/stop.entity'
 
 @Entity()
 @Unique(['remote', 'fromStopId', 'toStopId'])

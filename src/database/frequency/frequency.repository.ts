@@ -1,7 +1,8 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
-import { BaseRepository } from './base.repository'
+
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
 import { Frequency } from './frequency.entity'
-import { Remote } from './remote.entity'
 
 @EntityRepository(Frequency)
 export class FrequencyRepository extends BaseRepository<Frequency> {

@@ -1,7 +1,9 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
-import { BaseRepository } from './base.repository'
+
+import { Agency } from '../agency/agency.entity'
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
 import { FareAttribute } from './fare_attribute.entity'
-import { Remote } from './remote.entity'
 
 @EntityRepository(FareAttribute)
 export class FareAttributeRepository extends BaseRepository<FareAttribute> {

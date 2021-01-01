@@ -1,9 +1,10 @@
 import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
-import { Remote } from 'src/database/entities/remote.entity'
-import { Shape } from 'src/database/entities/shape.entity'
-import { ShapeRepository } from 'src/database/entities/shape.repository'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
+
+import { Remote } from 'src/database/remote/remote.entity'
+import { Shape } from 'src/database/shape/shape.entity'
+import { ShapeRepository } from 'src/database/shape/shape.repository'
 
 @Injectable()
 export class ShapeService {

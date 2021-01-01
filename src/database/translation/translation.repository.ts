@@ -1,6 +1,7 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
-import { BaseRepository } from './base.repository'
-import { Remote } from './remote.entity'
+
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
 import { Translation } from './translation.entity'
 
 export type TranslationType = {

@@ -1,4 +1,4 @@
-import { AgencyRepository } from 'src/database/entities/agency.repository'
+import { AgencyRepository } from 'src/database/agency/agency.repository'
 import { AgencyService } from './agency.service'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'

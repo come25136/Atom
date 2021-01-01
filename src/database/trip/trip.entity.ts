@@ -1,5 +1,4 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -13,15 +12,17 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
-import { Attribution } from './attribution.entity'
 
-import { Calendar } from './calendar.entity'
-import { CalendarDate } from './calendar_date.entity'
-import { Frequency } from './frequency.entity'
-import { Remote } from './remote.entity'
-import { Route } from './route.entity'
-import { Shape } from './shape.entity'
-import { StopTime } from './stop_time.entity'
+import { momentToDB } from 'src/util'
+
+import { Attribution } from '../attribution/attribution.entity'
+import { CalendarDate } from '../calendar-date/calendar_date.entity'
+import { Calendar } from '../calendar/calendar.entity'
+import { Frequency } from '../frequency/frequency.entity'
+import { Remote } from '../remote/remote.entity'
+import { Route } from '../route/route.entity'
+import { Shape } from '../shape/shape.entity'
+import { StopTime } from '../stop-time/stop_time.entity'
 
 @Entity()
 @Unique(['remote', 'id'])

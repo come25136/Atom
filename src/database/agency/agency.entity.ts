@@ -10,11 +10,11 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
-import { Attribution } from './attribution.entity'
 
-import { FareAttribute } from './fare_attribute.entity'
-import { Remote } from './remote.entity'
-import { Route } from './route.entity'
+import { Attribution } from '../attribution/attribution.entity'
+import { FareAttribute } from '../fare-attribute/fare_attribute.entity'
+import { Remote } from '../remote/remote.entity'
+import { Route } from '../route/route.entity'
 
 @Entity()
 @Unique(['remote', 'id'])

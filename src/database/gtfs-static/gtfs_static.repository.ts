@@ -1,6 +1,6 @@
 import { EntityRepository } from 'typeorm'
 
-import { BaseRepository } from './base.repository'
+import { BaseRepository } from '../base/base.repository'
 import { GtfsStatic } from './gtfs_static.entity'
 
 @EntityRepository(GtfsStatic)

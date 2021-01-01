@@ -1,9 +1,10 @@
 import { Body, Controller, Param, Put } from '@nestjs/common'
 import { ApiCreatedResponse } from '@nestjs/swagger'
 
-import { RegistrationRemoteDto } from '../interfaces/remote.dto'
-import { Remote } from 'src/database/entities/remote.entity'
 import { RemoteService } from 'src/remote/remote.service'
+import { Remote } from 'src/database/remote/remote.entity'
+
+import { RegistrationRemoteDto } from '../interfaces/remote.dto'
 
 @Controller('remotes')
 export class RemoteController {

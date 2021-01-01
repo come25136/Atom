@@ -1,9 +1,9 @@
 import { EntityRepository, FindManyOptions } from 'typeorm'
 
-import { BaseRepository } from './base.repository'
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
+import { Stop } from '../stop/stop.entity'
 import { FareRule } from './fare_rule.entity'
-import { Remote } from './remote.entity'
-import { Stop } from './stop.entity'
 
 @EntityRepository(FareRule)
 export class FareRuleRepository extends BaseRepository<FareRule> {

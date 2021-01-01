@@ -2,9 +2,9 @@ import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { Remote } from 'src/database/entities/remote.entity'
-import { Transfer } from 'src/database/entities/transfer.entity'
-import { TransferRepository } from 'src/database/entities/transfer.repository'
+import { Remote } from 'src/database/remote/remote.entity'
+import { Transfer } from 'src/database/transfer/transfer.entity'
+import { TransferRepository } from 'src/database/transfer/transfer.repository'
 
 @Injectable()
 export class TransferService {

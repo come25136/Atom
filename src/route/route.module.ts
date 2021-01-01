@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { RouteRepository } from 'src/database/entities/route.repository'
+import { RouteRepository } from 'src/database/route/route.repository'
 import { RouteService } from './route.service'
 
 @Module({

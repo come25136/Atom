@@ -10,12 +10,11 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
-import { Agency } from './agency.entity'
 
-import { FareAttribute } from './fare_attribute.entity'
-import { Remote } from './remote.entity'
-import { Route } from './route.entity'
-import { Trip } from './trip.entity'
+import { Agency } from '../agency/agency.entity'
+import { Remote } from '../remote/remote.entity'
+import { Route } from '../route/route.entity'
+import { Trip } from '../trip/trip.entity'
 
 @Entity()
 @Unique(['remote', 'id'])

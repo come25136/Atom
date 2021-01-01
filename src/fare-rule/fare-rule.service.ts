@@ -1,12 +1,11 @@
 import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
-
-import { FareRule } from 'src/database/entities/fare_rule.entity'
-import { FareRuleRepository } from 'src/database/entities/fare_rule.repository'
-import { Remote } from 'src/database/entities/remote.entity'
-import { Stop } from 'src/database/entities/stop.entity'
 import { FindManyOptions } from 'typeorm'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
+
+import { FareRule } from 'src/database/fare-rule/fare_rule.entity'
+import { FareRuleRepository } from 'src/database/fare-rule/fare_rule.repository'
+import { Remote } from 'src/database/remote/remote.entity'
 
 @Injectable()
 export class FareRuleService {

@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-import { Remote } from './remote.entity'
+import { Remote } from '../remote/remote.entity'
 
 export enum FeedType {
   TRIP_UPDATE = 1,

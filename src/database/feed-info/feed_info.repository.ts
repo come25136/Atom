@@ -1,7 +1,8 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
-import { BaseRepository } from './base.repository'
+
+import { BaseRepository } from '../base/base.repository'
 import { FeedInfo } from './feed_info.entity'
-import { Remote } from './remote.entity'
+import { Remote } from '../remote/remote.entity'
 
 @EntityRepository(FeedInfo)
 export class FeedInfoRepository extends BaseRepository<FeedInfo> {

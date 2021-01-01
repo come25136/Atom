@@ -1,6 +1,7 @@
 import { FindOneOptions, ObjectLiteral } from 'typeorm'
 import { BaseRepository as ClsBaseRepository } from 'typeorm-transactional-cls-hooked'
-import { Remote } from './remote.entity'
+
+import { Remote } from '../remote/remote.entity'
 
 export class BaseRepository<
   Entity extends ObjectLiteral

@@ -1,6 +1,8 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
-import { BaseRepository } from './base.repository'
-import { Remote } from './remote.entity'
+
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
+import { Stop } from '../stop/stop.entity'
 import { Transfer } from './transfer.entity'
 
 @EntityRepository(Transfer)

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { StopRepository } from 'src/database/entities/stop.repository'
+import { StopRepository } from 'src/database/stop/stop.repository'
 import { StopService } from './stop.service'
 
 @Module({

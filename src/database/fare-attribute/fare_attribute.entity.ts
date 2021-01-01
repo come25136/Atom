@@ -11,9 +11,9 @@ import {
 } from 'typeorm'
 import { ISO4217, momentToDB } from 'src/util'
 
-import { Agency } from './agency.entity'
-import { FareRule } from './fare_rule.entity'
-import { Remote } from './remote.entity'
+import { Agency } from '../agency/agency.entity'
+import { FareRule } from '../fare-rule/fare_rule.entity'
+import { Remote } from '../remote/remote.entity'
 
 @Entity()
 @Unique(['remote', 'id'])

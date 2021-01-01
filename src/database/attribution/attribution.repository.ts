@@ -1,8 +1,9 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
 
 import { Attribution } from './attribution.entity'
-import { BaseRepository } from './base.repository'
-import { Remote } from './remote.entity'
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
+import { Agency } from '../agency/agency.entity'
 
 @EntityRepository(Attribution)
 export class AttributionRepository extends BaseRepository<Attribution> {

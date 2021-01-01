@@ -1,9 +1,10 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
-import { Transactional } from 'typeorm-transactional-cls-hooked'
-import { BaseRepository } from './base.repository'
-import { Remote } from './remote.entity'
+
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
+import { Stop } from '../stop/stop.entity'
+import { Trip } from '../trip/trip.entity'
 import { StopTime } from './stop_time.entity'
-import { Trip } from './trip.entity'
 
 @EntityRepository(StopTime)
 export class StopTimeRepository extends BaseRepository<StopTime> {

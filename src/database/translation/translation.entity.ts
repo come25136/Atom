@@ -8,8 +8,9 @@ import {
 } from 'typeorm'
 import { StopTime } from '@come25136/gtfs'
 
-import { Remote } from './remote.entity'
 import { momentToDB } from 'src/util'
+
+import { Remote } from '../remote/remote.entity'
 
 export enum TableName {
   Agency = 1,

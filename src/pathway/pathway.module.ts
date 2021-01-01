@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { PathwayRepository } from 'src/database/entities/pathway.repository'
+import { PathwayRepository } from 'src/database/pathway/pathway.repository'
 import { PathwayService } from './pathway.service'
 
 @Module({

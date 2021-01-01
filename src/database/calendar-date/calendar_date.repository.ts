@@ -1,7 +1,8 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
-import { BaseRepository } from './base.repository'
+
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
 import { CalendarDate } from './calendar_date.entity'
-import { Remote } from './remote.entity'
 
 @EntityRepository(CalendarDate)
 export class CalendarDateRepository extends BaseRepository<CalendarDate> {

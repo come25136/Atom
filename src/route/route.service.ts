@@ -1,9 +1,10 @@
 import * as GTFS from '@come25136/gtfs'
 import { Injectable } from '@nestjs/common'
-import { Remote } from 'src/database/entities/remote.entity'
-import { Route } from 'src/database/entities/route.entity'
-import { RouteRepository } from 'src/database/entities/route.repository'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
+
+import { Remote } from 'src/database/remote/remote.entity'
+import { Route } from 'src/database/route/route.entity'
+import { RouteRepository } from 'src/database/route/route.repository'
 
 @Injectable()
 export class RouteService {

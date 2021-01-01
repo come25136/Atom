@@ -1,9 +1,9 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 
-import { BaseRepository } from './base.repository'
+import { BaseRepository } from '../base/base.repository'
+import { Remote } from '../remote/remote.entity'
 import { GtfsRealtime } from './gtfs_realtime.entity'
-import { Remote } from './remote.entity'
 
 @EntityRepository(GtfsRealtime)
 export class GtfsRealtimeRepository extends BaseRepository<GtfsRealtime> {

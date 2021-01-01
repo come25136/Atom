@@ -11,8 +11,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-import { Remote } from './remote.entity'
-import { Trip } from './trip.entity'
+import { Remote } from '../remote/remote.entity'
+import { Trip } from '../trip/trip.entity'
 
 @Entity()
 @Unique(['remote', 'tripId', 'startTime', 'endTime'])
