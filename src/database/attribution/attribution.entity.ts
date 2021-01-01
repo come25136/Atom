@@ -5,7 +5,6 @@ import {
   Entity,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
@@ -42,11 +41,11 @@ export class Attribution {
   @Column('varchar', { nullable: true, default: null })
   agencyId: GTFS.Attribution['agency']['id']
 
-  @ManyToMany(
+  @ManyToOne(
     () => Agency,
     ({ attributions }) => attributions,
   )
-  agency: Agency[]
+  agency: Agency
 
   @Column('varchar', { nullable: true, default: null })
   routeId: GTFS.Attribution['route']['id']

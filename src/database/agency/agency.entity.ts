@@ -3,7 +3,6 @@ import { momentToDB } from 'src/util'
 import {
   Column,
   Entity,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -72,7 +71,7 @@ export class Agency {
   )
   fareAttributes: FareAttribute[]
 
-  @ManyToMany(
+  @OneToMany(
     () => Attribution,
     ({ agency }) => agency,
   )
