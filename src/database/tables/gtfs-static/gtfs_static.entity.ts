@@ -1,5 +1,5 @@
-import * as moment from 'moment'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -14,7 +14,7 @@ import {
 import { Remote } from '../remote/remote.entity'
 
 @Entity()
-export class GtfsStatic extends BaseEntity {
+export class GtfsStatic  {
   @OneToOne(
     () => Remote,
     ({ gtfsStatic }) => gtfsStatic,
@@ -28,26 +28,26 @@ export class GtfsStatic extends BaseEntity {
 
   @CreateDateColumn({
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  readonly createdAt: moment.Moment
+  readonly createdAt: dayjs.Dayjs
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('text')
   url: string
 
   @Column('char', { length: 64 })
-  hash: string
+  latestFetchedHash: string
 
   @Column('datetime', {
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  lastAcquisitionDate: moment.Moment
+  latestFetchedDate: dayjs.Dayjs
 }

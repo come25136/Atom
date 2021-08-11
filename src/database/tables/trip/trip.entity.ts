@@ -1,4 +1,5 @@
 import * as GTFS from '@come25136/gtfs'
+import * as dayjs from 'dayjs'
 import {
   BaseEntity,
   Column,
@@ -13,7 +14,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-import { momentToDB } from 'src/util'
+import { dayjsToDB } from 'src/util'
 
 import { Attribution } from '../attribution/attribution.entity'
 import { CalendarDate } from '../calendar-date/calendar_date.entity'
@@ -27,7 +28,7 @@ import { StopTime } from '../stop-time/stop_time.entity'
 @Entity()
 @Unique(['remote', 'id', 'routeId', 'serviceId'])
 @Index(['remote', 'serviceId'])
-export class Trip extends BaseEntity {
+export class Trip  {
   @ManyToOne(
     () => Remote,
     ({ trips }) => trips,
@@ -40,10 +41,10 @@ export class Trip extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar')
   routeId: GTFS.Trip['routeId']

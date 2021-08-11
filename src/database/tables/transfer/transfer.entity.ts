@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -15,7 +16,7 @@ import { Stop } from '../stop/stop.entity'
 
 @Entity()
 @Unique(['remote', 'fromStopId', 'toStopId'])
-export class Transfer extends BaseEntity {
+export class Transfer  {
   @ManyToOne(
     () => Remote,
     ({ transfers }) => transfers,
@@ -28,10 +29,10 @@ export class Transfer extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar')
   fromStopId: GTFS.Transfer['stop']['from']['id']

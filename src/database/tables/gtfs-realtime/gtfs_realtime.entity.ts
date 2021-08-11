@@ -1,5 +1,4 @@
-import * as moment from 'moment'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
 import {
   BaseEntity,
   Column,
@@ -10,6 +9,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
+import { dayjsToDB } from 'src/util'
 
 import { Remote } from '../remote/remote.entity'
 
@@ -21,7 +21,7 @@ export enum FeedType {
 
 @Entity()
 @Unique(['remote', 'feedType'])
-export class GtfsRealtime extends BaseEntity {
+export class GtfsRealtime  {
   @ManyToOne(
     () => Remote,
     ({ gtfsRealtimes }) => gtfsRealtimes,
@@ -34,16 +34,16 @@ export class GtfsRealtime extends BaseEntity {
 
   @CreateDateColumn({
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  readonly createdAt: moment.Moment
+  readonly createdAt: dayjs.Dayjs
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column({
     type: 'enum',
@@ -55,11 +55,11 @@ export class GtfsRealtime extends BaseEntity {
   url: string
 
   @Column('char', { length: 64 })
-  hash: string
+  latestFetchedHash: string
 
   @Column('datetime', {
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  lastAcquisitionDate: moment.Moment
+  latestFetchedDate: dayjs.Dayjs
 }

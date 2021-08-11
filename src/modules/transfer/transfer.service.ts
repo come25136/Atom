@@ -22,7 +22,7 @@ export class TransferService {
   }
 
   @Transactional()
-  async save(entities: Transfer[], updateEntity = false) {
+  async bulkUpsert(entities: Transfer[], updateEntity = false) {
     return this.transferRepository
       .createQueryBuilder()
       .insert()

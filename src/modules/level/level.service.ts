@@ -28,7 +28,7 @@ export class LevelService {
   }
 
   @Transactional()
-  async save(entities: Level[], updateEntity = false) {
+  async bulkUpsert(entities: Level[], updateEntity = false) {
     return this.levelRepository
       .createQueryBuilder()
       .insert()

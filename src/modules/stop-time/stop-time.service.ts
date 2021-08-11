@@ -5,12 +5,22 @@ import { Transactional } from 'typeorm-transactional-cls-hooked'
 import { Remote } from 'src/database/tables/remote/remote.entity'
 import { StopTime } from 'src/database/tables/stop-time/stop_time.entity'
 import { StopTimeRepository } from 'src/database/tables/stop-time/stop_time.repository'
+import * as dayjs from 'dayjs'
+import { Trip } from 'src/database/tables/trip/trip.entity'
 
 @Injectable()
 export class StopTimeService {
   constructor(private stopTimeRepository: StopTimeRepository) {}
 
-  create(remoteUid: Remote['uid'], data: GTFS.StopTime): StopTime {
+  create(
+    remoteUid: Remote['uid'],
+    data: Omit<GTFS.StopTime, 'time'> & {
+      time: {
+        arrival: dayjs.Dayjs
+        departure: dayjs.Dayjs
+      }
+    },
+  ): StopTime {
     const stopTimeEntity = this.stopTimeRepository.create({
       tripId: data.tripId,
       sequence: data.sequence,
@@ -29,7 +39,7 @@ export class StopTimeService {
   }
 
   @Transactional()
-  async save(entities: StopTime[]) {
+  async bulkUpsert(entities: StopTime[]) {
     return this.stopTimeRepository
       .createQueryBuilder()
       .insert()
@@ -66,5 +76,27 @@ export class StopTimeService {
   @Transactional()
   async linkTrip(...args: Parameters<StopTimeRepository['linkTrip']>) {
     return this.stopTimeRepository.linkTrip(...args)
+  }
+
+  @Transactional()
+  async findOneByUid(uid: StopTime['uid']) {
+    return this.stopTimeRepository.findOne({
+      where: {
+        uid,
+      },
+    })
+  }
+
+  @Transactional()
+  async findOneByRemoteUidAndTripUidAndSequence(
+    remoteUid: Remote['uid'],
+    tripUid: Trip['uid'],
+    sequence: StopTime['sequence'],
+  ) {
+    return this.stopTimeRepository.findOneByRemoteUidAndTripUidAndSequence(
+      remoteUid,
+      tripUid,
+      sequence,
+    )
   }
 }

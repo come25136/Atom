@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  database-source:
+    image: mariadb:10.5.9
+    ports:
+      - "3306:3306"
+    volumes:
+      - database-volume:/var/lib/mysql
+      - ./docker/database/source/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./docker/database/source/init-script/:/docker-entrypoint-initdb.d/
+    environment:
+      MYSQL_DATABASE: "atom"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      TZ: "Asia/Tokyo"
+
+  database-replica:
+    depends_on:
+      - database-source
+    image: mariadb:10.5.9
+    ports:
+      - '3307:3306'
+    tmpfs: /var/lib/mysql
+    volumes:
+      - ./docker/database/replica/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./docker/database/replica/init-script/:/docker-entrypoint-initdb.d/
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      TZ: "Asia/Tokyo"
+      SOURCE_HOST: database-source
+      SOURCE_USER: root
+
+  redis:
+    depends_on:
+      - database-replica
+    image: redis:alpine3.13
+    ports:
+      - "6379:6379"
+
+  app:
+    depends_on:
+      - redis
+    build:
+      context: .
+      dockerfile: docker/app/dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+
+volumes:
+  database-volume:
+    name: atom_database_volume

@@ -1,29 +1,29 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
 import {
-  BaseEntity,
   Column,
   Entity,
-  EntityManager,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
-  getRepository,
 } from 'typeorm'
+import { dayjsToDB } from 'src/util'
 
 import { FareRule } from '../fare-rule/fare_rule.entity'
 import { Level } from '../level/level.entity'
 import { Pathway } from '../pathway/pathway.entity'
 import { Remote } from '../remote/remote.entity'
+import { Shape } from '../shape/shape.entity'
+import { StopCluster } from '../stop-cluster/stop-cluster.entity'
 import { StopTime } from '../stop-time/stop_time.entity'
 import { Transfer } from '../transfer/transfer.entity'
-import { Translation } from '../translation/translation.entity'
 
 @Entity()
 @Unique(['remote', 'id'])
-export class Stop extends BaseEntity {
+export class Stop {
   @ManyToOne(
     () => Remote,
     ({ stops }) => stops,
@@ -39,10 +39,10 @@ export class Stop extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar', { nullable: true, default: null })
   code: GTFS.Stop['code'] = null
@@ -53,8 +53,9 @@ export class Stop extends BaseEntity {
   @Column('varchar', { nullable: true, default: null })
   description: GTFS.Stop['description'] = null
 
-  @Column('point', {
+  @Column('geometry', {
     nullable: true,
+    srid: 4326,
     transformer: {
       from: (v: string): GTFS.Location => {
         if (v === null) return null
@@ -160,77 +161,15 @@ export class Stop extends BaseEntity {
   )
   times: StopTime[]
 
-  async translate(language: string, trn?: EntityManager) {
-    const translationRepo =
-      trn?.getRepository(Translation) ?? getRepository(Translation)
+  @OneToMany(
+    () => Shape,
+    ({ stop }) => stop,
+  )
+  shapes: Shape[]
 
-    const name = await translationRepo.findOne({
-      where: [
-        {
-          remote: this.remote,
-          language,
-          tableName: 'stops',
-          fieldName: 'stop_name',
-          recordId: this.id,
-        },
-        {
-          remote: this.remote,
-          language,
-          tableName: 'stops',
-          fieldName: 'stop_name',
-          fieldValue: this.name,
-        },
-      ],
-    })
-
-    return {
-      id: this.id,
-      code: this.code,
-      name: name?.translation ?? this.name,
-      description: this.description,
-      locationType: this.locationType,
-      location: {
-        lat: this.location.lat,
-        lon: this.location.lon,
-      },
-      zoneId: this.zoneId,
-      url: this.url,
-      parentStation: this.parentStation,
-      timezone: this.timezone,
-      wheelchairBoarding: this.wheelchairBoarding,
-      levelId: this.levelId,
-      platformCode: this.platformCode,
-    }
-  }
-
-  get public(): GTFS.Stop {
-    return Stop.public(this)
-  }
-
-  static public(
-    stop: ReturnType<Stop['translate']> extends Promise<infer T> ? T : never,
-  ): GTFS.Stop {
-    return {
-      id: stop.id,
-      code: stop.code,
-      name: stop.name,
-      description: stop.description,
-      location: {
-        type: stop.locationType,
-        lat: stop.location.lat,
-        lon: stop.location.lon,
-      },
-      zone: {
-        id: stop.zoneId,
-      },
-      url: stop.url,
-      parentStation: stop.parentStation,
-      timezone: stop.timezone,
-      wheelchairBoarding: stop.wheelchairBoarding,
-      level: {
-        id: stop.levelId,
-      },
-      platformCode: stop.platformCode,
-    }
-  }
+  @ManyToMany(
+    () => StopCluster,
+    ({ stops }) => stops,
+  )
+  cluster: StopCluster
 }

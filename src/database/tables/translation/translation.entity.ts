@@ -7,8 +7,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 import { StopTime } from '@come25136/gtfs'
+import * as dayjs from 'dayjs'
 
-import { momentToDB } from 'src/util'
+import { dayjsToDB } from 'src/util'
 
 import { Remote } from '../remote/remote.entity'
 
@@ -44,10 +45,10 @@ export class Translation {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column({
     type: 'enum',

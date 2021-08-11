@@ -1,14 +1,14 @@
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 import { HttpService, Injectable } from '@nestjs/common'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
 import { createHash } from 'crypto'
 
-import { Remote } from 'src/database/tables/remote/remote.entity'
 import {
   FeedType,
   GtfsRealtime,
 } from 'src/database/tables/gtfs-realtime/gtfs_realtime.entity'
 import { GtfsRealtimeRepository } from 'src/database/tables/gtfs-realtime/gtfs_realtime.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 @Injectable()
 export class GtfsRealtimeService {
@@ -38,9 +38,24 @@ export class GtfsRealtimeService {
         feedType,
       )) ?? this.gtfsRealtimeRepository.create({ feedType })
     gtfsRTEntity.url = url
-    gtfsRTEntity.hash = pBHash
-    gtfsRTEntity.lastAcquisitionDate = moment()
+    gtfsRTEntity.latestFetchedHash = pBHash
+    gtfsRTEntity.latestFetchedDate = dayjs()
 
     return gtfsRTEntity
+  }
+
+  @Transactional()
+  async findOneByRemoteUidAndFeedType(
+    remoteUid: Remote['uid'],
+    feedType: FeedType,
+  ): Promise<GtfsRealtime> {
+    return this.gtfsRealtimeRepository.findOne({
+      where: {
+        remote: {
+          uid: remoteUid,
+        },
+        feedType,
+      },
+    })
   }
 }

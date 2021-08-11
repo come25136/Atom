@@ -39,7 +39,7 @@ export class RouteService {
   }
 
   @Transactional()
-  async save(entities: Route[], updateEntity = false) {
+  async bulkUpsert(entities: Route[], updateEntity = false) {
     return this.routeRepository
       .createQueryBuilder()
       .insert()

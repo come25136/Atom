@@ -14,6 +14,7 @@ class GTFS {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace GTFS {
   export enum StaticFileNames {
     Agency = 'agency.txt',

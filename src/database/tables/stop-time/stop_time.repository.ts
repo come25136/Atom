@@ -1,4 +1,5 @@
-import { EntityRepository, FindOneOptions } from 'typeorm'
+import * as dayjs from 'dayjs'
+import { EntityRepository, FindOneOptions, In } from 'typeorm'
 
 import { BaseRepository } from '../base/base.repository'
 import { Remote } from '../remote/remote.entity'
@@ -42,20 +43,84 @@ export class StopTimeRepository extends BaseRepository<StopTime> {
     })
   }
 
+  async findOneByRemoteUidAndTripUid(
+    remoteUid: Remote['uid'],
+    tripUid: Trip['uid'],
+    other?: FindOneOptions<StopTime>,
+  ): Promise<StopTime> {
+    return this.findOne({
+      ...other,
+      where: {
+        remote: {
+          uid: remoteUid,
+        },
+        trip: {
+          uid: tripUid,
+        },
+      },
+    })
+  }
+
+  async findByRemoteUidAndTripUid(
+    remoteUid: Remote['uid'],
+    tripUid: Trip['uid'],
+    orderBy: 'ASC' | 'DESC' = 'ASC',
+    other?: FindOneOptions<StopTime>,
+  ): Promise<StopTime[]> {
+    return this.find({
+      ...other,
+      where: {
+        remote: {
+          uid: remoteUid,
+        },
+        trip: {
+          uid: tripUid,
+        },
+      },
+      order: {
+        sequence: orderBy,
+      },
+    })
+  }
+
   async findOneByRemoteUidAndTripId(
     remoteUid: Remote['uid'],
-    tripId: StopTime['tripId'],
+    tripId: Trip['id'],
     sequence?: StopTime['sequence'],
     other?: FindOneOptions<StopTime>,
   ): Promise<StopTime> {
     return this.findOne({
       ...other,
       where: {
-        tripId,
-        sequence,
         remote: {
           uid: remoteUid,
         },
+        tripId,
+        sequence,
+      },
+    })
+  }
+
+  async findOneByRemoteUidsAndTripUidsAndTime(
+    remoteUid: Remote['uid'],
+    tripUids: Trip['uid'][],
+    time: {
+      arrivalTime?: dayjs.Dayjs
+      departureTime?: dayjs.Dayjs
+    },
+    sequence?: StopTime['sequence'],
+    relations?: (keyof StopTime)[], // NOTE: リレーション内をソートできないとか問題があるのでよく検討して使う
+  ): Promise<StopTime> {
+    return this.findOne({
+      relations,
+      where: {
+        remote: {
+          uid: remoteUid,
+        },
+        tripId: In(tripUids),
+        sequence,
+        arrivalTime: time?.arrivalTime,
+        departureTime: time?.departureTime,
       },
     })
   }
@@ -70,5 +135,24 @@ export class StopTimeRepository extends BaseRepository<StopTime> {
       .set({ trip: { uid: tripUid } })
       .where({ remote: { uid: remoteUid }, tripId })
       .execute()
+  }
+
+  async findOneByRemoteUidAndTripUidAndSequence(
+    remoteUid: Remote['uid'],
+    tripUid: Trip['uid'],
+    sequence: StopTime['sequence'],
+  ) {
+    return this.findOne({
+      relations: ['stop'],
+      where: {
+        remote: {
+          uid: remoteUid,
+        },
+        trip: {
+          uid: tripUid,
+        },
+        sequence,
+      },
+    })
   }
 }

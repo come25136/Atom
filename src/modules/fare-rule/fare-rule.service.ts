@@ -25,7 +25,7 @@ export class FareRuleService {
   }
 
   @Transactional()
-  async save(entities: FareRule[], updateEntity = false) {
+  async bulkUpsert(entities: FareRule[], updateEntity = false) {
     return this.fareRuleRepository
       .createQueryBuilder()
       .insert()
@@ -80,6 +80,11 @@ export class FareRuleService {
       originId,
       { ...other, select: ['uid'] },
     )
+  }
+
+  @Transactional()
+  async linkRoute(...args: Parameters<FareRuleRepository['linkRoute']>) {
+    return this.fareRuleRepository.linkRoute(...args)
   }
 
   @Transactional()

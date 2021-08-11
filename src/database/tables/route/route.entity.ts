@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -19,8 +20,8 @@ import { Remote } from '../remote/remote.entity'
 import { Trip } from '../trip/trip.entity'
 
 @Entity()
-@Unique(['remote', 'id'])
-export class Route extends BaseEntity {
+@Unique(['remote', 'agencyId', 'id'])
+export class Route  {
   @ManyToOne(
     () => Remote,
     ({ routes: route }) => route,
@@ -36,10 +37,10 @@ export class Route extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar', { nullable: true, default: null })
   agencyId: string | null = null

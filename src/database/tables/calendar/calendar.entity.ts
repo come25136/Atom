@@ -1,6 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import * as moment from 'moment-timezone'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -17,7 +17,17 @@ import { Trip } from '../trip/trip.entity'
 
 @Entity()
 @Unique(['remote', 'serviceId'])
-export class Calendar extends BaseEntity {
+export class Calendar  {
+  static readonly dayNames = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+  ] as const
+
   @ManyToOne(
     () => Remote,
     ({ calendar }) => calendar,
@@ -30,10 +40,10 @@ export class Calendar extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar')
   serviceId: GTFS.Trip['serviceId']
@@ -60,12 +70,12 @@ export class Calendar extends BaseEntity {
   sunday: GTFS.Calendar['days']['sun']
 
   @Column('date', {
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
   startDate: GTFS.Calendar['date']['start']
 
   @Column('date', {
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
   endDate: GTFS.Calendar['date']['end']
 

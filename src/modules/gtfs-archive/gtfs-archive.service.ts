@@ -1,11 +1,12 @@
 import * as _ from 'lodash'
+import * as dayjs from 'dayjs'
 import * as fs from 'fs'
 import * as mkdir from 'mkdirp'
 import * as path from 'path'
 import * as stripBomStream from 'strip-bom-stream'
 import * as yauzl from 'yauzl'
-import { ConfigService } from '@nestjs/config/dist/config.service'
 import { HttpService, Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config/dist/config.service'
 import { PythonShell } from 'python-shell'
 import { createHash } from 'crypto'
 
@@ -16,9 +17,10 @@ export class GtfsArchiveService {
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
-  ) {}
+  ) { }
 
   async download(url: string, unZipDirPath: string) {
+    const downloadDate = dayjs()
     const { data: zipBuffer } = await this.httpService
       .get<Buffer>(url, {
         responseType: 'arraybuffer',
@@ -68,12 +70,12 @@ export class GtfsArchiveService {
             const conditionallyRequiredFiles: ((
               fileNames: string[],
             ) => boolean)[] = [
-              (fileNames: string[]) =>
-                _.intersection(
-                  ['calendar.txt', 'calendar_dates.txt'],
-                  fileNames,
-                ).length === 0,
-            ]
+                (fileNames: string[]) =>
+                  _.intersection(
+                    ['calendar.txt', 'calendar_dates.txt'],
+                    fileNames,
+                  ).length === 0,
+              ]
 
             if (
               _.difference(GTFS.RequiredFileNames, fileNames).length !== 0 ||
@@ -92,6 +94,7 @@ export class GtfsArchiveService {
 
     return {
       archive: {
+        downloadDate,
         hash: zipHash,
       },
       entry: {
@@ -107,7 +110,7 @@ export class GtfsArchiveService {
   ): Promise<boolean> {
     return new Promise((res, rej) => {
       PythonShell.run(
-        'upgrade_translations.py',
+        'tools/gtfs_upgrade_translations.py',
         {
           pythonPath: this.configService.get<string>(
             'python.path',

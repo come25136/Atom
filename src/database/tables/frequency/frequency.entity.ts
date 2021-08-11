@@ -1,6 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import * as moment from 'moment-timezone'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -16,7 +16,7 @@ import { Trip } from '../trip/trip.entity'
 
 @Entity()
 @Unique(['remote', 'tripId', 'startTime', 'endTime'])
-export class Frequency extends BaseEntity {
+export class Frequency  {
   @ManyToOne(
     () => Remote,
     ({ frequencies }) => frequencies,
@@ -29,10 +29,10 @@ export class Frequency extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar', { nullable: true, default: null })
   tripId: string | null = null
@@ -45,13 +45,13 @@ export class Frequency extends BaseEntity {
 
   @Column('date', {
     nullable: true,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
   startTime: GTFS.Frequency['time']['start'] = null
 
   @Column('date', {
     nullable: true,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
   endTime: GTFS.Frequency['time']['end'] = null
 

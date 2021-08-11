@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -17,7 +18,7 @@ import { Stop } from '../stop/stop.entity'
 
 @Entity()
 @Unique(['remote', 'id', 'routeId', 'originId', 'destinationId', 'containId'])
-export class FareRule extends BaseEntity {
+export class FareRule  {
   @ManyToOne(
     () => Remote,
     ({ fareRules }) => fareRules,
@@ -33,10 +34,10 @@ export class FareRule extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @ManyToOne(
     () => FareAttribute,

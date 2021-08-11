@@ -1,4 +1,4 @@
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 import {
   Column,
   CreateDateColumn,
@@ -10,11 +10,11 @@ import {
 } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 
-import { momentToDB } from 'src/util'
+import { dayjsToDB } from 'src/util'
 
 import { Agency } from '../agency/agency.entity'
-import { CalendarDate } from '../calendar-date/calendar_date.entity'
 import { Calendar } from '../calendar/calendar.entity'
+import { CalendarDate } from '../calendar-date/calendar_date.entity'
 import { FareAttribute } from '../fare-attribute/fare_attribute.entity'
 import { FareRule } from '../fare-rule/fare_rule.entity'
 import { FeedInfo } from '../feed-info/feed_info.entity'
@@ -25,11 +25,20 @@ import { Level } from '../level/level.entity'
 import { Pathway } from '../pathway/pathway.entity'
 import { Route } from '../route/route.entity'
 import { Shape } from '../shape/shape.entity'
-import { StopTime } from '../stop-time/stop_time.entity'
 import { Stop } from '../stop/stop.entity'
+import { StopCluster } from '../stop-cluster/stop-cluster.entity'
+import { StopTime } from '../stop-time/stop_time.entity'
 import { Transfer } from '../transfer/transfer.entity'
 import { Translation } from '../translation/translation.entity'
 import { Trip } from '../trip/trip.entity'
+
+export enum CrawlStatus {
+  ERROR = 'ERROR',
+  INITING = 'INITING',
+  PENDING = 'PENDING',
+  IMPORTING = 'IMPORTING',
+  IMPORTED = 'IMPORTED',
+}
 
 @Entity()
 export class Remote {
@@ -42,16 +51,23 @@ export class Remote {
 
   @CreateDateColumn({
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  readonly createdAt: moment.Moment
+  readonly createdAt: dayjs.Dayjs
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
+
+  @Column({
+    type: 'enum',
+    enum: CrawlStatus,
+    default: CrawlStatus.INITING,
+  })
+  crawlStatus: CrawlStatus = CrawlStatus.INITING
 
   @Column('text')
   displayName: string
@@ -223,4 +239,13 @@ export class Remote {
     },
   )
   translations: Translation[]
+
+  @OneToMany(
+    () => StopCluster,
+    ({ remote }) => remote,
+    {
+      cascade: true,
+    },
+  )
+  stopCluster: StopCluster[]
 }

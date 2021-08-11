@@ -1,0 +1,23 @@
+# builder
+FROM node:14.16.1-alpine3.13 as builder
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+RUN apk add --update python3 make
+RUN npm ci --no-progress
+RUN npm run build
+
+# runner
+FROM node:14.16.1-alpine3.13 as runner
+
+WORKDIR /usr/src/app
+
+COPY package.json .
+COPY package-lock.json .
+COPY --from=builder /usr/src/app/dist dist
+RUN npm ci
+CMD npm run start:prod
+
+EXPOSE 3000

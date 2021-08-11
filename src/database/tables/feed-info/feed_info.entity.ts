@@ -1,6 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import * as moment from 'moment-timezone'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -13,7 +13,7 @@ import {
 import { Remote } from '../remote/remote.entity'
 
 @Entity()
-export class FeedInfo extends BaseEntity {
+export class FeedInfo  {
   @ManyToOne(
     () => Remote,
     ({ feedInfos }) => feedInfos,
@@ -26,10 +26,10 @@ export class FeedInfo extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar')
   publisherName: GTFS.FeedInfo['publisher']['name']
@@ -43,16 +43,16 @@ export class FeedInfo extends BaseEntity {
   @Column('date', {
     nullable: true,
     default: null,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  startDate: GTFS.FeedInfo['date']['start'] = null
+  startDate: dayjs.Dayjs = null
 
   @Column('date', {
     nullable: true,
     default: null,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  endDate: GTFS.FeedInfo['date']['end'] = null
+  endDate: dayjs.Dayjs = null
 
   @Column('varchar', { nullable: true, default: null })
   version: GTFS.FeedInfo['version'] = null

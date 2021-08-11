@@ -31,7 +31,7 @@ export class FareAttributeService {
   }
 
   @Transactional()
-  async save(entities: FareAttribute[], updateEntity = false) {
+  async bulkUpsert(entities: FareAttribute[], updateEntity = false) {
     return this.fareAttributeRepository
       .createQueryBuilder()
       .insert()
@@ -47,6 +47,7 @@ export class FareAttributeService {
       .execute()
   }
 
+  @Transactional()
   async linkAgency(...args: Parameters<FareAttributeRepository['linkAgency']>) {
     return this.fareAttributeRepository.linkAgency(...args)
   }

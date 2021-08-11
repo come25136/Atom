@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   Column,
   Entity,
@@ -33,10 +34,10 @@ export class Attribution {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar', { nullable: true, default: null })
   agencyId: GTFS.Attribution['agency']['id']

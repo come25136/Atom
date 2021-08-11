@@ -8,6 +8,6 @@ import { CalendarService } from './calendar.service'
 @Module({
   imports: [TypeOrmModule.forFeature([CalendarRepository]), CalendarDateModule],
   providers: [CalendarService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule,CalendarDateModule],
 })
-export class CalendarModule {}
+export class CalendarModule { }

@@ -7,6 +7,6 @@ import { GtfsRealtimeService } from './gtfs-realtime.service'
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([GtfsRealtimeRepository])],
   providers: [GtfsRealtimeService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, GtfsRealtimeService],
 })
 export class GtfsRealtimeModule {}

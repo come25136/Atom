@@ -1,6 +1,24 @@
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
+import * as dayjsUtc from 'dayjs/plugin/utc'
+import { Geometry } from 'src/interfaces/geometry'
 
-// NOTE: MySQL側のenumがone indexなので...
+export * from './mode'
+
+dayjs.extend(dayjsUtc)
+
+export interface Location {
+  lat: number
+  lon: number
+}
+
+export interface Bounds {
+  north: number
+  west: number
+  south: number
+  east: number
+}
+
+// NOTE: MariaDB側のenumがone indexなので...
 export enum ISO4217 {
   'AED' = 1,
   'AFN' = 2,
@@ -169,30 +187,125 @@ export enum ISO4217 {
   'ZWL' = 165,
 }
 
+// NOTE: 全角から半角に変換
 export function convertStringFullWidthToHalfWidth<Char extends string | null>(
   char: Char,
 ): string | Char {
   return typeof char === 'string'
     ? char
-        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, char =>
-          String.fromCharCode(char.charCodeAt(0) - 0xfee0),
-        )
-        .replace(/（(.*)）/, '($1)')
-        .replace(/(\S)(?!\s)(\()/, '$1 $2')
-        .replace(/(\))(?!\s)(\S)/, '$1 $2')
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, char =>
+        String.fromCharCode(char.charCodeAt(0) - 0xfee0),
+      )
+      .replace(/（(.*)）/, '($1)')
+      .replace(/(\S)(?!\s)(\()/, '$1 $2')
+      .replace(/(\))(?!\s)(\S)/, '$1 $2')
     : char
 }
 
-export const momentToDB = {
-  from: (v: moment.Moment | null) =>
-    v === null ? null : moment.utc(v, 'YYYY-MM-DD HH:mm:ss'),
-  to: (v: moment.Moment | Date) =>
-    moment.isMoment(v)
-      ? new Date(
-          v
-            .clone()
-            .utc()
-            .format('YYYY-MM-DD HH:mm:ss'),
+export const dayjsToDB = {
+  from: (v: dayjs.Dayjs | null) => (v === null ? null : dayjs(v).utc(true)),
+  to: (v: dayjs.Dayjs | Date) =>
+    dayjs.isDayjs(v) ? new Date(v.utc().format('YYYY-MM-DD HH:mm:ss')) : v,
+}
+
+/**
+ * @param date 00:00:00
+ * @param standard
+ */
+export function h24ToLessH24(
+  date: string | dayjs.Dayjs,
+  standard: dayjs.Dayjs = dayjs(),
+  override = true,
+  subtract = false,
+  keepLocalTime = false,
+): dayjs.Dayjs {
+  let time: {
+    hour: number
+    minute: number
+    second: number
+  }
+
+  if (typeof date === 'string') {
+    const timeSplit = date.split(':')
+    time = {
+      hour: Number(timeSplit[0]),
+      minute: Number(timeSplit[1] || 0),
+      second: Number(timeSplit[2] || 0),
+    }
+  } else if (date instanceof Date)
+    time = {
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      second: date.getSeconds(),
+    }
+  else
+    time = {
+      hour: date.hour(),
+      minute: date.minute(),
+      second: date.second(),
+    }
+
+  const utcOffset = dayjs.isDayjs(date)
+    ? date.utcOffset()
+    : standard.utcOffset()
+
+  const standardTz = standard.clone().utcOffset(utcOffset, keepLocalTime)
+
+  if (override)
+    if (subtract)
+      standardTz
+        .subtract(Math.floor(time.hour / 24), 'd')
+        .hour(
+          1 <= time.hour / 24
+            ? (time.hour / 24 - Math.floor(time.hour / 24)) * 24
+            : time.hour,
         )
-      : v,
+        .minute(time.minute)
+        .second(time.second)
+    else
+      standardTz
+        .hour(time.hour)
+        .minute(time.minute)
+        .second(time.second)
+  else
+    standardTz
+      .add(time.hour, 'h')
+      .add(time.minute, 'm')
+      .add(time.second, 's')
+
+  standardTz.utcOffset(standard.utcOffset())
+
+  return standardTz
+}
+
+// https://jsfiddle.net/soulwire/UA6H5/
+export function closestPoint(
+  location: Geometry.Coordinate,
+  p1: Geometry.Coordinate,
+  p2: Geometry.Coordinate,
+): {
+  location: Geometry.Coordinate & {
+    isLeft: boolean
+    lineToDistance: number // p1とp2を結んだ線上までのlocationからの距離(単位不明)
+  }
+  rangeRate: number // p1とp2を結んだ線上でのp1からlocationの正規化された距離 ~ 0 ~ 1 ~
+} {
+  const atob = { x: p2.lon - p1.lon, y: p2.lat - p1.lat }
+  const atop = { x: location.lon - p1.lon, y: location.lat - p1.lat }
+  const len = atob.x * atob.x + atob.y * atob.y
+  let dot = atop.x * atob.x + atop.y * atob.y
+  const t = dot / len
+  dot =
+    (p2.lon - p1.lon) * (location.lat - p1.lat) -
+    (p2.lat - location.lat) * (p1.lon - p1.lon)
+
+  return {
+    location: {
+      lat: p1.lat + atob.y * t,
+      lon: p1.lon + atob.x * t,
+      isLeft: dot < 1,
+      lineToDistance: dot,
+    },
+    rangeRate: t,
+  }
 }

@@ -1,4 +1,4 @@
-import { FindOneOptions, ObjectLiteral } from 'typeorm'
+import { FindManyOptions, FindOneOptions, ObjectLiteral } from 'typeorm'
 import { BaseRepository as ClsBaseRepository } from 'typeorm-transactional-cls-hooked'
 
 import { Remote } from '../remote/remote.entity'
@@ -9,7 +9,7 @@ export class BaseRepository<
   get getUniqueColumns(): string[] {
     const uniques = this.metadata.ownIndices
       .filter(u => u.isUnique)
-      .map(c => c.columns.map(c2 => c2.databaseName))
+      .map(dbIndex => dbIndex.columns.map(c => c.databaseName))
       .flat()
 
     if (uniques.length === 0)
@@ -29,6 +29,22 @@ export class BaseRepository<
     return this.findOne({
       ...other,
       where: {
+        remote: {
+          uid: remoteUid,
+        },
+      },
+    })
+  }
+
+  async findByRemoteUidAndId(
+    remoteUid: Remote['uid'],
+    id: Entity['id'],
+    other?: FindManyOptions<Entity>,
+  ): Promise<Entity[]> {
+    return this.find({
+      ...other,
+      where: {
+        id,
         remote: {
           uid: remoteUid,
         },

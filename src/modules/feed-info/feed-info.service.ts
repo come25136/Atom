@@ -10,7 +10,7 @@ import { Remote } from 'src/database/tables/remote/remote.entity'
 export class FeedInfoService {
   constructor(private feedInfoRepository: FeedInfoRepository) {}
 
-  create(remoteUid: Remote['uid'], data: GTFS.FeedInfo): FeedInfo {
+  create(remoteUid: Remote['uid'], data: any): FeedInfo {
     const feedInfoEntity = this.feedInfoRepository.create({
       publisherName: data.publisher.name,
     })
@@ -26,7 +26,7 @@ export class FeedInfoService {
   }
 
   @Transactional()
-  async save(entities: FeedInfo[], updateEntity = false) {
+  async bulkUpsert(entities: FeedInfo[], updateEntity = false) {
     return this.feedInfoRepository
       .createQueryBuilder()
       .insert()

@@ -7,6 +7,6 @@ import { ShapeService } from './shape.service'
 @Module({
   imports: [TypeOrmModule.forFeature([ShapeRepository])],
   providers: [ShapeService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, ShapeService],
 })
 export class ShapeModule {}

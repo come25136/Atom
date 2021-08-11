@@ -8,6 +8,7 @@ import { CalendarDate } from 'src/database/tables/calendar-date/calendar_date.en
 import { CalendarDateRepository } from 'src/database/tables/calendar-date/calendar_date.repository'
 import { CalendarRepository } from 'src/database/tables/calendar/calendar.repository'
 import { Remote } from 'src/database/tables/remote/remote.entity'
+import * as dayjs from 'dayjs'
 
 @Injectable()
 export class CalendarService {
@@ -47,7 +48,7 @@ export class CalendarService {
   }
 
   @Transactional()
-  async save(entities: Calendar[], updateEntity = false) {
+  async bulkUpsert(entities: Calendar[], updateEntity = false) {
     return this.calendarRepository
       .createQueryBuilder()
       .insert()
@@ -63,7 +64,7 @@ export class CalendarService {
   @Transactional()
   async findServiceIdsByRemoteUidAndDate(
     remoteUid: Remote['uid'],
-    date: moment.Moment,
+    date: dayjs.Dayjs,
   ): Promise<(Calendar['serviceId'] | CalendarDate['serviceId'])[]> {
     const [calendar, calendarDates] = await Promise.all([
       this.calendarRepository.findByRemoteUidAndDate(remoteUid, date),

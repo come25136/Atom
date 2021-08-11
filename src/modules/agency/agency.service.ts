@@ -13,7 +13,7 @@ export class AgencyService {
   constructor(
     private connection: Connection,
     private agencyRepository: AgencyRepository,
-  ) {}
+  ) { }
 
   create(remoteUid: Remote['uid'], data: GTFS.Agency): Agency {
     const agencyEntity = this.agencyRepository.create({ id: data.id })
@@ -29,7 +29,7 @@ export class AgencyService {
   }
 
   @Transactional()
-  async save(entities: Agency[], updateEntity = false) {
+  async bulkUpsert(entities: Agency[], updateEntity = false) {
     return this.agencyRepository
       .createQueryBuilder()
       .insert()
@@ -43,13 +43,9 @@ export class AgencyService {
   }
 
   @Transactional()
-  async getUidOnly(remoteUId: Remote['uid'], id: Agency['id']) {
-    const agency = await this.agencyRepository.findOneByRemoteUidAndId(
+  async findOneByRemoteUid(remoteUId: Remote['uid']) {
+    const agency = await this.agencyRepository.findOneByRemoteUid(
       remoteUId,
-      id,
-      {
-        select: ['uid'],
-      },
     )
 
     return agency

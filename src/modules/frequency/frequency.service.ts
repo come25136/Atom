@@ -23,7 +23,7 @@ export class FrequencyService {
   }
 
   @Transactional()
-  async save(entities: Frequency[], updateEntity = false) {
+  async bulkUpsert(entities: Frequency[], updateEntity = false) {
     return this.frequencyRepository
       .createQueryBuilder()
       .insert()

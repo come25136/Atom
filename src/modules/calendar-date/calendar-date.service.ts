@@ -37,7 +37,7 @@ export class CalendarDateService {
   }
 
   @Transactional()
-  async save(entities: CalendarDate[], updateEntity = false) {
+  async bulkUpsert(entities: CalendarDate[], updateEntity = false) {
     return this.calendarDateRepository
       .createQueryBuilder()
       .insert()

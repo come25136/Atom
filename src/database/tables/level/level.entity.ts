@@ -1,5 +1,6 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -16,7 +17,7 @@ import { Stop } from '../stop/stop.entity'
 
 @Entity()
 @Unique(['remote', 'id'])
-export class Level extends BaseEntity {
+export class Level  {
   @ManyToOne(
     () => Remote,
     ({ levels }) => levels,
@@ -32,10 +33,10 @@ export class Level extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('int')
   index: GTFS.Level['index']

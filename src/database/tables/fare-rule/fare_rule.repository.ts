@@ -2,6 +2,7 @@ import { EntityRepository, FindManyOptions } from 'typeorm'
 
 import { BaseRepository } from '../base/base.repository'
 import { Remote } from '../remote/remote.entity'
+import { Route } from '../route/route.entity'
 import { Stop } from '../stop/stop.entity'
 import { FareRule } from './fare_rule.entity'
 
@@ -21,6 +22,18 @@ export class FareRuleRepository extends BaseRepository<FareRule> {
         },
       },
     })
+  }
+
+  async linkRoute(
+    remoteUid: Remote['uid'],
+    routeUid: Route['uid'],
+    routeId: Route['id'],
+  ) {
+    return this.createQueryBuilder()
+      .update()
+      .set({ route: { uid: routeUid } })
+      .where({ remote: { uid: remoteUid }, routeId: routeId })
+      .execute()
   }
 
   async linkOrigin(

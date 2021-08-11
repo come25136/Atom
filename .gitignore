@@ -33,4 +33,8 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-/.history
+.history
+schema.graphql
+.env.*
+!.env.*.example
+temp/*

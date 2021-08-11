@@ -1,4 +1,6 @@
 import { EntityRepository, FindOneOptions } from 'typeorm'
+import { Transactional } from 'typeorm-transactional-cls-hooked'
+import * as dayjs from 'dayjs'
 
 import { BaseRepository } from '../base/base.repository'
 import { Remote } from '../remote/remote.entity'
@@ -50,7 +52,7 @@ export class CalendarDateRepository extends BaseRepository<CalendarDate> {
 
   async findByRemoteUidAndDate(
     remoteUid: Remote['uid'],
-    date: moment.Moment,
+    date: dayjs.Dayjs,
     other?: FindOneOptions<CalendarDate>,
   ) {
     const dateStr = date.format('YYYY-MM-DD')

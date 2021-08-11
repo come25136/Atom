@@ -3,6 +3,7 @@ import { EntityRepository, FindOneOptions } from 'typeorm'
 import { Agency } from '../agency/agency.entity'
 import { BaseRepository } from '../base/base.repository'
 import { Remote } from '../remote/remote.entity'
+import { Trip } from '../trip/trip.entity'
 import { Route } from './route.entity'
 
 @EntityRepository(Route)
@@ -33,5 +34,23 @@ export class RouteRepository extends BaseRepository<Route> {
         },
       },
     })
+  }
+
+  async findOneByRemoteUidAndTripUid(
+    remoteUid: Remote['uid'],
+    tripUid: Trip['uid'],
+  ) {
+    return this.createQueryBuilder('route')
+      .leftJoinAndMapOne(
+        'route.remote',
+        Remote,
+        'remote',
+        'route.remoteUid = :remoteUid',
+        { remoteUid },
+      ) // NOTE: whereでやるとバインド順がバグって予期せぬ結果になる
+      .leftJoinAndMapMany('route.trips', Trip, 'trip', 'trip.uid = :tripUid', {
+        tripUid,
+      })
+      .getOne()
   }
 }

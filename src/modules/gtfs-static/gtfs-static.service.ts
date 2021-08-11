@@ -1,11 +1,11 @@
-import * as moment from 'moment'
+import * as dayjs from 'dayjs'
 import { HttpService, Injectable } from '@nestjs/common'
-import { createHash } from 'crypto'
 import { Transactional } from 'typeorm-transactional-cls-hooked'
+import { createHash } from 'crypto'
 
-import { Remote } from 'src/database/tables/remote/remote.entity'
 import { GtfsStatic } from 'src/database/tables/gtfs-static/gtfs_static.entity'
 import { GtfsStaticRepository } from 'src/database/tables/gtfs-static/gtfs_static.repository'
+import { Remote } from 'src/database/tables/remote/remote.entity'
 
 @Injectable()
 export class GtfsStaticService {
@@ -19,21 +19,25 @@ export class GtfsStaticService {
     remoteUid: Remote['uid'],
     url: string,
   ): Promise<GtfsStatic> {
-    const { data: gtfsStaticBuffer } = await this.httpService
+    const gtfsStaticHash = createHash('sha256')
+    const { data: gtfsStaticStream } = await this.httpService
       .get(url, {
-        responseType: 'arraybuffer',
+        responseType: 'stream',
       })
       .toPromise()
-    const gtfsStaticHash = createHash('sha256')
-      .update(gtfsStaticBuffer)
-      .digest('hex')
+
+    const gtfsStaticCalcedHash = await new Promise<string>((res, rej) => {
+      gtfsStaticStream.on('data', chunk => gtfsStaticHash.update(chunk))
+      gtfsStaticStream.on('close', () => res(gtfsStaticHash.digest('hex')))
+      gtfsStaticStream.on('error', rej)
+    })
 
     const gtfsEntity =
       (await this.gtfsStaticRepository.findOneByRemoteUid(remoteUid)) ??
       this.gtfsStaticRepository.create({})
     gtfsEntity.url = url
-    gtfsEntity.hash = gtfsStaticHash
-    gtfsEntity.lastAcquisitionDate = moment()
+    gtfsEntity.latestFetchedHash = gtfsStaticCalcedHash
+    gtfsEntity.latestFetchedDate = dayjs()
 
     return gtfsEntity
   }

@@ -9,15 +9,16 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
-import { ISO4217, momentToDB } from 'src/util'
+import { ISO4217, dayjsToDB } from 'src/util'
 
 import { Agency } from '../agency/agency.entity'
 import { FareRule } from '../fare-rule/fare_rule.entity'
 import { Remote } from '../remote/remote.entity'
+import * as dayjs from 'dayjs'
 
 @Entity()
 @Unique(['remote', 'id'])
-export class FareAttribute extends BaseEntity {
+export class FareAttribute  {
   @ManyToOne(
     () => Remote,
     ({ fareAttributes }) => fareAttributes,
@@ -33,10 +34,10 @@ export class FareAttribute extends BaseEntity {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column({
     type: 'enum',

@@ -1,5 +1,5 @@
 import * as GTFS from '@come25136/gtfs'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
 import {
   Column,
   Entity,
@@ -9,6 +9,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
+import { dayjsToDB } from 'src/util'
 
 import { Attribution } from '../attribution/attribution.entity'
 import { FareAttribute } from '../fare-attribute/fare_attribute.entity'
@@ -33,10 +34,10 @@ export class Agency {
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
-    onUpdate: 'CURRENT_TIMESTAMP',
+    transformer: dayjsToDB,
+        onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar')
   name: GTFS.Agency['name']

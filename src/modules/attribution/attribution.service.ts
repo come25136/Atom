@@ -28,7 +28,7 @@ export class AttributionService {
   }
 
   @Transactional()
-  async save(entities: Attribution[], updateEntity = false) {
+  async bulkUpsert(entities: Attribution[], updateEntity = false) {
     return this.attributionRepository
       .createQueryBuilder()
       .insert()
@@ -43,6 +43,11 @@ export class AttributionService {
       .updateEntity(updateEntity)
       .execute()
   }
+
+  // @Transactional()
+  // async linkRoute(...args: Parameters<AttributionRepository['linkRoute']>) {
+  //   return this.attributionRepository.linkRoute(...args)
+  // }
 
   @Transactional()
   async linkAgency(...args: Parameters<AttributionRepository['linkAgency']>) {

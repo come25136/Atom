@@ -1,9 +1,15 @@
+import { HttpModule, Module, Provider, Type } from '@nestjs/common'
+import { BullModule } from '@nestjs/bull'
 import { ConfigService } from '@nestjs/config'
-import { HttpModule, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
+import { Mode, runMode } from 'src/util'
+
+import { ClientsModule, Transport } from '@nestjs/microservices'
 import { AgencyModule } from 'src/modules/agency/agency.module'
 import { AgencyService } from 'src/modules/agency/agency.service'
+import { AttributionModule } from 'src/modules/attribution/attribution.module'
+import { AttributionService } from 'src/modules/attribution/attribution.service'
 import { CalendarDateModule } from 'src/modules/calendar-date/calendar-date.module'
 import { CalendarDateService } from 'src/modules/calendar-date/calendar-date.service'
 import { CalendarModule } from 'src/modules/calendar/calendar.module'
@@ -32,6 +38,7 @@ import { RouteModule } from 'src/modules/route/route.module'
 import { RouteService } from 'src/modules/route/route.service'
 import { ShapeModule } from 'src/modules/shape/shape.module'
 import { ShapeService } from 'src/modules/shape/shape.service'
+import { StopClusterModule } from '../stop-cluster/stop-cluster.module'
 import { StopModule } from 'src/modules/stop/stop.module'
 import { StopService } from 'src/modules/stop/stop.service'
 import { StopTimeModule } from 'src/modules/stop-time/stop-time.module'
@@ -42,11 +49,61 @@ import { TranslationModule } from 'src/modules/translation/translation.module'
 import { TranslationService } from 'src/modules/translation/translation.service'
 import { TripModule } from 'src/modules/trip/trip.module'
 import { TripService } from 'src/modules/trip/trip.service'
-import { AttributionModule } from 'src/modules/attribution/attribution.module'
-import { AttributionService } from 'src/modules/attribution/attribution.service'
+
+import { WorkerController } from './worker.controller'
+import { WorkerService } from './worker.service'
+
+import { GTFSContracts } from './event.contract'
+
+const providers: Provider[] = [
+  ConfigService,
+  RemoteService,
+  GtfsArchiveService,
+  GtfsStaticService,
+  GtfsRealtimeService,
+  AgencyService,
+  StopService,
+  RouteService,
+  TripService,
+  StopTimeService,
+  CalendarService,
+  CalendarDateService,
+  FareAttributeService,
+  FareRuleService,
+  ShapeService,
+  FrequencyService,
+  TransferService,
+  PathwayService,
+  LevelService,
+  FeedInfoService,
+  TranslationService,
+  AttributionService,
+]
+
+let controllers: Type<any>[] = [RemoteController]
+
+if (runMode(Mode.DATA_UPDATER, false)) {
+  providers.push(WorkerService)
+
+  controllers = [WorkerController]
+}
 
 @Module({
   imports: [
+    ClientsModule.register([
+      {
+        name: GTFSContracts.inject,
+        transport: Transport.REDIS,
+        options: {
+          url:
+            `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}` ||
+            'redis://redis:6379',
+        },
+      },
+    ]),
+    BullModule.registerQueue({
+      name: GTFSContracts.inject,
+    }),
     TypeOrmModule.forFeature([RemoteRepository]),
     HttpModule,
     GtfsStaticModule,
@@ -68,32 +125,10 @@ import { AttributionService } from 'src/modules/attribution/attribution.service'
     FeedInfoModule,
     TranslationModule,
     AttributionModule,
+    StopClusterModule,
   ],
-  providers: [
-    ConfigService,
-    RemoteService,
-    GtfsArchiveService,
-    GtfsStaticService,
-    GtfsRealtimeService,
-    AgencyService,
-    StopService,
-    RouteService,
-    TripService,
-    StopTimeService,
-    CalendarService,
-    CalendarDateService,
-    FareAttributeService,
-    FareRuleService,
-    ShapeService,
-    FrequencyService,
-    TransferService,
-    PathwayService,
-    LevelService,
-    FeedInfoService,
-    TranslationService,
-    AttributionService,
-  ],
-  controllers: [RemoteController],
-  exports: [TypeOrmModule],
+  providers,
+  controllers,
+  exports: [TypeOrmModule, RemoteService],
 })
 export class RemoteModule {}

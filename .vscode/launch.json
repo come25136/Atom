@@ -1,0 +1,52 @@
+{
+  // IntelliSense を使用して利用可能な属性を学べます。
+  // 既存の属性の説明をホバーして表示します。
+  // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug: Processor Server",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "start:debug"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "pwa-node",
+      "outputCapture": "std",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env.development",
+      // "args": [
+      //   ">",
+      //   "debug.log"
+      // ]
+    },
+    {
+      "name": "Debug: API Server",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "start:debug"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "pwa-node",
+      "outputCapture": "std",
+      "env": {
+        "DATABASE_HOST": "localhost",
+        "DATABASE_PORT": "3307",
+        "DATABASE_USER": "root",
+        "DATABASE_PASSWORD": "",
+        "DATABASE_NAME": "atom",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "MODE": "API"
+      }
+    }
+  ]
+}

@@ -28,7 +28,7 @@ export class PathwayService {
   }
 
   @Transactional()
-  async save(entities: Pathway[], updateEntity = false) {
+  async bulkUpsert(entities: Pathway[], updateEntity = false) {
     return this.pathwayRepository
       .createQueryBuilder()
       .insert()

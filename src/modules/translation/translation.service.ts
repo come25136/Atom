@@ -28,7 +28,7 @@ export class TranslationService {
   }
 
   @Transactional()
-  async save(entities: Translation[], updateEntity = false) {
+  async bulkUpsert(entities: Translation[], updateEntity = false) {
     return this.translationRepository
       .createQueryBuilder()
       .insert()

@@ -1,10 +1,12 @@
 import {
+  IsDate,
   IsDefined,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
   ValidateNested,
+  isDefined,
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
@@ -22,6 +24,17 @@ export class URL extends OptionalURL {
   url: string
 }
 
+export class OptionalFetchedData extends OptionalURL {
+  @IsDate()
+  @IsOptional()
+  lastFetchedDate: string | null // ISO8601
+}
+
+export class FetchedData extends OptionalFetchedData {
+  @IsDate()
+  lastFetchedDate: string
+}
+
 export class GTFSRTs {
   @ValidateNested()
   @Type(() => URL)
@@ -37,6 +50,23 @@ export class GTFSRTs {
   @Type(() => OptionalURL)
   @ApiProperty()
   alert: OptionalURL
+}
+
+export class FetchedGTFSRTs {
+  @ValidateNested()
+  @Type(() => OptionalFetchedData)
+  @ApiProperty()
+  trip_update: OptionalFetchedData
+
+  @ValidateNested()
+  @Type(() => OptionalFetchedData)
+  @ApiProperty()
+  vehicle_position: OptionalFetchedData
+
+  @ValidateNested()
+  @Type(() => OptionalFetchedData)
+  @ApiProperty()
+  alert: OptionalFetchedData
 }
 
 export class Display {
@@ -83,4 +113,62 @@ export class RegistrationRemoteDto {
   @IsDefined()
   @ApiProperty()
   realtime: GTFSRTs
+}
+
+export enum StatusResult {
+  ERROR = 'error',
+  INITING = 'initing',
+  PENDING = 'pending',
+  IMPORTING = 'importing',
+  IMPORTED = 'imported',
+}
+
+export class Crawl {
+  status: StatusResult
+}
+
+export class RegisterRemoteDto {
+  @ValidateNested()
+  @Type(() => Crawl)
+  @IsDefined()
+  @ApiProperty()
+  crawl: Crawl
+}
+
+export class FindRemoteDto {
+  @ValidateNested()
+  @Type(() => Crawl)
+  @IsDefined()
+  @ApiProperty()
+  crawl: Crawl
+
+  @ValidateNested()
+  @Type(() => Display)
+  @IsDefined()
+  @ApiProperty()
+  display: Display
+
+  @ValidateNested()
+  @Type(() => URL)
+  @IsDefined()
+  @ApiProperty()
+  portal: URL
+
+  @ValidateNested()
+  @Type(() => License)
+  @IsDefined()
+  @ApiProperty()
+  license: License
+
+  @ValidateNested()
+  @Type(() => URL)
+  @IsDefined()
+  @ApiProperty()
+  static: FetchedData
+
+  @ValidateNested()
+  @Type(() => GTFSRTs)
+  @IsDefined()
+  @ApiProperty()
+  realtime: FetchedGTFSRTs
 }

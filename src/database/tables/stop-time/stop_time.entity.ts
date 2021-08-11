@@ -1,6 +1,7 @@
 import * as GTFS from '@come25136/gtfs'
-import * as moment from 'moment-timezone'
-import { momentToDB } from 'src/util'
+import * as dayjs from 'dayjs'
+import * as dayjsDuration from 'dayjs/plugin/duration'
+import { dayjsToDB } from 'src/util'
 import {
   BaseEntity,
   Column,
@@ -17,11 +18,13 @@ import { Remote } from '../remote/remote.entity'
 import { Stop } from '../stop/stop.entity'
 import { Trip } from '../trip/trip.entity'
 
+dayjs.extend(dayjsDuration)
+
 @Entity()
 @Unique(['remote', 'tripId', 'stopId', 'sequence'])
 @Index(['remote', 'tripId'])
 @Index(['remote', 'stopId'])
-export class StopTime extends BaseEntity {
+export class StopTime {
   @ManyToOne(
     () => Remote,
     ({ stopTimes }) => stopTimes,
@@ -34,16 +37,16 @@ export class StopTime extends BaseEntity {
 
   @CreateDateColumn({
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
   })
-  readonly createdAt: moment.Moment
+  readonly createdAt: dayjs.Dayjs
 
   @UpdateDateColumn({
     nullable: false,
-    transformer: momentToDB,
+    transformer: dayjsToDB,
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: moment.Moment
+  updatedAt: dayjs.Dayjs
 
   @Column('varchar')
   tripId: GTFS.StopTime['tripId']
@@ -60,16 +63,16 @@ export class StopTime extends BaseEntity {
       from: v =>
         v === null
           ? null
-          : moment('1970-01-01').seconds(moment.duration(v).asSeconds()),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
+          : dayjs(`1970-01-01 ${v}`, 'YYYY-MM-DD HH:mm:ss'),
+      to: (v: dayjs.Dayjs) =>
+        dayjs.isDayjs(v)
           ? v.year() === 1970
             ? `${v.date() - 1} ${v.format('HH:mm:ss')}`
             : v.format('HH:mm:ss')
           : v,
     },
   })
-  arrivalTime: GTFS.StopTime['time']['arrival'] = null
+  arrivalTime: dayjs.Dayjs | null = null
 
   @Column('time', {
     nullable: true,
@@ -77,16 +80,16 @@ export class StopTime extends BaseEntity {
       from: v =>
         v === null
           ? null
-          : moment('1970-01-01').seconds(moment.duration(v).asSeconds()),
-      to: (v: moment.Moment) =>
-        moment.isMoment(v)
+          : dayjs(`1970-01-01 ${v}`, 'YYYY-MM-DD HH:mm:ss'),
+      to: (v: dayjs.Dayjs) =>
+        dayjs.isDayjs(v)
           ? v.year() === 1970
             ? `${v.date() - 1} ${v.format('HH:mm:ss')}`
             : v.format('HH:mm:ss')
           : v,
     },
   })
-  departureTime: GTFS.StopTime['time']['departure'] = null
+  departureTime: dayjs.Dayjs | null = null
 
   @Column('varchar')
   stopId: string
@@ -115,7 +118,7 @@ export class StopTime extends BaseEntity {
   @Column('tinyint', { nullable: true, default: null })
   timepoint: GTFS.StopTime['timepoint'] = null
 
-  get public(): GTFS.StopTime {
+  get public() {
     return {
       tripId: this.tripId,
       time: {
