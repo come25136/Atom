@@ -28,7 +28,7 @@
     "moment-timezone": "^0.5.27",
     "mysql2": "^2.0.2",
     "neat-csv": "^5.1.0",
-    "protobufjs": "^6.8.8",
+    "protobufjs": "^6.11.3",
     "socket.io": "^2.3.0",
     "superagent": "^5.1.2",
     "swagger-jsdoc": "^3.5.0",
